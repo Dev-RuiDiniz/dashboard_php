@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="h3">{{ family.responsible_name }}</h1>
+      <p class="text-muted mb-0">CPF: ***.***.***-{{ family.responsible_cpf[-2:] }}</p>
+    </div>
+    {% if can_manage_families %}
+      <div class="page-header-actions">
+        <a class="btn btn-outline-secondary" href="/familias/{{ family.id }}/editar">Editar</a>
+        {% if family.is_active %}
+          <form method="post" action="/familias/{{ family.id }}/inativar" onsubmit="return confirm('Confirma a inativação desta família?');">
+            <button class="btn btn-outline-danger" type="submit">Inativar</button>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if family_warning %}
+    <div class="alert alert-warning">{{ family_warning }}</div>
+  {% endif %}
+
+  <ul class="nav nav-tabs mt-4 mb-3">
+    <li class="nav-item"><a class="nav-link active" href="#resumo">Resumo</a></li>
+    <li class="nav-item"><a class="nav-link" href="#membros">Membros</a></li>
+    <li class="nav-item"><a class="nav-link" href="#entregas">Entregas</a></li>
+    <li class="nav-item"><a class="nav-link" href="#equipamentos">Equipamentos</a></li>
+    <li class="nav-item"><a class="nav-link" href="#visitas">Visitas</a></li>
+    <li class="nav-item"><a class="nav-link" href="#documentos">Documentos/Status</a></li>
+  </ul>
+
+  <div id="resumo" class="row g-4">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5">Informações do responsável</h2>
+          <dl class="row mb-0">
+            <dt class="col-sm-4">RG</dt>
+            <dd class="col-sm-8">{{ family.responsible_rg or "-" }}</dd>
+            <dt class="col-sm-4">Telefone</dt>
+            <dd class="col-sm-8">{{ family.phone }}</dd>
+            <dt class="col-sm-4">Nascimento</dt>
+            <dd class="col-sm-8">{{ family.birth_date }}</dd>
+            <dt class="col-sm-4">Vulnerabilidade</dt>
+            <dd class="col-sm-8">{{ family.vulnerability.value }}</dd>
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8">
+              {% if family.is_active %}
+                <span class="badge bg-success">Ativo</span>
+              {% else %}
+                <span class="badge bg-secondary">Inativo</span>
+              {% endif %}
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5">Endereço</h2>
+          <dl class="row mb-0">
+            <dt class="col-sm-4">CEP</dt>
+            <dd class="col-sm-8">{{ family.cep or "-" }}</dd>
+            <dt class="col-sm-4">Logradouro</dt>
+            <dd class="col-sm-8">{{ family.street or "-" }} {{ family.number or "" }}</dd>
+            <dt class="col-sm-4">Complemento</dt>
+            <dd class="col-sm-8">{{ family.complement or "-" }}</dd>
+            <dt class="col-sm-4">Bairro</dt>
+            <dd class="col-sm-8">{{ family.neighborhood or "-" }}</dd>
+            <dt class="col-sm-4">Cidade</dt>
+            <dd class="col-sm-8">{{ family.city or "-" }}</dd>
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">{{ family.state or "-" }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="documentos" class="card mt-4">
+    <div class="card-body">
+      <h2 class="h5">Informações socioeconômicas</h2>
+      <p class="mb-2"><strong>Perfil:</strong> {{ family.socioeconomic_profile or "-" }}</p>
+      <p class="mb-0"><strong>Documentação:</strong> {{ family.documentation_status or "-" }}</p>
+    </div>
+  </div>
+
+  <div id="membros" class="section-header">
+    <h2 class="h4 mb-0">Membros</h2>
+    {% if can_manage_families and family.is_active %}
+      <a class="btn btn-primary" href="/familias/{{ family.id }}/dependentes/novo">Novo dependente</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Parentesco</th>
+            <th>CPF</th>
+            <th>Renda</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dependent in family.dependents %}
+            <tr>
+              <td>{{ dependent.name }}</td>
+              <td>{{ dependent.relationship_type }}</td>
+              <td>{{ ("***.***.***-" ~ dependent.cpf[-2:]) if dependent.cpf else "-" }}</td>
+              <td>{{ dependent.income if dependent.income is not none else "-" }}</td>
+              <td class="text-end">
+                {% if can_manage_families and family.is_active %}
+                  <a
+                    class="btn btn-sm btn-outline-secondary"
+                    href="/familias/{{ family.id }}/dependentes/{{ dependent.id }}/editar"
+                  >
+                    Editar
+                  </a>
+                  <form
+                    method="post"
+                    action="/familias/{{ family.id }}/dependentes/{{ dependent.id }}/remover"
+                    class="d-inline"
+                    onsubmit="return confirm('Confirma a remoção deste dependente?');"
+                  >
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Remover</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">Nenhum dependente cadastrado.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="entregas" class="section-header">
+    <h2 class="h4 mb-0">Entregas</h2>
+  </div>
+
+  {% if basket_alerts %}
+    <div class="alert alert-warning">
+      <strong>Atenção:</strong>
+      <ul class="mb-0 mt-2">
+        {% for alert in basket_alerts %}
+          <li>{{ alert }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if basket_error %}
+    <div class="alert alert-danger">{{ basket_error }}</div>
+  {% endif %}
+
+  {% if can_manage_baskets %}
+    <form class="card card-body mb-3" method="post" action="/familias/{{ family.id }}/cestas">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label" for="month_year">Mês/ano</label>
+          <input class="form-control" id="month_year" name="month_year" placeholder="MM/AAAA" required />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="status_value">Status</label>
+          <select class="form-select" id="status_value" name="status_value">
+            {% for option in food_basket_status_options %}
+              <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="notes">Observações</label>
+          <input class="form-control" id="notes" name="notes" placeholder="Observações da entrega" />
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-primary" type="submit" {% if not family.is_active %}disabled{% endif %}>Registrar</button>
+        </div>
+      </div>
+    </form>
+  {% endif %}
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Mês/ano</th>
+            <th>Status</th>
+            <th>Observações</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for basket in family.food_baskets %}
+            <tr>
+              <td>{{ "%02d"|format(basket.reference_month) }}/{{ basket.reference_year }}</td>
+              <td>
+                {% if basket.status.value == "Entregue" %}
+                  <span class="badge bg-success">{{ basket.status.value }}</span>
+                {% elif basket.status.value == "Pendente" %}
+                  <span class="badge bg-warning text-dark">{{ basket.status.value }}</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ basket.status.value }}</span>
+                {% endif %}
+              </td>
+              <td>{{ basket.notes or "-" }}</td>
+              <td class="text-end">
+                {% if can_manage_baskets %}
+                  <form class="table-actions" method="post" action="/familias/{{ family.id }}/cestas/{{ basket.id }}/editar">
+                    <select class="form-select form-select-sm" name="status_value">
+                      {% for option in food_basket_status_options %}
+                        <option value="{{ option }}" {% if basket.status.value == option %}selected{% endif %}>{{ option }}</option>
+                      {% endfor %}
+                    </select>
+                    <input class="form-control form-control-sm" name="notes" value="{{ basket.notes or '' }}" placeholder="Obs." />
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Salvar</button>
+                  </form>
+                  <form method="post" action="/familias/{{ family.id }}/cestas/{{ basket.id }}/remover" class="d-inline" onsubmit="return confirm('Remover este atendimento?');">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Remover</button>
+                  </form>
+                {% else %}
+                  <span class="text-muted">Somente leitura</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">Nenhuma cesta registrada.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <div id="visitas" class="section-header">
+    <h2 class="h4 mb-0">Visitas sociais</h2>
+    <span class="badge text-bg-warning">Pendentes: {{ visit_pending_count }}</span>
+  </div>
+
+  {% if visit_error %}
+    <div class="alert alert-danger">{{ visit_error }}</div>
+  {% endif %}
+  {% if visit_alerts %}
+    <div class="alert alert-warning">
+      <strong>Alertas de visitas:</strong>
+      <ul class="mb-0 mt-2">
+        {% for alert in visit_alerts %}
+          <li>{{ alert }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+
+  {% if can_manage_visits %}
+    <form class="card card-body mb-3" method="post" action="/familias/{{ family.id }}/visitas">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label" for="scheduled_date">Data agendada</label>
+          <input class="form-control" id="scheduled_date" name="scheduled_date" type="date" required />
+        </div>
+        <div class="col-md-7">
+          <label class="form-label" for="request_notes">Solicitação</label>
+          <input class="form-control" id="request_notes" name="request_notes" placeholder="Motivo e contexto da visita" />
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-primary" type="submit" {% if not family.is_active %}disabled{% endif %}>Solicitar</button>
+        </div>
+      </div>
+    </form>
+  {% endif %}
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Solicitação</th>
+            <th>Execução</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for visit in family.visit_requests %}
+            <tr>
+              <td>{{ visit.scheduled_date }}</td>
+              <td>
+                {% if visit.status.value == "Concluída" %}
+                  <span class="badge bg-success">{{ visit.status.value }}</span>
+                {% elif visit.status.value == "Pendente" %}
+                  <span class="badge bg-warning text-dark">{{ visit.status.value }}</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ visit.status.value }}</span>
+                {% endif %}
+              </td>
+              <td>{{ visit.request_notes or "-" }}</td>
+              <td>
+                {% if visit.execution %}
+                  {{ visit.execution.executed_at }} — {{ visit.execution.result.value }}
+                {% else %}
+                  <span class="text-muted">Não executada</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                {% if can_manage_visits %}
+                  <form class="table-actions" method="post" action="/familias/{{ family.id }}/visitas/{{ visit.id }}/executar">
+                    <input class="form-control form-control-sm" type="date" name="executed_at" value="{{ visit.execution.executed_at if visit.execution else visit.scheduled_date }}" required />
+                    <select class="form-select form-select-sm" name="result_value">
+                      {% for option in visit_execution_result_options %}
+                        <option value="{{ option }}" {% if visit.execution and visit.execution.result.value == option %}selected{% endif %}>{{ option }}</option>
+                      {% endfor %}
+                    </select>
+                    <input class="form-control form-control-sm" name="notes" value="{{ visit.execution.notes if visit.execution else '' }}" placeholder="Obs." />
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Salvar</button>
+                  </form>
+                {% else %}
+                  <span class="text-muted">Somente leitura</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-4">Nenhuma visita registrada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2 class="h4 mb-0">Histórico de empréstimos</h2>
+    {% if can_view_equipment %}
+      <a class="btn btn-outline-primary" href="/equipamentos">Ver equipamentos</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Equipamento</th>
+            <th>Empréstimo</th>
+            <th>Previsto</th>
+            <th>Devolução</th>
+            <th>Status</th>
+            <th>Observações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for loan in family.loans %}
+            <tr>
+              <td><a href="/equipamentos/{{ loan.equipment.id }}">{{ loan.equipment.code }}</a></td>
+              <td>{{ loan.loan_date }}</td>
+              <td>{{ loan.due_date or "-" }}</td>
+              <td>{{ loan.returned_at or "-" }}</td>
+              <td>
+                {% if loan.status.value == "Ativo" %}
+                  <span class="badge bg-warning text-dark">{{ loan.status.value }}</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ loan.status.value }}</span>
+                {% endif %}
+              </td>
+              <td>{{ loan.notes or "-" }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">Nenhum empréstimo registrado.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <a class="btn btn-outline-secondary" href="/familias">Voltar</a>
+  </div>
+{% endblock %}

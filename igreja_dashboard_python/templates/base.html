@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ app_name }}</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <style>
+      .client-branding {
+        border-bottom: 1px solid #dee2e6;
+        background: #fff;
+      }
+
+      .main-shell {
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .page-header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .section-header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .table-actions {
+        display: inline-flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .client-logo {
+        max-height: 64px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .client-logo.secondary {
+        max-height: 54px;
+      }
+
+      @media (max-width: 991.98px) {
+        .client-logo {
+          max-height: 48px;
+        }
+
+        .client-logo.secondary {
+          max-height: 42px;
+        }
+
+        .main-shell {
+          padding-top: 1rem;
+        }
+
+        .page-header,
+        .section-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .page-header-actions,
+        .section-header-actions {
+          width: 100%;
+        }
+
+        .page-header-actions .btn,
+        .section-header-actions .btn,
+        .form-actions .btn,
+        .table-actions .btn,
+        .table-actions .form-control,
+        .table-actions .form-select {
+          width: 100%;
+        }
+
+        .table-actions {
+          width: 100%;
+          justify-content: stretch;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="client-branding py-2">
+      <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <img
+            src="{{ request.url_for('static', path='logos/logo.cliente.jpeg') }}"
+            alt="Logo Primeira Igreja Batista de Taubaté"
+            class="client-logo"
+          />
+          <div>
+            <h1 class="h5 mb-0">{{ client_name }}</h1>
+            <p class="mb-0 text-danger fw-semibold">{{ client_department }}</p>
+          </div>
+        </div>
+        <img
+          src="{{ request.url_for('static', path='logos/fundo.jpg') }}"
+          alt="Logo Ação Social"
+          class="client-logo secondary"
+        />
+      </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="/">{{ app_name }}</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Alternar navegação"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-2 gap-lg-3 ms-lg-auto py-3 py-lg-0">
+          {% if current_user %}<form class="d-flex" method="get" action="/busca"><input class="form-control form-control-sm" name="q" placeholder="Busca global"/></form>{% endif %}
+          {% if current_user %}
+            <a class="btn btn-sm btn-outline-light" href="/familias">Famílias</a>
+            <a class="btn btn-sm btn-outline-light" href="/pessoas">Pessoas</a>
+            <a class="btn btn-sm btn-outline-light" href="/entregas">Entregas</a>
+          {% endif %}
+          {% if current_user %}
+            <a class="btn btn-sm btn-outline-light" href="/criancas">Crianças</a>
+            <a class="btn btn-sm btn-outline-light" href="/dashboard">Dashboard</a>
+            <a class="btn btn-sm btn-outline-light" href="/relatorios">Relatórios</a>
+            <a class="btn btn-sm btn-outline-light" href="/historico">Histórico</a>
+          {% endif %}
+          {% if can_view_equipment %}
+            <a class="btn btn-sm btn-outline-light" href="/equipamentos">Equipamentos</a>
+          {% endif %}
+          {% if can_view_baskets %}
+            <a class="btn btn-sm btn-outline-light" href="/familias">Atendimentos</a>
+          {% endif %}
+          {% if can_manage_users %}
+            <a class="btn btn-sm btn-outline-light" href="/admin/users">Usuários</a>
+            <a class="btn btn-sm btn-outline-light" href="/admin/config">Configurações</a>
+            <a class="btn btn-sm btn-outline-light" href="/admin/consentimento">Consentimento</a>
+            <a class="btn btn-sm btn-outline-light" href="/admin/audit">Auditoria</a>
+          {% endif %}
+          {% if current_user %}
+            <span class="text-white mt-2 mt-lg-0">Olá, {{ current_user.name }}</span>
+            <a class="btn btn-sm btn-light" href="/logout">Sair</a>
+          {% else %}
+            <a class="btn btn-sm btn-light" href="/login">Entrar</a>
+          {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container main-shell">
+      {% block content %}{% endblock %}
+    </main>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

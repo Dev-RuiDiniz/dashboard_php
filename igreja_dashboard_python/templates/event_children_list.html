@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="h3">Lista de Crianças — {{ event.title }}</h1>
+      <p class="text-muted mb-0">Evento em {{ event.event_date.strftime('%d/%m/%Y') }} · Famílias confirmadas (WITHDRAWN)</p>
+    </div>
+    <div class="page-header-actions">
+      <a class="btn btn-outline-primary" href="/entregas/eventos/{{ event.id }}/criancas/export.xlsx">Exportar XLSX</a>
+      <a class="btn btn-outline-danger" href="/entregas/eventos/{{ event.id }}/criancas/export.pdf">Exportar PDF</a>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <strong>Total de crianças:</strong> {{ children|length }}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Idade</th>
+            <th>Sexo</th>
+            <th>Família</th>
+            <th>Bairro</th>
+            <th>Responsável</th>
+            <th>CPF (mascarado)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in children %}
+            <tr>
+              <td>{{ row.name }}</td>
+              <td>{{ row.age }}</td>
+              <td>{{ row.sex }}</td>
+              <td>{{ row.family_name }}</td>
+              <td>{{ row.neighborhood }}</td>
+              <td>{{ row.responsible_name }}</td>
+              <td>{{ row.responsible_cpf_masked }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">Nenhuma criança de família confirmada para este evento.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

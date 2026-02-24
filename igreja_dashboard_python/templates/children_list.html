@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="h3">Crianças</h1>
+      <p class="text-muted mb-0">Cadastro e acompanhamento de crianças vinculadas às famílias.</p>
+    </div>
+    {% if can_manage_families %}
+      <a class="btn btn-primary" href="/criancas/nova">Nova criança</a>
+    {% endif %}
+  </div>
+
+  <form class="card card-body mb-4" method="get">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label" for="nome">Nome</label>
+        <input class="form-control" id="nome" name="nome" value="{{ filters.nome }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="family_id">Família</label>
+        <select class="form-select" id="family_id" name="family_id">
+          <option value="">Todas</option>
+          {% for family in families %}
+            <option value="{{ family.id }}" {% if filters.family_id == family.id %}selected{% endif %}>{{ family.responsible_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="idade_min">Idade mínima</label>
+        <input class="form-control" id="idade_min" name="idade_min" type="number" min="0" value="{{ filters.idade_min if filters.idade_min is not none else '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="idade_max">Idade máxima</label>
+        <input class="form-control" id="idade_max" name="idade_max" type="number" min="0" value="{{ filters.idade_max if filters.idade_max is not none else '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="sexo">Sexo</label>
+        <select class="form-select" id="sexo" name="sexo">
+          <option value="">Todos</option>
+          {% for option in child_sex_options %}
+            <option value="{{ option }}" {% if filters.sexo == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-actions mt-3">
+      <button class="btn btn-primary" type="submit">Filtrar</button>
+      <a class="btn btn-outline-secondary" href="/criancas">Limpar</a>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Idade</th>
+            <th>Sexo</th>
+            <th>Família</th>
+            <th>Bairro</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in children %}
+            <tr>
+              <td>{{ item.child.name }}</td>
+              <td>{{ item.age }}</td>
+              <td>{{ item.child.sex.value }}</td>
+              <td>{{ item.child.family.responsible_name if item.child.family else '-' }}</td>
+              <td>{{ item.child.family.neighborhood if item.child.family and item.child.family.neighborhood else '-' }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary" href="/criancas/{{ item.child.id }}">Detalhes</a>
+                {% if can_manage_families %}
+                  <a class="btn btn-sm btn-outline-secondary" href="/criancas/{{ item.child.id }}/edit">Editar</a>
+                  <form method="post" action="/criancas/{{ item.child.id }}/delete" class="d-inline" onsubmit="return confirm('Remover criança?');">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Excluir</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">Nenhuma criança encontrada.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

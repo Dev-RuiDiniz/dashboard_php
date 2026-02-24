@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="h3">Equipamentos</h1>
+      <p class="text-muted mb-0">Controle de patrimônio e empréstimos.</p>
+    </div>
+    {% if can_manage_equipment %}
+      <a class="btn btn-primary" href="/equipamentos/novo">Novo equipamento</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Status</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in equipment_items %}
+            <tr>
+              <td>{{ item.code }}</td>
+              <td>{{ item.description }}</td>
+              <td>
+                {% if item.status.value == "Disponível" %}
+                  <span class="badge bg-success">{{ item.status.value }}</span>
+                {% elif item.status.value == "Emprestado" %}
+                  <span class="badge bg-warning text-dark">{{ item.status.value }}</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ item.status.value }}</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary" href="/equipamentos/{{ item.id }}">Detalhes</a>
+                {% if can_manage_equipment %}
+                  <a class="btn btn-sm btn-outline-primary" href="/equipamentos/{{ item.id }}/editar">Editar</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">Nenhum equipamento cadastrado.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <h1 class="h3">{% if equipment %}Editar equipamento{% else %}Novo equipamento{% endif %}</h1>
+    <a class="btn btn-outline-secondary" href="/equipamentos">Voltar</a>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" action="{% if equipment %}/equipamentos/{{ equipment.id }}/editar{% else %}/equipamentos/novo{% endif %}">
+        <div class="mb-3">
+          <label class="form-label">Código</label>
+          {% if equipment %}
+            <input
+              class="form-control"
+              name="code"
+              value="{{ equipment.code }}"
+              {% if is_locked %}disabled{% endif %}
+            />
+            {% if is_locked %}
+              <div class="form-text">O código não pode ser alterado enquanto o item está emprestado.</div>
+            {% endif %}
+          {% else %}
+            <input class="form-control" value="Gerado automaticamente" disabled />
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="description">Descrição</label>
+          <input
+            class="form-control"
+            id="description"
+            name="description"
+            required
+            value="{{ equipment.description if equipment else '' }}"
+          />
+        </div>
+
+
+
+        <div class="mb-3">
+          <label class="form-label" for="equipment_type">Tipo</label>
+          <select class="form-select" id="equipment_type" name="equipment_type">
+            {% for option in equipment_type_options %}
+              <option value="{{ option }}" {% if equipment and equipment.equipment_type.value == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="condition_status">Estado de conservação</label>
+          <select class="form-select" id="condition_status" name="condition_status">
+            {% for option in equipment_condition_options %}
+              <option value="{{ option }}" {% if equipment and equipment.condition_status.value == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="status">Status</label>
+          <select class="form-select" id="status" name="status_value" {% if is_locked %}disabled{% endif %}>
+            {% for status in equipment_status_options %}
+              {% set selected = (equipment and equipment.status.value == status) or (not equipment and status == 'Disponível') %}
+              <option value="{{ status }}" {% if selected %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+          </select>
+          {% if is_locked %}
+            <div class="form-text">Status bloqueado durante empréstimo ativo.</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="notes">Observações</label>
+          <textarea class="form-control" id="notes" name="notes" rows="3">{{ equipment.notes if equipment and equipment.notes else "" }}</textarea>
+        </div>
+
+        <div class="page-header-actions">
+          <button class="btn btn-primary" type="submit">Salvar</button>
+          <a class="btn btn-outline-secondary" href="{% if equipment %}/equipamentos/{{ equipment.id }}{% else %}/equipamentos{% endif %}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

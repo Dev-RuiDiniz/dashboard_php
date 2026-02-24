@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-4">Auditoria</h1>
+<form method="get" class="card card-body mb-4">
+  <div class="row g-3">
+    <div class="col-md-2"><label class="form-label">Entidade</label><input class="form-control" name="entity" value="{{ filters.entity }}" /></div>
+    <div class="col-md-2"><label class="form-label">ID entidade</label><input class="form-control" name="entity_id" value="{{ filters.entity_id }}" /></div>
+    <div class="col-md-2"><label class="form-label">Usuário</label><input class="form-control" name="user_id" value="{{ filters.user_id }}" /></div>
+    <div class="col-md-3"><label class="form-label">Início</label><input class="form-control" type="date" name="start_date" value="{{ filters.start_date }}" /></div>
+    <div class="col-md-3"><label class="form-label">Fim</label><input class="form-control" type="date" name="end_date" value="{{ filters.end_date }}" /></div>
+  </div>
+  <div class="form-actions mt-3"><button class="btn btn-primary">Filtrar</button></div>
+</form>
+
+<div class="card card-body">
+  <table class="table table-sm table-striped">
+    <thead><tr><th>Data</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>ID</th><th>Detalhes</th></tr></thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.created_at }}</td>
+        <td>{{ log.user_id }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.entity }}</td>
+        <td>{{ log.entity_id }}</td>
+        <td>
+          <details>
+            <summary>before/after</summary>
+            <div class="small"><strong>before</strong><pre>{{ log.before_json }}</pre><strong>after</strong><pre>{{ log.after_json }}</pre></div>
+          </details>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="h3">{{ child.name }}</h1>
+      <p class="text-muted mb-0">Sexo: {{ child.sex.value }} · Idade: {{ age }}</p>
+    </div>
+    <div class="page-header-actions">
+      <a class="btn btn-outline-secondary" href="/criancas">Voltar</a>
+      {% if can_manage_families %}
+        <a class="btn btn-primary" href="/criancas/{{ child.id }}/edit">Editar</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Data de nascimento</dt>
+        <dd class="col-sm-9">{{ child.birth_date.strftime('%d/%m/%Y') }}</dd>
+
+        <dt class="col-sm-3">Família</dt>
+        <dd class="col-sm-9">
+          {% if child.family %}
+            <a href="/familias/{{ child.family.id }}">{{ child.family.responsible_name }}</a>
+          {% else %}
+            -
+          {% endif %}
+        </dd>
+
+        <dt class="col-sm-3">Bairro</dt>
+        <dd class="col-sm-9">{{ child.family.neighborhood if child.family and child.family.neighborhood else '-' }}</dd>
+
+        <dt class="col-sm-3">Observações</dt>
+        <dd class="col-sm-9">{{ child.notes or '-' }}</dd>
+      </dl>
+    </div>
+  </div>
+{% endblock %}

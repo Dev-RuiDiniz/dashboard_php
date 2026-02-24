@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="h3">Famílias</h1>
+      <p class="text-muted mb-0">Cadastro mestre com busca e filtros.</p>
+    </div>
+    {% if can_manage_families %}
+      <a class="btn btn-primary" href="/familias/nova">Nova família</a>
+    {% endif %}
+  </div>
+
+  <form class="card card-body mb-4" method="get">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label" for="name">Nome</label>
+        <input class="form-control" id="name" name="name" value="{{ filters.name }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="cpf">CPF</label>
+        <input class="form-control" id="cpf" name="cpf" value="{{ filters.cpf }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="neighborhood">Bairro</label>
+        <input class="form-control" id="neighborhood" name="neighborhood" value="{{ filters.neighborhood }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="vulnerability">Vulnerabilidade</label>
+        <select class="form-select" id="vulnerability" name="vulnerability">
+          <option value="">Todas</option>
+          {% for option in vulnerability_options %}
+            <option value="{{ option }}" {% if filters.vulnerability == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-actions mt-3">
+      <button class="btn btn-primary" type="submit">Buscar</button>
+      <a class="btn btn-outline-secondary" href="/familias">Limpar</a>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Responsável</th>
+            <th>CPF</th>
+            <th>Bairro</th>
+            <th>Vulnerabilidade</th>
+            <th>Status</th>
+            <th>Alertas</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for family in families %}
+            <tr>
+              <td>{{ family.responsible_name }}</td>
+              <td>***.***.***-{{ family.responsible_cpf[-2:] }}</td>
+              <td>{{ family.neighborhood or "-" }}</td>
+              <td>{{ family.vulnerability.value }}</td>
+              <td>
+                {% if family.is_active %}
+                  <span class="badge bg-success">Ativo</span>
+                {% else %}
+                  <span class="badge bg-secondary">Inativo</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if family_alerts.get(family.id) %}
+                  <span class="badge bg-warning text-dark">{{ family_alerts.get(family.id)|length }} alerta(s)</span>
+                {% else %}
+                  <span class="badge bg-success">Sem alertas</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary" href="/familias/{{ family.id }}">Detalhes</a>
+                {% if can_manage_families %}
+                  <a class="btn btn-sm btn-outline-secondary" href="/familias/{{ family.id }}/editar">Editar</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">Nenhuma família encontrada.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

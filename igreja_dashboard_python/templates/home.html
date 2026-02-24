@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <style>
+    .welcome-hero {
+      position: relative;
+      min-height: 70vh;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.25);
+      background: #1b1b1b;
+    }
+
+    .welcome-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(125deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.48) 45%, rgba(0, 0, 0, 0.68)),
+        url("{{ request.url_for('static', path='logos/inicial.jpg') }}");
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.03);
+    }
+
+    .welcome-hero-content {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      max-width: 680px;
+      padding: 3rem;
+    }
+
+    .welcome-badge {
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ffd37e;
+    }
+
+    .welcome-actions .btn {
+      min-width: 180px;
+    }
+
+    @media (max-width: 768px) {
+      .welcome-hero {
+        min-height: 60vh;
+      }
+
+      .welcome-hero-content {
+        padding: 2rem;
+      }
+    }
+  </style>
+
+  <section class="welcome-hero">
+    <div class="welcome-hero-content">
+      <p class="welcome-badge mb-2">Bem-vindo ao {{ client_department }}</p>
+      <h1 class="display-5 fw-bold mb-3">Cuidar de pessoas começa com acolhimento.</h1>
+      <p class="lead mb-4">
+        Uma plataforma moderna para organizar atendimentos, fortalecer vínculos e apoiar famílias com dignidade.
+      </p>
+      <div class="d-flex flex-wrap gap-3 welcome-actions">
+        {% if current_user %}
+          <a href="/dashboard" class="btn btn-primary btn-lg">Acessar Dashboard</a>
+          <a href="/familias" class="btn btn-outline-light btn-lg">Ver Famílias</a>
+        {% else %}
+          <a href="/login" class="btn btn-primary btn-lg">Entrar no Sistema</a>
+          <a href="/health" class="btn btn-outline-light btn-lg">Status do Serviço</a>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

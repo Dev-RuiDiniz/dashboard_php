@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h4">Cadastro de Família — Etapa {{ step }}/4</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="post" action="/familias/nova/step/{{ step }}" class="card card-body">
+  {% set d=form_data %}
+  <input type="hidden" name="responsible_name" value="{{ d.responsible_name or '' }}" />
+  <input type="hidden" name="responsible_cpf" value="{{ d.responsible_cpf or '' }}" />
+  <input type="hidden" name="phone" value="{{ d.phone or '' }}" />
+  <input type="hidden" name="birth_date" value="{{ d.birth_date or '' }}" />
+  <input type="hidden" name="cep" value="{{ d.cep or '' }}" />
+  <input type="hidden" name="street" value="{{ d.street or '' }}" />
+  <input type="hidden" name="number" value="{{ d.number or '' }}" />
+  <input type="hidden" name="neighborhood" value="{{ d.neighborhood or '' }}" />
+  <input type="hidden" name="city" value="{{ d.city or '' }}" />
+  <input type="hidden" name="state" value="{{ d.state or '' }}" />
+  <input type="hidden" name="socioeconomic_profile" value="{{ d.socioeconomic_profile or '' }}" />
+  <input type="hidden" name="documentation_status" value="{{ d.documentation_status or '' }}" />
+  <input type="hidden" name="vulnerability" value="{{ d.vulnerability or 'Média' }}" />
+  {% if step == 1 %}
+    <div class="mb-2"><label class="form-label">Nome responsável</label><input class="form-control" name="responsible_name" required /></div>
+    <div class="mb-2"><label class="form-label">CPF</label><input class="form-control" name="responsible_cpf" required /></div>
+    <div class="mb-2"><label class="form-label">Telefone</label><input class="form-control" name="phone" required /></div>
+    <div class="mb-2"><label class="form-label">Nascimento</label><input type="date" class="form-control" name="birth_date" required /></div>
+  {% elif step == 2 %}
+    <div class="mb-2"><label class="form-label">CEP</label><input class="form-control" name="cep" /></div>
+    <div class="mb-2"><label class="form-label">Rua</label><input class="form-control" name="street" /></div>
+    <div class="mb-2"><label class="form-label">Número</label><input class="form-control" name="number" /></div>
+    <div class="mb-2"><label class="form-label">Bairro</label><input class="form-control" name="neighborhood" required /></div>
+    <div class="mb-2"><label class="form-label">Cidade</label><input class="form-control" name="city" /></div>
+    <div class="mb-2"><label class="form-label">UF</label><input class="form-control" name="state" /></div>
+  {% elif step == 3 %}
+    <div class="mb-2"><label class="form-label">Perfil socioeconômico</label><textarea class="form-control" name="socioeconomic_profile"></textarea></div>
+    <div class="mb-2"><label class="form-label">Documentação</label><textarea class="form-control" name="documentation_status"></textarea></div>
+    <div class="mb-2"><label class="form-label">Vulnerabilidade</label><select class="form-select" name="vulnerability">{% for option in vulnerability_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}</select></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" name="consent_accepted" value="true" id="consent_accepted"><label class="form-check-label" for="consent_accepted">Aceito o termo LGPD</label></div>
+  {% else %}
+    <p>Revise os dados e confirme o cadastro.</p>
+    <pre>{{ d }}</pre>
+  {% endif %}
+  <button class="btn btn-primary" type="submit">{% if step < 4 %}Próximo{% else %}Salvar{% endif %}</button>
+</form>
+{% endblock %}

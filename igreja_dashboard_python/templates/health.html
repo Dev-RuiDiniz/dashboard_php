@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h1 class="card-title">Status do serviço</h1>
+          <p class="card-text">
+            Health check: <span class="badge text-bg-success">{{ status }}</span>
+          </p>
+          <p class="text-muted mb-0">Ambiente: {{ app_env }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

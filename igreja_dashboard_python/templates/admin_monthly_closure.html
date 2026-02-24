@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card">
+  <h2>Fechamento Mensal</h2>
+  <p>Fechamento oficial congela snapshot e bloqueia alterações retroativas do mês.</p>
+
+  <form method="get" action="/admin/fechamento" class="form-grid" style="margin-bottom: 1rem;">
+    <label>Mês
+      <input type="number" name="month" min="1" max="12" value="{{ month }}" required>
+    </label>
+    <label>Ano
+      <input type="number" name="year" min="2000" max="2100" value="{{ year }}" required>
+    </label>
+    <button type="submit">Consultar</button>
+  </form>
+
+  {% if closure and closure.status.value == 'CLOSED' %}
+    <p><strong>Status:</strong> CLOSED</p>
+    <p><strong>Fechado em:</strong> {{ closure.closed_at }}</p>
+    <p><strong>Fechado por usuário:</strong> {{ closure.closed_by_user_id }}</p>
+    <p><a href="/admin/fechamento/{{ year }}/{{ month }}/pdf">Baixar PDF de fechamento</a></p>
+    <p><a href="/admin/fechamento/{{ year }}/{{ month }}/snapshot.json">Ver snapshot de fechamento (JSON)</a></p>
+    <p><strong>Aviso:</strong> mês fechado impede alterações retroativas.</p>
+
+    <hr>
+    <h3>Relatório Oficial</h3>
+    {% if closure.official_pdf_path %}
+      <p><strong>Status:</strong> Gerado</p>
+      <p><strong>Assinado por usuário:</strong> {{ closure.official_signed_by_user_id }} em {{ closure.official_signed_at }}</p>
+      <p><strong>SHA256:</strong> <code>{{ closure.official_pdf_sha256 }}</code></p>
+      <p><a href="/admin/fechamento/{{ year }}/{{ month }}/relatorio-oficial.pdf">Baixar Relatório Oficial (PDF)</a></p>
+      <p><a href="/admin/fechamento/{{ year }}/{{ month }}/relatorio-oficial.snapshot.json">Ver snapshot oficial (JSON)</a></p>
+    {% else %}
+      <p><strong>Status:</strong> Não gerado</p>
+      <form method="post" action="/admin/fechamento/{{ year }}/{{ month }}/gerar-relatorio-oficial" class="inline-form">
+        <button type="submit">Gerar Relatório Oficial</button>
+      </form>
+    {% endif %}
+  {% else %}
+    <p><strong>Status:</strong> OPEN</p>
+    <form method="post" action="/admin/fechamento/close" class="inline-form">
+      <input type="hidden" name="month" value="{{ month }}">
+      <input type="hidden" name="year" value="{{ year }}">
+      <button type="submit">Fechar Mês</button>
+    </form>
+    <p><em>Relatório Oficial será habilitado após o fechamento (CLOSED).</em></p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="h3 mb-0">Pessoas em Situação de Rua</h1>
+  {% if can_manage_street %}<a class="btn btn-primary" href="/rua/nova">Nova pessoa</a>{% endif %}
+</div>
+
+<form method="get" class="row g-3 mb-3">
+  <div class="col-md-6">
+    <input name="q" value="{{ q }}" class="form-control" placeholder="Buscar por nome, CPF ou local de referência" />
+  </div>
+  <div class="col-md-2"><button class="btn btn-outline-primary" type="submit">Buscar</button></div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-striped mb-0">
+      <thead>
+        <tr>
+          <th>Nome</th><th>CPF</th><th>Local de referência</th><th>Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for person in people %}
+        <tr>
+          <td>{{ person.full_name or "Não informado" }}</td>
+          <td>{{ ("***.***.***-" ~ person.cpf[-2:]) if person.cpf else "-" }}</td>
+          <td>{{ person.reference_location }}</td>
+          <td>{% if person.is_active %}Ativa{% else %}Inativa{% endif %}</td>
+          <td><a class="btn btn-sm btn-outline-secondary" href="/rua/{{ person.id }}">Histórico</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">Nenhum registro encontrado.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

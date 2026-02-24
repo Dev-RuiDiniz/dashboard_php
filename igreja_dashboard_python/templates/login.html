@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h1 class="h4 mb-3">Entrar</h1>
+          {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+          {% endif %}
+          <form method="post" action="/login">
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                required
+                autofocus
+              />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Senha</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                required
+              />
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Entrar</button>
+          </form>
+          <p class="mt-3 mb-2"><a href="/password/forgot">Esqueci minha senha</a></p>
+          <p class="text-muted small mt-3 mb-0">
+            Primeiro acesso: use as credenciais padrão definidas no .env.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

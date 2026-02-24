@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="h3 mb-0">Configurações do sistema</h1>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/admin/config" class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="delivery_month_limit">Limite de entregas por mês</label>
+        <input class="form-control" type="number" min="0" id="delivery_month_limit" name="delivery_month_limit" value="{{ config.delivery_month_limit }}" required>
+        <div class="form-text">0 desabilita o bloqueio por limite mensal.</div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="min_months_since_last_delivery">Meses mínimos sem entrega</label>
+        <input class="form-control" type="number" min="0" max="24" id="min_months_since_last_delivery" name="min_months_since_last_delivery" value="{{ config.min_months_since_last_delivery }}" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="min_vulnerability_level">Vulnerabilidade mínima (0-4)</label>
+        <input class="form-control" type="number" min="0" max="4" id="min_vulnerability_level" name="min_vulnerability_level" value="{{ config.min_vulnerability_level }}" required>
+      </div>
+      <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="require_documentation_complete" name="require_documentation_complete" value="true" {% if config.require_documentation_complete %}checked{% endif %}>
+          <label class="form-check-label" for="require_documentation_complete">Exigir documentação completa</label>
+        </div>
+      </div>
+      <div class="col-12 form-actions">
+        <button class="btn btn-primary" type="submit">Salvar configurações</button>
+      </div>
+    </form>
+
+    <hr>
+    <p class="mb-1"><strong>Última atualização:</strong> {{ config.updated_at.strftime('%d/%m/%Y %H:%M') if config.updated_at else '-' }}</p>
+    <p class="mb-0"><strong>Atualizado por:</strong> {{ updater_name or '-' }}</p>
+  </div>
+</div>
+{% endblock %}

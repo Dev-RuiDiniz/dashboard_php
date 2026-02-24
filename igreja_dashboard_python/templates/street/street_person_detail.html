@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="h4 mb-0">{{ person.full_name or "Pessoa sem identificação" }}</h1>
+  <a class="btn btn-outline-secondary" href="/rua">Voltar</a>
+</div>
+<div class="card card-body mb-4 shadow-sm">
+  <div><strong>CPF:</strong> {{ ("***.***.***-" ~ person.cpf[-2:]) if person.cpf else "-" }} | <strong>RG:</strong> {{ person.rg or '-' }}</div>
+  <div><strong>Local de referência:</strong> {{ person.reference_location }}</div>
+  <div><strong>Documentação:</strong> {{ person.documents_status.value }} | <strong>Tempo em rua:</strong> {{ person.street_time.value if person.street_time else "-" }}</div>
+  <div><strong>Necessidades imediatas:</strong> {{ person.immediate_needs or "-" }}</div>
+  <div><strong>Acompanhamento espiritual:</strong> Oração={{ "Sim" if person.wants_prayer else "Não" }} / Visita={{ "Sim" if person.accepts_visit else "Não" }} / Decisão={{ person.spiritual_decision.value if person.spiritual_decision else "-" }}</div>
+  <div><strong>Observações:</strong> {{ person.general_notes or '-' }}</div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header">Novo atendimento</div>
+      <div class="card-body">
+        {% if service_error %}<div class="alert alert-danger">{{ service_error }}</div>{% endif %}
+        {% if can_manage_street %}
+        <form method="post" action="/rua/{{ person.id }}/atendimentos" class="row g-2">
+          <div class="col-md-6"><label class="form-label">Tipo</label><input name="service_type" list="service-types" class="form-control" required /><datalist id="service-types">{% for service_type in service_types %}<option value="{{ service_type }}">{% endfor %}</datalist></div>
+          <div class="col-md-6"><label class="form-label">Data</label><input type="date" name="service_date" class="form-control" required /></div>
+          <div class="col-12"><label class="form-label">Responsável</label><input name="responsible_name" class="form-control" required /></div>
+          <div class="col-12"><label class="form-label">Observações</label><textarea name="notes" class="form-control"></textarea></div>
+          <div class="col-12"><button class="btn btn-primary">Registrar atendimento</button></div>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-3">
+      <div class="card-header">Histórico de atendimentos</div>
+      <ul class="list-group list-group-flush">
+        {% for service in person.services %}
+        <li class="list-group-item">
+          <strong>{{ service.service_type }}</strong> · {{ service.service_date.isoformat() }}<br>
+          <small>Responsável: {{ service.responsible_name }}{% if service.notes %} · {{ service.notes }}{% endif %}</small>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">Sem atendimentos registrados.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header">Encaminhar para casa de recuperação</div>
+      <div class="card-body">
+        {% if referral_error %}<div class="alert alert-danger">{{ referral_error }}</div>{% endif %}
+        {% if can_manage_street %}
+        <form method="post" action="/rua/{{ person.id }}/encaminhamentos" class="row g-2">
+          <div class="col-12"><label class="form-label">Casa</label><input name="recovery_home" class="form-control" required /></div>
+          <div class="col-md-6"><label class="form-label">Data</label><input type="date" name="referral_date" class="form-control" required /></div>
+          <div class="col-md-6"><label class="form-label">Destino</label><select name="target" class="form-select">{% for option in referral_target_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}</select></div>
+          <div class="col-md-6"><label class="form-label">Status</label><select name="status_value" class="form-select">{% for option in referral_status_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}</select></div>
+          <div class="col-12"><label class="form-label">Observações</label><textarea name="notes" class="form-control"></textarea></div>
+          <div class="col-12"><button class="btn btn-primary">Registrar encaminhamento</button></div>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-3">
+      <div class="card-header">Histórico de encaminhamentos</div>
+      <ul class="list-group list-group-flush">
+      {% for referral in person.referrals %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ referral.target.value }} - {{ referral.recovery_home }}</strong> · {{ referral.referral_date.isoformat() }}<br>
+            <small>{{ referral.notes or '-' }}</small>
+          </div>
+          {% if can_manage_street %}
+          <form method="post" action="/rua/encaminhamentos/{{ referral.id }}/status" class="page-header-actions">
+            <select name="status_value" class="form-select form-select-sm">{% for option in referral_status_options %}<option value="{{ option }}" {% if option == referral.status.value %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+            <button class="btn btn-sm btn-outline-primary">Atualizar</button>
+          </form>
+          {% else %}
+          <span class="badge text-bg-secondary">{{ referral.status.value }}</span>
+          {% endif %}
+        </li>
+      {% else %}
+        <li class="list-group-item text-muted">Sem encaminhamentos.</li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

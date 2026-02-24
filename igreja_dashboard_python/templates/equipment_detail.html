@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="h3">{{ equipment.code }}</h1>
+      <p class="text-muted mb-0">{{ equipment.description }}</p>
+    </div>
+    <div class="page-header-actions">
+      {% if can_manage_equipment %}
+        <a class="btn btn-outline-secondary" href="/equipamentos/{{ equipment.id }}/editar">Editar</a>
+        {% if equipment.status.value == "Disponível" %}
+          <a class="btn btn-primary" href="/equipamentos/{{ equipment.id }}/emprestimo">Registrar empréstimo</a>
+        {% elif equipment.status.value == "Emprestado" %}
+          <form method="post" action="/equipamentos/{{ equipment.id }}/devolver" onsubmit="return confirm('Confirmar devolução deste item?');" class="d-flex gap-2">
+            <select class="form-select" name="return_condition">
+              <option>Novo</option><option selected>Bom</option><option>Precisa reparo</option>
+            </select>
+            <button class="btn btn-success" type="submit">Registrar devolução</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Código</dt>
+        <dd class="col-sm-9">{{ equipment.code }}</dd>
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">
+          {% if equipment.status.value == "Disponível" %}
+            <span class="badge bg-success">{{ equipment.status.value }}</span>
+          {% elif equipment.status.value == "Emprestado" %}
+            <span class="badge bg-warning text-dark">{{ equipment.status.value }}</span>
+          {% else %}
+            <span class="badge bg-secondary">{{ equipment.status.value }}</span>
+          {% endif %}
+        </dd>
+        <dt class="col-sm-3">Descrição</dt>
+        <dd class="col-sm-9">{{ equipment.description }}</dd>
+        <dt class="col-sm-3">Tipo</dt>
+        <dd class="col-sm-9">{{ equipment.equipment_type.value }}</dd>
+        <dt class="col-sm-3">Conservação</dt>
+        <dd class="col-sm-9">{{ equipment.condition_status.value }}</dd>
+        <dt class="col-sm-3">Observações</dt>
+        <dd class="col-sm-9">{{ equipment.notes or "-" }}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h2 class="h5">Histórico de empréstimos</h2>
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Família</th>
+              <th>Empréstimo</th>
+              <th>Previsto</th>
+              <th>Devolução</th>
+              <th>Status</th>
+              <th>Condição na devolução</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for loan in equipment.loans %}
+              <tr>
+                <td>
+                  <a href="/familias/{{ loan.family.id }}">{{ loan.family.responsible_name }}</a>
+                </td>
+                <td>{{ loan.loan_date }}</td>
+                <td>{{ loan.due_date or "-" }}</td>
+                <td>{{ loan.returned_at or "-" }}</td>
+                <td>
+                  {% if loan.status.value == "Ativo" %}
+                    <span class="badge bg-warning text-dark">{{ loan.status.value }}</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ loan.status.value }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ loan.return_condition.value if loan.return_condition else "-" }}</td>
+                <td>{{ loan.notes or "-" }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">Nenhum empréstimo registrado.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <a class="btn btn-outline-secondary" href="/equipamentos">Voltar</a>
+  </div>
+{% endblock %}

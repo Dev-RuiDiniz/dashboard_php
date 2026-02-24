@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="h3 mb-0">Mapa de calor por bairro (MVP)</h1>
+  <a class="btn btn-outline-primary" href="/dashboard">Voltar ao dashboard</a>
+</div>
+
+<form method="get" class="row g-3 mb-4">
+  <div class="col-md-3">
+    <label class="form-label" for="city">Cidade</label>
+    <input id="city" name="city" class="form-control" value="{{ filters.city }}" />
+  </div>
+  <div class="col-md-2">
+    <label class="form-label" for="state">UF</label>
+    <input id="state" name="state" maxlength="2" class="form-control text-uppercase" value="{{ filters.state }}" />
+  </div>
+  <div class="col-md-3 d-flex align-items-end">
+    <button class="btn btn-primary" type="submit">Filtrar</button>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Bairro</th>
+            <th>Famílias ativas</th>
+            <th>Alertas (alta/extrema)</th>
+            <th>Intensidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>{{ row.neighborhood }}</td>
+            <td>{{ row.active_families }}</td>
+            <td>{{ row.alerts }}</td>
+            <td style="min-width: 180px;">
+              <div class="progress" role="progressbar" aria-label="Intensidade por bairro">
+                <div
+                  class="progress-bar bg-danger"
+                  style="width: {{ (row.active_families / max_total * 100) if max_total else 0 }}%"
+                >
+                  {{ row.active_families }}
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">Nenhum bairro encontrado para os filtros.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

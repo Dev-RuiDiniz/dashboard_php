@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2 class="mb-1">Entregas</h2>
+    <p class="text-muted mb-0">Eventos de entrega cadastrados e seus status operacionais.</p>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Evento</th>
+          <th>Data</th>
+          <th>Status</th>
+          <th>Lista crianças</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+        <tr>
+          <td>#{{ event.id }}</td>
+          <td>{{ event.title }}</td>
+          <td>{{ event.event_date.strftime('%d/%m/%Y') }}</td>
+          <td>
+            <span class="badge {{ 'bg-success' if event.status.value == 'OPEN' else 'bg-secondary' }}">{{ event.status.value }}</span>
+          </td>
+          <td>{{ 'Sim' if event.has_children_list else 'Não' }}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" href="/entregas/eventos/{{ event.id }}/export.pdf">PDF</a>
+            <a class="btn btn-sm btn-outline-primary" href="/entregas/eventos/{{ event.id }}/export.xlsx">Excel</a>
+            {% if event.has_children_list %}
+            <a class="btn btn-sm btn-outline-primary" href="/entregas/eventos/{{ event.id }}/criancas">Crianças</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">Nenhum evento de entrega encontrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

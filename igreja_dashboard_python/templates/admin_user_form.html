@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="page-header">
+            <h1 class="h4 mb-0">
+              {% if user %}
+                Editar usuário
+              {% else %}
+                Novo usuário
+              {% endif %}
+            </h1>
+            <a class="btn btn-sm btn-outline-secondary" href="/admin/users">Voltar</a>
+          </div>
+          {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+          {% endif %}
+          <form method="post" action="{% if user %}/admin/users/{{ user.id }}/edit{% else %}/admin/users/new{% endif %}">
+            <div class="mb-3">
+              <label for="name" class="form-label">Nome</label>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                value="{{ user.name if user }}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                value="{{ user.email if user }}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Senha</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                {% if not user %}required{% endif %}
+              />
+              {% if user %}
+                <small class="text-muted">Deixe em branco para manter a senha atual.</small>
+              {% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Perfis</label>
+              <div class="d-flex flex-wrap gap-3">
+                {% for role in roles %}
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="role_ids"
+                      value="{{ role.id }}"
+                      id="role-{{ role.id }}"
+                      {% if user and role in user.roles %}checked{% endif %}
+                    />
+                    <label class="form-check-label" for="role-{{ role.id }}">
+                      {{ role.name }}
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="form-check form-switch mb-4">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="is-active"
+                name="is_active"
+                value="true"
+                {% if user %}
+                  {% if user.is_active %}checked{% endif %}
+                {% else %}
+                  checked
+                {% endif %}
+              />
+              <label class="form-check-label" for="is-active">Usuário ativo</label>
+            </div>
+            <button class="btn btn-primary" type="submit">Salvar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

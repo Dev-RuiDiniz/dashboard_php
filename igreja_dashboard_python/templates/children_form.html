@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="mb-4">
+    <h1 class="h3">{% if child %}Editar criança{% else %}Nova criança{% endif %}</h1>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" class="card card-body" action="{% if child %}/criancas/{{ child.id }}{% else %}/criancas{% endif %}">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="name">Nome</label>
+        <input class="form-control" id="name" name="name" required value="{{ child.name if child else '' }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="birth_date">Data de nascimento</label>
+        <input class="form-control" id="birth_date" name="birth_date" type="date" required value="{{ child.birth_date.isoformat() if child else '' }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="sex">Sexo</label>
+        <select class="form-select" id="sex" name="sex" required>
+          {% for option in child_sex_options %}
+            <option value="{{ option }}" {% if child and child.sex.value == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="family_id">Família</label>
+        <select class="form-select" id="family_id" name="family_id" required>
+          <option value="">Selecione...</option>
+          {% for family in families %}
+            <option value="{{ family.id }}" {% if child and child.family_id == family.id %}selected{% endif %}>{{ family.responsible_name }} ({{ family.neighborhood or '-' }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12">
+        <label class="form-label" for="notes">Observações</label>
+        <textarea class="form-control" id="notes" name="notes" rows="3">{{ child.notes if child and child.notes else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="form-actions mt-4">
+      <button class="btn btn-primary" type="submit">Salvar</button>
+      <a class="btn btn-outline-secondary" href="{% if child %}/criancas/{{ child.id }}{% else %}/criancas{% endif %}">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="mb-4">
+    <h1 class="h3">{% if family %}Editar família{% else %}Nova família{% endif %}</h1>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" class="card card-body">
+    <h2 class="h5">Responsável familiar</h2>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="responsible_name">Nome completo</label>
+        <input
+          class="form-control"
+          id="responsible_name"
+          name="responsible_name"
+          required
+          value="{{ family.responsible_name if family else '' }}"
+        />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="responsible_cpf">CPF</label>
+        <input
+          class="form-control"
+          id="responsible_cpf"
+          name="responsible_cpf"
+          required
+          value="{{ family.responsible_cpf if family else '' }}"
+        />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="responsible_rg">RG</label>
+        <input
+          class="form-control"
+          id="responsible_rg"
+          name="responsible_rg"
+          value="{{ family.responsible_rg if family and family.responsible_rg else '' }}"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="phone">Telefone</label>
+        <input
+          class="form-control"
+          id="phone"
+          name="phone"
+          required
+          value="{{ family.phone if family else '' }}"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="birth_date">Data de nascimento</label>
+        <input
+          class="form-control"
+          id="birth_date"
+          name="birth_date"
+          type="date"
+          required
+          value="{{ family.birth_date.isoformat() if family else '' }}"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="vulnerability">Vulnerabilidade</label>
+        <select class="form-select" id="vulnerability" name="vulnerability" required>
+          <option value="" disabled {% if not family %}selected{% endif %}>Selecione</option>
+          {% for option in vulnerability_options %}
+            <option
+              value="{{ option }}"
+              {% if family and family.vulnerability.value == option %}selected{% endif %}
+            >
+              {{ option }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <h2 class="h5">Endereço</h2>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label" for="cep">CEP</label>
+        <div class="input-group">
+          <input class="form-control" id="cep" name="cep" value="{{ family.cep if family and family.cep else '' }}" />
+          <button class="btn btn-outline-secondary" id="cep_lookup_btn" type="button">Buscar</button>
+        </div>
+        <small id="cep_feedback" class="text-muted"></small>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label" for="street">Logradouro</label>
+        <input class="form-control" id="street" name="street" value="{{ family.street if family and family.street else '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="number">Número</label>
+        <input class="form-control" id="number" name="number" value="{{ family.number if family and family.number else '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="complement">Complemento</label>
+        <input
+          class="form-control"
+          id="complement"
+          name="complement"
+          value="{{ family.complement if family and family.complement else '' }}"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="neighborhood">Bairro</label>
+        <input
+          class="form-control"
+          id="neighborhood"
+          name="neighborhood"
+          required
+          value="{{ family.neighborhood if family and family.neighborhood else '' }}"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="city">Cidade</label>
+        <input class="form-control" id="city" name="city" value="{{ family.city if family and family.city else '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="state">Estado</label>
+        <input class="form-control" id="state" name="state" value="{{ family.state if family and family.state else '' }}" />
+      </div>
+    </div>
+
+
+
+    <hr class="my-4" />
+
+    <h2 class="h5">Composição e regras sociais</h2>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label" for="partner_name">Nome do(a) parceiro(a)</label>
+        <input class="form-control" id="partner_name" name="partner_name" value="{{ family.partner_name if family and family.partner_name else '' }}" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="partner_cpf">CPF do(a) parceiro(a)</label>
+        <input class="form-control" id="partner_cpf" name="partner_cpf" value="{{ family.partner_cpf if family and family.partner_cpf else '' }}" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="marital_status">Estado civil</label>
+        <input class="form-control" id="marital_status" name="marital_status" value="{{ family.marital_status if family and family.marital_status else '' }}" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="education_level">Grau de instrução</label>
+        <input class="form-control" id="education_level" name="education_level" value="{{ family.education_level if family and family.education_level else '' }}" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="housing_type">Tipo de moradia</label>
+        <input class="form-control" id="housing_type" name="housing_type" value="{{ family.housing_type if family and family.housing_type else '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="adults_count">Qtd. adultos (máx. 12)</label>
+        <input class="form-control" type="number" min="1" max="12" id="adults_count" name="adults_count" value="{{ family.adults_count if family else 1 }}" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="birth_certificate_missing_count">Certidões faltantes</label>
+        <input class="form-control" type="number" min="0" id="birth_certificate_missing_count" name="birth_certificate_missing_count" value="{{ family.birth_certificate_missing_count if family else 0 }}" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="chronic_diseases">Doenças crônicas</label>
+        <textarea class="form-control" id="chronic_diseases" name="chronic_diseases" rows="2">{{ family.chronic_diseases if family and family.chronic_diseases else '' }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="social_benefits">Benefícios recebidos</label>
+        <textarea class="form-control" id="social_benefits" name="social_benefits" rows="2">{{ family.social_benefits if family and family.social_benefits else '' }}</textarea>
+      </div>
+      <div class="col-md-12">
+        <label class="form-label" for="workers_data">Trabalhadores (uma linha por pessoa: Nome;Renda)</label>
+        <textarea class="form-control" id="workers_data" name="workers_data" rows="3"></textarea>
+      </div>
+      <div class="col-md-3 form-check mt-4 ms-2">
+        <input class="form-check-input" type="checkbox" id="church_attendance" name="church_attendance" {% if family and family.church_attendance %}checked{% endif %} />
+        <label class="form-check-label" for="church_attendance">Frequenta igreja?</label>
+      </div>
+      <div class="col-md-3 form-check mt-4 ms-2">
+        <input class="form-check-input" type="checkbox" id="needs_visit_alert" name="needs_visit_alert" {% if family and family.needs_visit_alert %}checked{% endif %} />
+        <label class="form-check-label" for="needs_visit_alert">Necessita visita? (ALERTA)</label>
+      </div>
+      <div class="col-md-3 form-check mt-4 ms-2">
+        <input class="form-check-input" type="checkbox" id="birth_certificate_present" name="birth_certificate_present" {% if family is none or family.birth_certificate_present %}checked{% endif %} />
+        <label class="form-check-label" for="birth_certificate_present">Possui certidão de nascimento</label>
+      </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <h2 class="h5">Informações socioeconômicas</h2>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="socioeconomic_profile">Perfil socioeconômico</label>
+        <textarea
+          class="form-control"
+          id="socioeconomic_profile"
+          name="socioeconomic_profile"
+          rows="3"
+        >{{ family.socioeconomic_profile if family and family.socioeconomic_profile else '' }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="documentation_status">Situação da documentação</label>
+        <textarea
+          class="form-control"
+          id="documentation_status"
+          name="documentation_status"
+          rows="3"
+        >{{ family.documentation_status if family and family.documentation_status else '' }}</textarea>
+      </div>
+    </div>
+
+
+
+    <hr class="my-4" />
+
+    {% if active_consent_term %}
+      <div class="alert alert-secondary">
+        <strong>Termo LGPD ativo:</strong> {{ active_consent_term.version }}
+        <details class="mt-2">
+          <summary>Ver termo</summary>
+          <pre class="small mt-2">{{ active_consent_term.content }}</pre>
+        </details>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="consent_accepted" name="consent_accepted" required />
+        <label class="form-check-label" for="consent_accepted">Declaro consentimento para tratamento dos dados conforme termo ativo.</label>
+      </div>
+    {% else %}
+      <div class="alert alert-warning">Nenhum termo de consentimento ativo configurado.</div>
+    {% endif %}
+
+    <div class="form-check form-switch mt-4">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        role="switch"
+        id="is_active"
+        name="is_active"
+        {% if family is none or family.is_active %}checked{% endif %}
+      />
+      <label class="form-check-label" for="is_active">Ativo</label>
+    </div>
+
+    <div class="form-actions mt-4">
+      <button class="btn btn-primary" type="submit">Salvar</button>
+      <a class="btn btn-outline-secondary" href="/familias">Cancelar</a>
+    </div>
+  </form>
+
+  <script>
+    (() => {
+      const cepInput = document.getElementById('cep');
+      const streetInput = document.getElementById('street');
+      const neighborhoodInput = document.getElementById('neighborhood');
+      const cityInput = document.getElementById('city');
+      const stateInput = document.getElementById('state');
+      const complementInput = document.getElementById('complement');
+      const feedback = document.getElementById('cep_feedback');
+      const lookupBtn = document.getElementById('cep_lookup_btn');
+
+      const searchCep = async () => {
+        const cep = (cepInput.value || '').replace(/\D/g, '');
+        if (!cep) {
+          return;
+        }
+
+        feedback.textContent = 'Consultando CEP...';
+        try {
+          const response = await fetch(`/api/cep/${cep}`);
+          const data = await response.json();
+          if (!response.ok) {
+            const errorMessage = (data.detail && data.detail.message) || data.detail || 'Não foi possível consultar o CEP.';
+            throw new Error(errorMessage);
+          }
+
+          streetInput.value = data.street || streetInput.value;
+          neighborhoodInput.value = data.neighborhood || neighborhoodInput.value;
+          cityInput.value = data.city || cityInput.value;
+          stateInput.value = data.state || stateInput.value;
+          if (!complementInput.value) {
+            complementInput.value = data.complement || '';
+          }
+          cepInput.value = data.cep || cep;
+          feedback.textContent = data.neighborhood ? 'Endereço preenchido com sucesso.' : 'CEP encontrado. Preencha o bairro manualmente.';
+        } catch (error) {
+          feedback.textContent = error.message;
+        }
+      };
+
+      lookupBtn.addEventListener('click', searchCep);
+      cepInput.addEventListener('blur', searchCep);
+    })();
+  </script>
+{% endblock %}

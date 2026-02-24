@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="h3 mb-0">Relatórios</h1>
+  <a class="btn btn-outline-primary" href="/dashboard">Voltar ao dashboard</a>
+</div>
+
+<form method="get" class="row g-3 mb-4">
+  <div class="col-md-3">
+    <label class="form-label">Tipo de relatório</label>
+    <select name="report_type" class="form-select">
+      <option value="familias" {% if report_type == 'familias' %}selected{% endif %}>Famílias</option>
+      <option value="cestas" {% if report_type == 'cestas' %}selected{% endif %}>Cestas</option>
+      <option value="equipamentos" {% if report_type == 'equipamentos' %}selected{% endif %}>Equipamentos</option>
+      <option value="criancas" {% if report_type == 'criancas' %}selected{% endif %}>Crianças</option>
+      <option value="encaminhamentos" {% if report_type == 'encaminhamentos' %}selected{% endif %}>Encaminhamentos</option>
+      <option value="pendencias" {% if report_type == 'pendencias' or report_type == 'alertas' %}selected{% endif %}>Pendências</option>
+      <option value="alertas" {% if report_type == 'alertas' %}selected{% endif %}>Alertas (legado)</option>
+      <option value="visitas" {% if report_type == 'visitas' %}selected{% endif %}>Visitas sociais</option>
+      <option value="rua" {% if report_type == 'rua' %}selected{% endif %}>Pessoas em situação de rua</option>
+      <option value="bairros" {% if report_type == 'bairros' %}selected{% endif %}>Mapa de calor por bairro</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Ano</label>
+    <input type="number" name="year" class="form-control" value="{{ year or '' }}" />
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Mês</label>
+    <input type="number" name="month" min="1" max="12" class="form-control" value="{{ month or '' }}" />
+  </div>
+  <div class="col-md-5 d-flex align-items-end gap-2">
+    <button class="btn btn-primary" type="submit">Atualizar</button>
+    <a class="btn btn-outline-secondary" href="/relatorios/export.csv?report_type={{ report_type }}{% if year %}&year={{ year }}{% endif %}{% if month %}&month={{ month }}{% endif %}">Exportar CSV</a>
+    <a class="btn btn-outline-success" href="/relatorios/export.xlsx?report_type={{ report_type }}{% if year %}&year={{ year }}{% endif %}{% if month %}&month={{ month }}{% endif %}">Exportar Excel</a>
+    <a class="btn btn-outline-danger" href="{% if report_type == 'familias' %}/relatorios/familias.pdf{% elif report_type == 'cestas' %}/relatorios/cestas.pdf{% elif report_type == 'criancas' %}/relatorios/criancas.pdf{% elif report_type == 'encaminhamentos' %}/relatorios/encaminhamentos.pdf{% elif report_type == 'equipamentos' %}/relatorios/equipamentos.pdf{% elif report_type == 'pendencias' or report_type == 'alertas' %}/relatorios/pendencias.pdf{% else %}/relatorios/familias.pdf{% endif %}{% if year %}?year={{ year }}{% if month %}&month={{ month }}{% endif %}{% elif month %}?month={{ month }}{% endif %}">Exportar PDF</a>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-striped mb-0">
+      <thead>
+        <tr>
+          {% for header in headers %}
+            <th>{{ header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% for value in row %}
+              <td>{{ value }}</td>
+            {% endfor %}
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="{{ headers|length }}" class="text-center text-muted py-4">Nenhum dado encontrado para os filtros.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: igreja_dashboard_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-igreja_dashboard}
+      POSTGRES_USER: ${POSTGRES_USER:-igreja_dashboard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-troque-essa-senha}
+    volumes:
+      - igreja_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-igreja_dashboard} -d ${POSTGRES_DB:-igreja_dashboard}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: igreja_dashboard_web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      DATA_DIR: /data
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://igreja_dashboard:troque-essa-senha@db:5432/igreja_dashboard}
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      LOG_LEVEL: INFO
+      LOG_JSON: "true"
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      DEFAULT_ADMIN_NAME: ${DEFAULT_ADMIN_NAME:-Administrador}
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@example.com}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-admin123}
+      MIN_PASSWORD_LENGTH: ${MIN_PASSWORD_LENGTH:-8}
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    volumes:
+      - igreja_app_data:/data
+
+volumes:
+  igreja_postgres_data:
+    name: igreja_dashboard_postgres_data
+  igreja_app_data:
+    name: igreja_dashboard_app_data

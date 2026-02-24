@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-4">Nova pessoa em situação de rua</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="post" class="card card-body shadow-sm">
+  <div class="row g-3">
+    <div class="col-md-6"><label class="form-label">Nome completo</label><input name="full_name" class="form-control" value="{{ person.full_name if person else '' }}" /></div>
+    <div class="col-md-3"><label class="form-label">CPF</label><input name="cpf" class="form-control" value="{{ person.cpf if person else '' }}" /></div>
+    <div class="col-md-3"><label class="form-label">RG</label><input name="rg" class="form-control" value="{{ person.rg if person else '' }}" /></div>
+    <div class="col-md-3"><label class="form-label">Nascimento</label><input type="date" name="birth_date" class="form-control" value="{{ person.birth_date if person and person.birth_date else '' }}" /></div>
+    <div class="col-md-3"><label class="form-label">Idade aproximada</label><input type="number" min="0" name="approximate_age" class="form-control" value="{{ person.approximate_age if person and person.approximate_age is not none else '' }}" /></div>
+    <div class="col-md-3"><label class="form-label">Sexo</label><input name="gender" class="form-control" value="{{ person.gender if person else '' }}" /></div>
+    <div class="col-md-3"><label class="form-label">Documentação</label><select name="documents_status" class="form-select">{% for opt in document_status_options %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><label class="form-label">Tempo em situação de rua</label><select name="street_time" class="form-select"><option value="">Selecione</option>{% for opt in street_time_options %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}</select></div>
+    <div class="col-md-12"><label class="form-label">Local de referência *</label><input name="reference_location" required class="form-control" value="{{ person.reference_location if person else '' }}" /></div>
+    <div class="col-md-12"><label class="form-label">Necessidades imediatas (separar por vírgula)</label><input name="immediate_needs" class="form-control" /></div>
+    <div class="col-md-4"><label class="form-label">Decisão espiritual</label><select name="spiritual_decision" class="form-select"><option value="">Selecione</option>{% for opt in spiritual_decision_options %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}</select></div>
+    <div class="col-md-3 form-check mt-4 ms-2"><input class="form-check-input" type="checkbox" name="wants_prayer" id="wants_prayer" /><label class="form-check-label" for="wants_prayer">Deseja oração</label></div>
+    <div class="col-md-3 form-check mt-4 ms-2"><input class="form-check-input" type="checkbox" name="accepts_visit" id="accepts_visit" /><label class="form-check-label" for="accepts_visit">Aceita visita</label></div>
+    <div class="col-md-12"><label class="form-label">Benefícios/Auxílios</label><textarea name="benefit_notes" class="form-control">{{ person.benefit_notes if person else '' }}</textarea></div>
+    <div class="col-md-12"><label class="form-label">Observações gerais</label><textarea name="general_notes" class="form-control">{{ person.general_notes if person else '' }}</textarea></div>
+  </div>
+
+  {% if active_consent_term %}
+  <div class="alert alert-secondary mt-3">
+    <strong>Termo LGPD ativo:</strong> {{ active_consent_term.version }}
+    <details class="mt-2"><summary>Ver termo</summary><pre class="small mt-2">{{ active_consent_term.content }}</pre></details>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" name="consent_accepted" id="consent_accepted" required />
+    <label class="form-check-label" for="consent_accepted">Consentimento LGPD aceito.</label>
+    <input class="form-control mt-2" name="consent_signature_name" placeholder="Nome da assinatura do termo" required />
+  </div>
+  {% else %}
+  <div class="alert alert-warning mt-3">Nenhum termo de consentimento ativo configurado.</div>
+  {% endif %}
+
+  <div class="form-actions mt-4"><button class="btn btn-primary">Salvar</button><a href="/rua" class="btn btn-outline-secondary">Cancelar</a></div>
+</form>
+{% endblock %}

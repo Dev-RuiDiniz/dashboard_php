@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="mb-4">
+    <h1 class="h3">{% if dependent %}Editar dependente{% else %}Novo dependente{% endif %}</h1>
+    <p class="text-muted mb-0">Família: {{ family.responsible_name }}</p>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" class="card card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="name">Nome completo</label>
+        <input class="form-control" id="name" name="name" required value="{{ dependent.name if dependent else '' }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="cpf">CPF</label>
+        <input class="form-control" id="cpf" name="cpf" value="{{ dependent.cpf if dependent and dependent.cpf else '' }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="relationship">Parentesco</label>
+        <input
+          class="form-control"
+          id="relationship"
+          name="relationship"
+          required
+          value="{{ dependent.relationship_type if dependent else '' }}"
+        />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="birth_date">Data de nascimento</label>
+        <input
+          class="form-control"
+          id="birth_date"
+          name="birth_date"
+          type="date"
+          required
+          value="{{ dependent.birth_date.isoformat() if dependent else '' }}"
+        />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="income">Renda individual</label>
+        <input class="form-control" id="income" name="income" value="{{ dependent.income if dependent and dependent.income is not none else '' }}" />
+      </div>
+      <div class="col-12">
+        <label class="form-label" for="benefits">Benefícios</label>
+        <textarea class="form-control" id="benefits" name="benefits" rows="3">{{ dependent.benefits if dependent and dependent.benefits else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="form-actions mt-4">
+      <button class="btn btn-primary" type="submit">Salvar</button>
+      <a class="btn btn-outline-secondary" href="/familias/{{ family.id }}">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}
