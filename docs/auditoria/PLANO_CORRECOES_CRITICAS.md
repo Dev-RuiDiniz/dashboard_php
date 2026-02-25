@@ -32,3 +32,23 @@ Estabelecer backlog técnico priorizado para elevar o sistema de ~61% para ader�
 ## 5) Conclusão
 Sem execução deste plano, a recomendação técnica permanece **não liberar para produção**.
 
+
+## 6) Execução aplicada (Sprint 21)
+
+### Itens executados neste ciclo
+- **P0 — Hash de senha obrigatório:** autenticação migrada para `password_hash/password_verify` com armazenamento em `password_hash` e sem campo de senha plaintext no bootstrap de usuários.
+- **P0 — Recuperação de senha com token/expiração:** implementados endpoints `POST /auth/forgot` e `POST /auth/reset` com token de uso único, validade configurável e auditoria de solicitação/conclusão.
+- **P0 — RBAC por perfil/módulo/ação (base):** padronizados perfis oficiais (`admin`, `voluntario`, `viewer`) e enforcement explícito no escopo administrativo (`admin.ping`) + escopo de escrita por perfis operacionais.
+- **P0 — Modelo social completo (DDL inicial):** criada migration `004_create_social_official_core.sql` com tabelas `users`, `people`, `social_records`, `referrals`, `spiritual_followups`, `visits`, `audit_logs` e FKs.
+
+### Evidências técnicas
+- Código: `src/Auth/UserStore.php`, `src/Http/Kernel.php`.
+- Contrato API: `docs/sprints/artifacts/openapi_php_v1.json`.
+- Banco de dados: `database/migrations/004_create_social_official_core.sql`.
+- Testes: `tests/Feature/AuthPasswordResetHashTest.php`.
+
+### Pendências remanescentes para fechamento integral do plano
+- Expandir enforcement RBAC para todas as rotas por **permissão por módulo/ação**, reduzindo dependência de checagem por perfil macro.
+- Persistir fluxo de reset em storage transacional (atualmente em memória para bootstrap local).
+- Implementar UI/fluxo operacional de visitas pendentes/concluídas e dashboard operacional com indicadores reais.
+- Completar relatórios mensais oficiais em todos formatos e política de limpeza/retensão de legado.
