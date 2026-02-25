@@ -1,14 +1,14 @@
-# Consolidação e Auditoria das Sprints (01–19) + Plano Estendido
+# Consolidação e Auditoria das Sprints (01–20) + Encerramento
 
 ## 1) Resumo executivo
 
-A execução das sprints 01–19 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
+A execução das sprints 01–20 foi concluída em modo **bootstrap técnico + encerramento formal**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
 
 O estado atual é funcional para validação incremental, porém ainda **não é estado final de produção**.
 
 ---
 
-## 2) Auditoria consolidada das sprints 01–19
+## 2) Auditoria consolidada das sprints 01–20
 
 | Sprint | Objetivo do plano | Status | Evidência principal | Observações |
 |---|---|---|---|---|
@@ -31,6 +31,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 | 17 | Homologação integrada e reconciliação base | ✅ Concluída | `SPRINT_17_REPORT.md` + `reconciliation_report.php` | Reconciliação automatizada inicial para staging |
 | 18 | Baseline de postura de seguranca operacional | ✅ Concluída | `SPRINT_18_REPORT.md` + `security_posture_report.php` | Checagem automatizada inicial de segurança/governança |
 | 19 | Dry-run de cutover com decisão GO/NO_GO | ✅ Concluída | `SPRINT_19_REPORT.md` + `pilot_cutover_dry_run.php` | Suporte técnico para janela piloto controlada |
+| 20 | Encerramento formal e handover técnico | ✅ Concluída | `SPRINT_20_REPORT.md` + `handover_closure_report.php` | Checklist final de transição e prontidão para handover |
 
 ---
 
@@ -60,12 +61,11 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ---
 
-## 5) Encerramento do plano estendido (bootstrap) e extensão operacional
+## 5) Encerramento do plano
 
-- Sprints 11–16 concluídas com entregáveis documentados.
-- Para conclusão real em produção, recomenda-se extensão operacional 17–20:
-  - **Sprint 20**: encerramento formal e handover de operação.
-- Relatório mestre: `docs/sprints/SPRINTS_MASTER_CONSOLIDATION_REPORT.md`, `docs/sprints/SPRINT_17_REPORT.md`, `docs/sprints/SPRINT_18_REPORT.md` e `docs/sprints/SPRINT_19_REPORT.md`.
+- Sprints 01–20 concluídas com entregáveis documentados.
+- A Sprint 20 concluiu o ciclo com evidência técnica de prontidão para handover.
+- Referências finais: `docs/sprints/SPRINTS_MASTER_CONSOLIDATION_REPORT.md`, `docs/sprints/SPRINT_20_REPORT.md` e `scripts/handover_closure_report.php`.
 
 ---
 
@@ -81,7 +81,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ## 7) Evidências e referências
 
-- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_19_REPORT.md`
-- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_19_EXECUTION.md`
+- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_20_REPORT.md`
+- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_20_EXECUTION.md`
 - Runbooks: `docs/sprints/SPRINT_10_RUNBOOK.md`, `docs/sprints/SPRINT_16_RUNBOOK.md`
 - Artefatos baseline: `docs/sprints/artifacts/*`

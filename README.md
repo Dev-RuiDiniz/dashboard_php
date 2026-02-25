@@ -13,7 +13,7 @@ Este repositório contém:
 - hardening básico (lockout + headers de segurança);
 - documentação de execução e relatórios de sprints.
 
-> **Status atual:** Sprints 01–19 concluídas em modo bootstrap técnico. As Sprints 11–19 consolidaram persistência relacional incremental, contrato OpenAPI v1, reconciliação, postura de segurança e dry-run de decisão de cutover.
+> **Status atual:** Sprints 01–20 concluídas. A Sprint 20 encerrou formalmente o ciclo técnico com relatório automatizado de handover e checklist final de transição operacional.
 
 ---
 
@@ -147,6 +147,7 @@ php scripts/migrate_json_to_mysql.php
 php scripts/reconciliation_report.php
 php scripts/security_posture_report.php
 php scripts/pilot_cutover_dry_run.php
+php scripts/handover_closure_report.php
 ```
 
 Variáveis suportadas:
@@ -175,6 +176,7 @@ Suites em `tests/Feature/`:
 - `ReconciliationReportTest`
 - `SecurityPostureReportTest`
 - `PilotCutoverDryRunTest`
+- `HandoverClosureReportTest`
 
 Execução:
 ```bash
@@ -185,7 +187,7 @@ bash scripts/ci_checks.sh
 
 ## 8) Documentação de sprints e auditoria
 
-- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_19_*`.
+- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_20_*`.
 - Runbook Sprint 10: `docs/sprints/SPRINT_10_RUNBOOK.md`.
 - Runbook final Sprint 16: `docs/sprints/SPRINT_16_RUNBOOK.md`.
 - Inventário legado: `docs/sprints/artifacts/INVENTORY_SPRINT01.md`.
@@ -243,6 +245,7 @@ php scripts/migrate_json_to_mysql.php
 php scripts/reconciliation_report.php
 php scripts/security_posture_report.php
 php scripts/pilot_cutover_dry_run.php
+php scripts/handover_closure_report.php
 ```
 3. Executar validação:
 ```bash

@@ -4,7 +4,7 @@
 Consolidar o estado real da migração, auditar conformidade das sprints executadas, descrever como operar o sistema atual e propor plano adicional para conclusão efetiva em produção.
 
 ## 2) Escopo auditado
-- Sprints auditadas: **01–19**.
+- Sprints auditadas: **01–20**.
 - Fontes obrigatórias consideradas:
   - `docs/DB_RULES_MYSQL.md`
   - `docs/SCREEN_RULES.md`
@@ -14,7 +14,7 @@ Consolidar o estado real da migração, auditar conformidade das sprints executa
 ## 3) Resultado da auditoria consolidada
 ### 3.1 Status geral
 - Fundação técnica, domínios, auth, observabilidade, exportações, persistência relacional incremental, contrato OpenAPI e runbooks foram entregues.
-- A trilha técnica 01–19 está consolidada no repositório com extensão operacional em andamento.
+- A trilha 01–20 está consolidada no repositório, incluindo encerramento formal e prontidão técnica de handover.
 
 ### 3.2 Conformidade
 - **DB rules**: migrations idempotentes e naming/constraints aderentes; sem alterações de schema fora de escopo de sprint.
@@ -45,16 +45,18 @@ Consolidar o estado real da migração, auditar conformidade das sprints executa
 - OpenAPI PHP v1: `docs/sprints/artifacts/openapi_php_v1.json`
 - Golden files de exportação: `docs/sprints/artifacts/golden_exports/*`
 
-## 5) Plano adicional proposto (se necessário) para conclusão real
-> A trilha 01–16 encerra o bootstrap técnico. Para concluir em produção real, recomenda-se executar as seguintes sprints operacionais:
-
-### Sprint 20 — Encerramento formal e transição de operação
-- Emitir termo de encerramento da migração.
-- Consolidar handover para operação/sustentação.
-- Registrar lições aprendidas e backlog pós-migração.
+## 5) Encerramento e próximos passos pós-trilha
+- A Sprint 20 foi executada com foco em encerramento formal e handover técnico (`scripts/handover_closure_report.php`).
+- Próximos passos deixam de ser sprints de construção e passam a ser execução operacional no ambiente-alvo (governança, virada e sustentação).
 
 ## 6) Checklist final de conformidade deste relatório
 - [x] Auditoria consolidada registrada.
 - [x] Estado de uso/operação do sistema documentado.
 - [x] Plano adicional de sprints proposto.
 - [x] Riscos e pendências explicitados.
+
+
+## 7) Evidência de encerramento
+- Relatório da Sprint 20: `docs/sprints/SPRINT_20_REPORT.md`.
+- Plano da Sprint 20: `docs/sprints/SPRINT_20_EXECUTION.md`.
+- Script de prontidão de handover: `scripts/handover_closure_report.php`.
