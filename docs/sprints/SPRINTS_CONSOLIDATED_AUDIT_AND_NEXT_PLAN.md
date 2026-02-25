@@ -1,14 +1,14 @@
-# Consolidação e Auditoria das Sprints (01–18) + Plano Estendido
+# Consolidação e Auditoria das Sprints (01–19) + Plano Estendido
 
 ## 1) Resumo executivo
 
-A execução das sprints 01–18 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
+A execução das sprints 01–19 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
 
 O estado atual é funcional para validação incremental, porém ainda **não é estado final de produção**.
 
 ---
 
-## 2) Auditoria consolidada das sprints 01–18
+## 2) Auditoria consolidada das sprints 01–19
 
 | Sprint | Objetivo do plano | Status | Evidência principal | Observações |
 |---|---|---|---|---|
@@ -30,6 +30,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 | 16 | Produção assistida e encerramento da migração | ✅ Concluída | `SPRINT_16_REPORT.md` + `SPRINT_16_RUNBOOK.md` | Runbook final, Go/No-Go e rollback operacional |
 | 17 | Homologação integrada e reconciliação base | ✅ Concluída | `SPRINT_17_REPORT.md` + `reconciliation_report.php` | Reconciliação automatizada inicial para staging |
 | 18 | Baseline de postura de seguranca operacional | ✅ Concluída | `SPRINT_18_REPORT.md` + `security_posture_report.php` | Checagem automatizada inicial de segurança/governança |
+| 19 | Dry-run de cutover com decisão GO/NO_GO | ✅ Concluída | `SPRINT_19_REPORT.md` + `pilot_cutover_dry_run.php` | Suporte técnico para janela piloto controlada |
 
 ---
 
@@ -43,7 +44,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 - Não houve criação/alteração de telas no escopo desta trilha backend.
 
 ### 3.3 Ordem e escopo do plano de migração
-- A sequência de entregas respeitou o planejamento incremental 01→18 (com plano estendido).
+- A sequência de entregas respeitou o planejamento incremental 01→19 (com plano estendido).
 - Cada sprint possui plano e relatório próprios.
 
 ---
@@ -63,9 +64,8 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 - Sprints 11–16 concluídas com entregáveis documentados.
 - Para conclusão real em produção, recomenda-se extensão operacional 17–20:
-  - **Sprint 19**: cutover controlado em janela piloto com rollback testado.
   - **Sprint 20**: encerramento formal e handover de operação.
-- Relatório mestre: `docs/sprints/SPRINTS_MASTER_CONSOLIDATION_REPORT.md`, `docs/sprints/SPRINT_17_REPORT.md` e `docs/sprints/SPRINT_18_REPORT.md`.
+- Relatório mestre: `docs/sprints/SPRINTS_MASTER_CONSOLIDATION_REPORT.md`, `docs/sprints/SPRINT_17_REPORT.md`, `docs/sprints/SPRINT_18_REPORT.md` e `docs/sprints/SPRINT_19_REPORT.md`.
 
 ---
 
@@ -81,7 +81,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ## 7) Evidências e referências
 
-- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_18_REPORT.md`
-- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_18_EXECUTION.md`
+- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_19_REPORT.md`
+- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_19_EXECUTION.md`
 - Runbooks: `docs/sprints/SPRINT_10_RUNBOOK.md`, `docs/sprints/SPRINT_16_RUNBOOK.md`
 - Artefatos baseline: `docs/sprints/artifacts/*`
