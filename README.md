@@ -83,3 +83,12 @@ Observação: no bootstrap técnico, XLSX e PDF são versões simplificadas para
 - `POST /equipment/loans/{id}/return`
 
 Status suportados: `disponivel`, `emprestado`, `manutencao`.
+
+
+### Endpoints gerenciais/elegibilidade (Sprint 09)
+
+- `GET /reports/summary`
+- `GET/PUT /settings/eligibility`
+- `POST /eligibility/check`
+
+Regras de elegibilidade parametrizáveis por configuração técnica.

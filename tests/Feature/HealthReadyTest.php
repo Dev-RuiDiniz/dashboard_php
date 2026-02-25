@@ -9,6 +9,8 @@ require_once __DIR__ . '/../../src/Domain/SocialStore.php';
 require_once __DIR__ . '/../../src/Domain/StreetStore.php';
 require_once __DIR__ . '/../../src/Domain/DeliveryStore.php';
 require_once __DIR__ . '/../../src/Domain/EquipmentStore.php';
+require_once __DIR__ . '/../../src/Domain/SettingsStore.php';
+require_once __DIR__ . '/../../src/Domain/EligibilityService.php';
 require_once __DIR__ . '/../../src/Reports/ExportService.php';
 require_once __DIR__ . '/../../src/Http/Kernel.php';
 

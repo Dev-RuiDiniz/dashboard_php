@@ -13,6 +13,8 @@ php -l src/Domain/SocialStore.php
 php -l src/Domain/StreetStore.php
 php -l src/Domain/DeliveryStore.php
 php -l src/Domain/EquipmentStore.php
+php -l src/Domain/SettingsStore.php
+php -l src/Domain/EligibilityService.php
 php -l src/Reports/ExportService.php
 php -l tests/Feature/HealthReadyTest.php
 php -l tests/Feature/AuthRbacAuditTest.php
@@ -21,6 +23,7 @@ php -l tests/Feature/StreetLgpdReferralTest.php
 php -l tests/Feature/DeliveryEventsRulesTest.php
 php -l tests/Feature/ReportsExportTest.php
 php -l tests/Feature/EquipmentLoansTest.php
+php -l tests/Feature/ReportsEligibilitySettingsTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
 php tests/Feature/FamilyDomainCrudTest.php
@@ -28,3 +31,4 @@ php tests/Feature/StreetLgpdReferralTest.php
 php tests/Feature/DeliveryEventsRulesTest.php
 php tests/Feature/ReportsExportTest.php
 php tests/Feature/EquipmentLoansTest.php
+php tests/Feature/ReportsEligibilitySettingsTest.php

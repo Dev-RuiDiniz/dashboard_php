@@ -13,6 +13,8 @@ use App\Domain\StreetStore;
 use App\Domain\DeliveryStore;
 use App\Reports\ExportService;
 use App\Domain\EquipmentStore;
+use App\Domain\SettingsStore;
+use App\Domain\EligibilityService;
 
 final class Kernel
 {
@@ -26,6 +28,8 @@ final class Kernel
         private ?DeliveryStore $deliveryStore = null,
         private ?ExportService $exportService = null,
         private ?EquipmentStore $equipmentStore = null,
+        private ?SettingsStore $settingsStore = null,
+        private ?EligibilityService $eligibilityService = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
@@ -35,6 +39,8 @@ final class Kernel
         $this->deliveryStore = $this->deliveryStore ?? new DeliveryStore();
         $this->exportService = $this->exportService ?? new ExportService();
         $this->equipmentStore = $this->equipmentStore ?? new EquipmentStore();
+        $this->settingsStore = $this->settingsStore ?? new SettingsStore();
+        $this->eligibilityService = $this->eligibilityService ?? new EligibilityService();
     }
 
     /**
@@ -291,6 +297,49 @@ final class Kernel
 
         
 
+
+
+        // Sprint 9: reports summary + eligibility + settings
+        if ($path === '/reports/summary' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+
+            return ['status'=>200,'body'=>[
+                'families_total' => count($this->socialStore->listFamilies()),
+                'street_people_total' => count($this->streetStore->listPeople()),
+                'events_total' => count($this->deliveryStore->listEvents()),
+                'equipments_total' => count($this->equipmentStore->listEquipments()),
+                'open_loans_total' => count(array_values(array_filter($this->equipmentStore->listLoans(), static fn($l) => ($l['status'] ?? '') === 'aberto'))),
+                'request_id' => $requestId,
+            ]];
+        }
+
+        if ($path === '/settings/eligibility' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            return ['status'=>200,'body'=>['item'=>$this->settingsStore->get(),'request_id'=>$requestId]];
+        }
+
+        if ($path === '/settings/eligibility' && $method === 'PUT') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $updated = $this->settingsStore->update([
+                'max_deliveries_per_month' => (int)($payload['max_deliveries_per_month'] ?? 1),
+                'min_months_since_last_delivery' => (int)($payload['min_months_since_last_delivery'] ?? 1),
+                'min_vulnerability_score' => (int)($payload['min_vulnerability_score'] ?? 1),
+                'require_documentation' => (bool)($payload['require_documentation'] ?? false),
+            ]);
+            $this->audit('settings.eligibility.updated', $requestId, []);
+            return ['status'=>200,'body'=>['item'=>$updated,'request_id'=>$requestId]];
+        }
+
+        if ($path === '/eligibility/check' && $method === 'POST') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $rules = $this->settingsStore->get();
+            $result = $this->eligibilityService->evaluate($rules, $payload);
+            return ['status'=>200,'body'=>['item'=>$result,'request_id'=>$requestId]];
+        }
 
         // Sprint 8: equipment + loans
         if ($path === '/equipment' && $method === 'GET') {
