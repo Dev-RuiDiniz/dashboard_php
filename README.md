@@ -13,7 +13,7 @@ Este repositório contém:
 - hardening básico (lockout + headers de segurança);
 - documentação de execução e relatórios de sprints.
 
-> **Status atual:** Sprints 01–16 concluídas em modo bootstrap técnico. As Sprints 11–16 consolidaram persistência relacional incremental, contrato OpenAPI v1, fidelidade de exportações e runbook final de produção assistida.
+> **Status atual:** Sprints 01–17 concluídas em modo bootstrap técnico. As Sprints 11–17 consolidaram persistência relacional incremental, contrato OpenAPI v1, fidelidade de exportações, runbook final e utilitário de reconciliação para homologação.
 
 ---
 
@@ -144,6 +144,7 @@ Status suportados:
 ```bash
 php scripts/run_migrations.php
 php scripts/migrate_json_to_mysql.php
+php scripts/reconciliation_report.php
 ```
 
 Variáveis suportadas:
@@ -169,6 +170,7 @@ Suites em `tests/Feature/`:
 - `RemainingDomainsRelationalReadinessTest`
 - `OpenApiContractTest`
 - `ReportsExportFidelityTest`
+- `ReconciliationReportTest`
 
 Execução:
 ```bash
@@ -179,7 +181,7 @@ bash scripts/ci_checks.sh
 
 ## 8) Documentação de sprints e auditoria
 
-- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_16_*`.
+- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_17_*`.
 - Runbook Sprint 10: `docs/sprints/SPRINT_10_RUNBOOK.md`.
 - Runbook final Sprint 16: `docs/sprints/SPRINT_16_RUNBOOK.md`.
 - Inventário legado: `docs/sprints/artifacts/INVENTORY_SPRINT01.md`.
@@ -234,6 +236,7 @@ php scripts/run_migrations.php
 2. Migrar dados do fallback JSON:
 ```bash
 php scripts/migrate_json_to_mysql.php
+php scripts/reconciliation_report.php
 ```
 3. Executar validação:
 ```bash

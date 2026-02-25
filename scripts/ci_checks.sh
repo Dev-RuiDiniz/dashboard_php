@@ -13,6 +13,7 @@ php -l src/Domain/SocialStore.php
 php -l scripts/run_migrations.php
 php -l src/Domain/StreetStore.php
 php -l scripts/migrate_json_to_mysql.php
+php -l scripts/reconciliation_report.php
 php -l src/Domain/DeliveryStore.php
 php -l src/Domain/EquipmentStore.php
 php -l src/Domain/SettingsStore.php
@@ -33,6 +34,7 @@ php -l tests/Feature/StreetRelationalMigrationReadinessTest.php
 php -l tests/Feature/RemainingDomainsRelationalReadinessTest.php
 php -l tests/Feature/OpenApiContractTest.php
 php -l tests/Feature/ReportsExportFidelityTest.php
+php -l tests/Feature/ReconciliationReportTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
 php tests/Feature/FamilyDomainCrudTest.php
@@ -52,3 +54,5 @@ php tests/Feature/RemainingDomainsRelationalReadinessTest.php
 php tests/Feature/OpenApiContractTest.php
 
 php tests/Feature/ReportsExportFidelityTest.php
+
+php tests/Feature/ReconciliationReportTest.php
