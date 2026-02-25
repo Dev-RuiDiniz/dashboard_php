@@ -12,6 +12,7 @@ php -l src/Domain/CpfValidator.php
 php -l src/Domain/SocialStore.php
 php -l scripts/run_migrations.php
 php -l src/Domain/StreetStore.php
+php -l scripts/migrate_json_to_mysql.php
 php -l src/Domain/DeliveryStore.php
 php -l src/Domain/EquipmentStore.php
 php -l src/Domain/SettingsStore.php
@@ -28,6 +29,7 @@ php -l tests/Feature/EquipmentLoansTest.php
 php -l tests/Feature/ReportsEligibilitySettingsTest.php
 php -l tests/Feature/SecurityHardeningTest.php
 php -l tests/Feature/RelationalMigrationReadinessTest.php
+php -l tests/Feature/StreetRelationalMigrationReadinessTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
 php tests/Feature/FamilyDomainCrudTest.php
@@ -39,3 +41,5 @@ php tests/Feature/ReportsEligibilitySettingsTest.php
 php tests/Feature/SecurityHardeningTest.php
 
 php tests/Feature/RelationalMigrationReadinessTest.php
+
+php tests/Feature/StreetRelationalMigrationReadinessTest.php

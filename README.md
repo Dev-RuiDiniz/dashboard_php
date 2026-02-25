@@ -13,7 +13,7 @@ Este repositório contém:
 - hardening básico (lockout + headers de segurança);
 - documentação de execução e relatórios de sprints.
 
-> **Status atual:** Sprints 01–11 concluídas em modo bootstrap técnico. A Sprint 11 iniciou a persistência relacional para o domínio social (famílias/dependentes/crianças), mantendo fallback JSON para continuidade operacional.
+> **Status atual:** Sprints 01–12 concluídas em modo bootstrap técnico. As Sprints 11 e 12 iniciaram a persistência relacional para os domínios social e street, mantendo fallback JSON para continuidade operacional.
 
 ---
 
@@ -130,15 +130,17 @@ Status suportados:
 
 ---
 
-## 6) Persistência e migrations (Sprint 11)
+## 6) Persistência e migrations (Sprints 11 e 12)
 
-### Modos de persistência do SocialStore
-- `SOCIAL_STORE_DRIVER=json` (padrão): usa `data/social_store.json`;
-- `SOCIAL_STORE_DRIVER=mysql`: usa MySQL via variáveis `MYSQL_*` ou `MYSQL_DSN`.
+### Modos de persistência
+- `SOCIAL_STORE_DRIVER=json|mysql` para `SocialStore`;
+- `STREET_STORE_DRIVER=json|mysql` para `StreetStore`;
+- por padrão ambos usam `json` e podem ser migrados incrementalmente para MySQL.
 
 ### Executar migrations
 ```bash
 php scripts/run_migrations.php
+php scripts/migrate_json_to_mysql.php
 ```
 
 Variáveis suportadas:
@@ -159,6 +161,8 @@ Suites em `tests/Feature/`:
 - `EquipmentLoansTest`
 - `ReportsEligibilitySettingsTest`
 - `SecurityHardeningTest`
+- `RelationalMigrationReadinessTest`
+- `StreetRelationalMigrationReadinessTest`
 
 Execução:
 ```bash
@@ -169,7 +173,7 @@ bash scripts/ci_checks.sh
 
 ## 8) Documentação de sprints e auditoria
 
-- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_11_*`.
+- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_12_*`.
 - Runbook Sprint 10: `docs/sprints/SPRINT_10_RUNBOOK.md`.
 - Inventário legado: `docs/sprints/artifacts/INVENTORY_SPRINT01.md`.
 - Snapshot OpenAPI legado (estático): `docs/sprints/artifacts/openapi_legacy_sprint01.json`.
@@ -179,7 +183,7 @@ bash scripts/ci_checks.sh
 
 ## 9) Limitações conhecidas (bootstrap)
 
-- persistência relacional parcial (apenas domínio social em MySQL opcional);
+- persistência relacional parcial (social + street com MySQL opcional);
 - exportadores XLSX/PDF simplificados;
 - ausência de dashboard visual no frontend;
 - ausência de cutover real de produção neste repositório.

@@ -1,14 +1,14 @@
-# Consolidação e Auditoria das Sprints (01–11) + Plano Estendido
+# Consolidação e Auditoria das Sprints (01–12) + Plano Estendido
 
 ## 1) Resumo executivo
 
-A execução das sprints 01–10 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
+A execução das sprints 01–12 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
 
 O estado atual é funcional para validação incremental, porém ainda **não é estado final de produção**.
 
 ---
 
-## 2) Auditoria consolidada das sprints 01–11
+## 2) Auditoria consolidada das sprints 01–12
 
 | Sprint | Objetivo do plano | Status | Evidência principal | Observações |
 |---|---|---|---|---|
@@ -23,20 +23,21 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 | 09 | Relatórios gerenciais + elegibilidade | ✅ Concluída | `SPRINT_09_REPORT.md` | summary + settings + check |
 | 10 | Hardening + rollout/rollback | ✅ Concluída | `SPRINT_10_REPORT.md` + `SPRINT_10_RUNBOOK.md` | lockout básico + headers segurança |
 | 11 | Persistência relacional inicial (social) | ✅ Concluída | `SPRINT_11_REPORT.md` + `database/migrations/*` | MySQL opcional + fallback JSON |
+| 12 | Persistência relacional Street + data migration inicial | ✅ Concluída | `SPRINT_12_REPORT.md` + `scripts/migrate_json_to_mysql.php` | Street em MySQL opcional + script idempotente |
 
 ---
 
 ## 3) Conformidade com regras obrigatórias
 
 ### 3.1 `docs/DB_RULES_MYSQL.md`
-- Sprints executadas sem alteração de schema/migrations no bootstrap.
-- Decisões de persistência JSON foram tratadas como etapa técnica transitória.
+- Sprints 11 e 12 introduziram migrations MySQL idempotentes para domínios social e street.
+- Persistência JSON permanece como fallback transitório para rollout seguro.
 
 ### 3.2 `docs/SCREEN_RULES.md`
 - Não houve criação/alteração de telas no escopo desta trilha backend.
 
 ### 3.3 Ordem e escopo do plano de migração
-- A sequência de entregas respeitou o planejamento 01→10.
+- A sequência de entregas respeitou o planejamento incremental 01→12 (com plano estendido).
 - Cada sprint possui plano e relatório próprios.
 
 ---
@@ -56,22 +57,22 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 > Proposta para fechamento do sistema após Sprint 10.
 
-### Sprint 12 — Persistência relacional expandida + data migration
-- Migrar stores restantes para persistência relacional (street, deliveries, equipment, settings).
-- Criar scripts de data migration JSON→MySQL com execução idempotente.
+### Sprint 13 — Persistência relacional final + validação em banco real
+- Migrar stores restantes para persistência relacional (`deliveries`, `equipment`, `settings`).
+- Executar ensaio completo de data migration JSON→MySQL em ambiente de teste.
 - Validar integridade e constraints equivalentes por domínio.
 
-### Sprint 13 — Contratos de API e compatibilidade final
+### Sprint 14 — Contratos de API e compatibilidade final
 - Publicar OpenAPI v1 do backend PHP.
 - Implementar facade/aliases de compatibilidade legada críticos.
 - Adicionar contract tests de compatibilidade Python x PHP.
 
-### Sprint 14 — Exportações de fidelidade e homologação funcional
+### Sprint 15 — Exportações de fidelidade e homologação funcional
 - Evoluir engine de XLSX/PDF para paridade visual.
 - Golden files e testes de snapshot de layout.
 - Homologação com usuários-chave.
 
-### Sprint 15 — Produção assistida e encerramento de migração
+### Sprint 16 — Produção assistida e encerramento de migração
 - Plano de cutover real (janela, comunicação, fallback).
 - DR drill e testes de rollback operacional.
 - Go/No-Go final e documento de encerramento da migração.
@@ -90,7 +91,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ## 7) Evidências e referências
 
-- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_11_REPORT.md`
-- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_11_EXECUTION.md`
+- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_12_REPORT.md`
+- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_12_EXECUTION.md`
 - Runbook: `docs/sprints/SPRINT_10_RUNBOOK.md`
 - Artefatos baseline: `docs/sprints/artifacts/*`
