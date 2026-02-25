@@ -4,7 +4,7 @@
 Consolidar o estado real da migração, auditar conformidade das sprints executadas, descrever como operar o sistema atual e propor plano adicional para conclusão efetiva em produção.
 
 ## 2) Escopo auditado
-- Sprints auditadas: **01–17**.
+- Sprints auditadas: **01–18**.
 - Fontes obrigatórias consideradas:
   - `docs/DB_RULES_MYSQL.md`
   - `docs/SCREEN_RULES.md`
@@ -14,7 +14,7 @@ Consolidar o estado real da migração, auditar conformidade das sprints executa
 ## 3) Resultado da auditoria consolidada
 ### 3.1 Status geral
 - Fundação técnica, domínios, auth, observabilidade, exportações, persistência relacional incremental, contrato OpenAPI e runbooks foram entregues.
-- A trilha técnica 01–17 está consolidada no repositório com extensão operacional em andamento.
+- A trilha técnica 01–18 está consolidada no repositório com extensão operacional em andamento.
 
 ### 3.2 Conformidade
 - **DB rules**: migrations idempotentes e naming/constraints aderentes; sem alterações de schema fora de escopo de sprint.
@@ -47,11 +47,6 @@ Consolidar o estado real da migração, auditar conformidade das sprints executa
 
 ## 5) Plano adicional proposto (se necessário) para conclusão real
 > A trilha 01–16 encerra o bootstrap técnico. Para concluir em produção real, recomenda-se executar as seguintes sprints operacionais:
-
-### Sprint 18 — Hardening corporativo e governança operacional
-- Integrar SAST/DAST no pipeline.
-- Formalizar SLO/SLI e alertas.
-- Validar rotação de segredo/JWT e trilhas de auditoria.
 
 ### Sprint 19 — Cutover controlado (janela piloto)
 - Executar janela piloto com rollback testado.
