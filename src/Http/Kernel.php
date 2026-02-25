@@ -15,6 +15,7 @@ use App\Reports\ExportService;
 use App\Domain\EquipmentStore;
 use App\Domain\SettingsStore;
 use App\Domain\EligibilityService;
+use App\Domain\AuthThrottleStore;
 
 final class Kernel
 {
@@ -30,6 +31,7 @@ final class Kernel
         private ?EquipmentStore $equipmentStore = null,
         private ?SettingsStore $settingsStore = null,
         private ?EligibilityService $eligibilityService = null,
+        private ?AuthThrottleStore $authThrottleStore = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
@@ -41,6 +43,7 @@ final class Kernel
         $this->equipmentStore = $this->equipmentStore ?? new EquipmentStore();
         $this->settingsStore = $this->settingsStore ?? new SettingsStore();
         $this->eligibilityService = $this->eligibilityService ?? new EligibilityService();
+        $this->authThrottleStore = $this->authThrottleStore ?? new AuthThrottleStore();
     }
 
     /**
@@ -483,11 +486,23 @@ final class Kernel
     {
         $email = (string) ($payload['email'] ?? '');
         $password = (string) ($payload['password'] ?? '');
+
+        if ($this->authThrottleStore->isBlocked($email)) {
+            $this->audit('auth.login_blocked', $requestId, ['email' => $email]);
+            return ['status' => 429, 'body' => ['error' => 'too_many_attempts', 'request_id' => $requestId]];
+        }
+
         $user = $this->userStore->authenticate($email, $password);
         if (!$user) {
-            $this->audit('auth.login_failed', $requestId, ['email' => $email]);
+            $state = $this->authThrottleStore->registerFailure($email);
+            $this->audit('auth.login_failed', $requestId, ['email' => $email, 'attempts' => (string) $state['attempts']]);
+            if (($state['blocked'] ?? false) === true) {
+                return ['status' => 429, 'body' => ['error' => 'too_many_attempts', 'request_id' => $requestId]];
+            }
             return ['status' => 401, 'body' => ['error' => 'invalid_credentials', 'request_id' => $requestId]];
         }
+
+        $this->authThrottleStore->clear($email);
         $secret = (string) ($env['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: 'dev-secret');
         $token = $this->jwtService->issueToken((string) $user['email'], $secret);
         $this->audit('auth.login_success', $requestId, ['user_email' => (string) $user['email']]);

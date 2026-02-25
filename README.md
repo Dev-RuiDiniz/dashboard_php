@@ -92,3 +92,10 @@ Status suportados: `disponivel`, `emprestado`, `manutencao`.
 - `POST /eligibility/check`
 
 Regras de elegibilidade parametrizáveis por configuração técnica.
+
+
+### Hardening e runbook (Sprint 10)
+
+- Lockout básico de login por tentativas inválidas (429).
+- Headers de segurança HTTP no entrypoint.
+- Runbook de rollout/rollback: `docs/sprints/SPRINT_10_RUNBOOK.md`.

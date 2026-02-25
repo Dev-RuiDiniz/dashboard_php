@@ -14,6 +14,7 @@ require_once __DIR__ . '/../src/Domain/DeliveryStore.php';
 require_once __DIR__ . '/../src/Domain/EquipmentStore.php';
 require_once __DIR__ . '/../src/Domain/SettingsStore.php';
 require_once __DIR__ . '/../src/Domain/EligibilityService.php';
+require_once __DIR__ . '/../src/Domain/AuthThrottleStore.php';
 require_once __DIR__ . '/../src/Audit/AuditLogger.php';
 require_once __DIR__ . '/../src/Reports/ExportService.php';
 
@@ -43,6 +44,10 @@ $response = $kernel->handle($method, $path, $requestId, $headers, $payload);
 
 http_response_code($response['status']);
 header('X-Request-Id: ' . $requestId);
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: no-referrer');
+header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none';");
 
 if (isset($response['body']['__raw'])) {
     $contentType = (string) ($response['body']['__content_type'] ?? 'application/octet-stream');
