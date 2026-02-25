@@ -1,42 +1,86 @@
 # dashboard_php
 
-## Bootstrap PHP (Sprint 02)
+Backend bootstrap em PHP para migração incremental do sistema social (origem Python/FastAPI), com execução orientada por sprints e rastreabilidade documental.
 
-Estrutura técnica inicial para migração:
+## 1) Visão geral
 
-- Entrada HTTP: `public/index.php`
-- Endpoints técnicos: `GET /health`, `GET /ready`
-- Observabilidade: `request_id` + log JSON por requisição
-- CI inicial: `.github/workflows/php-ci.yml`
+Este repositório contém:
+- base HTTP em PHP (`public/index.php` + `src/Http/Kernel.php`);
+- autenticação JWT e RBAC mínimo;
+- domínios operacionais migrados por sprint (famílias, street, entregas, equipamentos);
+- exportações (CSV/XLSX/PDF bootstrap);
+- configuração/elegibilidade parametrizável;
+- hardening básico (lockout + headers de segurança);
+- documentação de execução e relatórios de sprints.
 
-### Rodar checks locais
+> **Status atual:** o plano de 10 sprints foi concluído em modo bootstrap técnico, com pendências conhecidas para produção (persistência definitiva, paridade visual final de exports, validação estatística A/B e hardening avançado).
 
+---
+
+## 2) Estrutura do projeto
+
+- `public/index.php` — entrypoint HTTP.
+- `src/Http/Kernel.php` — roteamento e regras de aplicação.
+- `src/Auth/*` — JWT + usuários bootstrap.
+- `src/Domain/*` — stores/serviços por domínio (social, street, deliveries, equipment, settings, throttle).
+- `src/Reports/*` — exportadores.
+- `tests/Feature/*` — testes de integração simplificada por script.
+- `scripts/ci_checks.sh` — lint + execução das suítes.
+- `.github/workflows/php-ci.yml` — execução CI no GitHub Actions.
+- `docs/sprints/*` — planos/relatórios de sprint e artefatos de auditoria.
+
+---
+
+## 3) Como executar localmente
+
+### Pré-requisitos
+- PHP 8.3+
+- `bash`
+
+### Rodar checks completos
 ```bash
 bash scripts/ci_checks.sh
 ```
 
 ### Subir servidor local
-
 ```bash
 php -S 127.0.0.1:8099 -t public
 ```
 
+### Healthcheck
+```bash
+curl -i http://127.0.0.1:8099/health
+curl -i http://127.0.0.1:8099/ready
+```
 
-### Endpoints técnicos de autenticação (Sprint 03)
+---
 
+## 4) Autenticação e perfis
+
+### Endpoints
 - `POST /auth/login`
 - `GET /me`
 - `POST /auth/logout`
+- `GET /admin/ping`
 
-Credenciais de bootstrap (somente ambiente de desenvolvimento):
-
+### Usuários bootstrap (somente desenvolvimento)
 - `admin@local` / `admin123`
 - `operador@local` / `operador123`
 - `leitura@local` / `leitura123`
 
+### Hardening de login (Sprint 10)
+- lockout básico por tentativas inválidas (resposta `429`);
+- headers de segurança aplicados no entrypoint:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `Referrer-Policy: no-referrer`
+  - `Content-Security-Policy: default-src 'none'; frame-ancestors 'none';`
 
-### Endpoints de domínio social (Sprint 04)
+---
 
+## 5) APIs por domínio
+
+### Social base (Sprint 04)
 - `GET/POST /families`
 - `GET/PUT/DELETE /families/{id}`
 - `GET/POST /dependents`
@@ -44,58 +88,88 @@ Credenciais de bootstrap (somente ambiente de desenvolvimento):
 - `GET/POST /children`
 - `DELETE /children/{id}`
 
+Regras-chave:
+- validação de CPF de responsável;
+- bloqueio de CPF duplicado;
+- integridade de vínculo `family_id`.
 
-### Endpoints social street (Sprint 05)
-
+### Street + LGPD (Sprint 05)
 - `GET/POST /street/people`
 - `POST /street/referrals`
 - `POST /street/referrals/{id}/status`
 
-Regra LGPD aplicada: conclusão de atendimento exige `consent_accepted=true` e `signature_name`.
+Regra-chave:
+- conclusão de atendimento exige `consent_accepted=true` e `signature_name`.
 
-
-### Endpoints entregas/eventos (Sprint 06)
-
+### Entregas/Eventos (Sprint 06)
 - `GET/POST /deliveries/events`
 - `POST /deliveries/events/{id}/invites`
 - `POST /deliveries/events/{id}/withdrawals`
 
-Regras críticas:
-- bloqueio de retirada duplicada no mesmo mês por família;
-- retirada exige assinatura simples (`signature_accepted` + `signature_name`);
+Regras-chave:
+- bloqueio de retirada duplicada por família no mesmo mês;
+- retirada exige assinatura;
 - convite gera `withdrawal_code` automático (6 chars).
 
-
-### Endpoints de exportação (Sprint 07)
-
-- `GET /reports/export.csv`
-- `GET /reports/export.xlsx`
-- `GET /reports/export.pdf`
-
-Observação: no bootstrap técnico, XLSX e PDF são versões simplificadas para validação incremental dos fluxos de exportação.
-
-
-### Endpoints equipamentos/empréstimos (Sprint 08)
-
+### Equipamentos/Empréstimos (Sprint 08)
 - `GET/POST /equipment`
 - `PUT /equipment/{id}`
 - `GET/POST /equipment/loans`
 - `POST /equipment/loans/{id}/return`
 
-Status suportados: `disponivel`, `emprestado`, `manutencao`.
+Status suportados:
+- `disponivel`, `emprestado`, `manutencao`
 
-
-### Endpoints gerenciais/elegibilidade (Sprint 09)
-
+### Relatórios/Configurações (Sprint 07 + 09)
+- `GET /reports/export.csv`
+- `GET /reports/export.xlsx`
+- `GET /reports/export.pdf`
 - `GET /reports/summary`
 - `GET/PUT /settings/eligibility`
 - `POST /eligibility/check`
 
-Regras de elegibilidade parametrizáveis por configuração técnica.
+---
 
+## 6) Testes automatizados atuais
 
-### Hardening e runbook (Sprint 10)
+Suites em `tests/Feature/`:
+- `HealthReadyTest`
+- `AuthRbacAuditTest`
+- `FamilyDomainCrudTest`
+- `StreetLgpdReferralTest`
+- `DeliveryEventsRulesTest`
+- `ReportsExportTest`
+- `EquipmentLoansTest`
+- `ReportsEligibilitySettingsTest`
+- `SecurityHardeningTest`
 
-- Lockout básico de login por tentativas inválidas (429).
-- Headers de segurança HTTP no entrypoint.
-- Runbook de rollout/rollback: `docs/sprints/SPRINT_10_RUNBOOK.md`.
+Execução:
+```bash
+bash scripts/ci_checks.sh
+```
+
+---
+
+## 7) Documentação de sprints e auditoria
+
+- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_10_*`.
+- Runbook Sprint 10: `docs/sprints/SPRINT_10_RUNBOOK.md`.
+- Inventário legado: `docs/sprints/artifacts/INVENTORY_SPRINT01.md`.
+- Snapshot OpenAPI legado (estático): `docs/sprints/artifacts/openapi_legacy_sprint01.json`.
+- Matriz de compatibilidade: `docs/sprints/artifacts/COMPATIBILITY_MATRIX_SPRINT01.md`.
+
+---
+
+## 8) Limitações conhecidas (bootstrap)
+
+- persistência em JSON (não relacional);
+- exportadores XLSX/PDF simplificados;
+- ausência de dashboard visual no frontend;
+- ausência de cutover real de produção neste repositório.
+
+---
+
+## 9) Próximos passos
+
+Ver relatório consolidado e plano estendido em:
+- `docs/sprints/SPRINTS_CONSOLIDATED_AUDIT_AND_NEXT_PLAN.md`
