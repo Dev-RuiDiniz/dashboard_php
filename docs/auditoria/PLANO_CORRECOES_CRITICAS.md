@@ -66,3 +66,12 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Qualidade de execução em testes:** testes de autenticação/RBAC e reset agora usam storage temporário isolado para evitar artefatos locais em `data/` durante a suíte.
 
 > Resultado: pendência de “persistir fluxo de reset em storage transacional” foi parcialmente endereçada com persistência local durável; etapa futura recomendada é migrar o armazenamento para tabela relacional dedicada.
+
+## 9) Próximo passo executado (Sprint 24)
+
+- **Persistência transacional para reset de senha:** adicionada migration `005_create_auth_reset_tokens.sql` com tabela dedicada (`auth_reset_tokens`) para tokens de reset, expiração e marcação de consumo.
+- **Store de reset com backend relacional opcional:** `AuthResetTokenStore` agora suporta driver `mysql` via `AUTH_RESET_TOKEN_STORE_DRIVER=mysql`, mantendo fallback JSON para ambientes locais.
+- **Segurança de armazenamento:** persistência continua baseada em hash do token (`sha256`) e consumo de uso único.
+- **Cobertura de teste do store:** novo teste `AuthResetTokenStoreTest` valida não persistir token plaintext, uso único e rejeição de token expirado.
+
+> Resultado: pendência de evoluir reset para base transacional foi atendida com suporte relacional dedicado e compatibilidade retroativa.

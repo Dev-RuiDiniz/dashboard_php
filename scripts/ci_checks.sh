@@ -26,6 +26,7 @@ php -l src/Domain/AuthResetTokenStore.php
 php -l src/Reports/ExportService.php
 php -l tests/Feature/HealthReadyTest.php
 php -l tests/Feature/AuthRbacAuditTest.php
+php -l tests/Feature/AuthResetTokenStoreTest.php
 php -l tests/Feature/FamilyDomainCrudTest.php
 php -l tests/Feature/StreetLgpdReferralTest.php
 php -l tests/Feature/DeliveryEventsRulesTest.php
@@ -44,6 +45,7 @@ php -l tests/Feature/PilotCutoverDryRunTest.php
 php -l tests/Feature/HandoverClosureReportTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
+php tests/Feature/AuthResetTokenStoreTest.php
 php tests/Feature/FamilyDomainCrudTest.php
 php tests/Feature/StreetLgpdReferralTest.php
 php tests/Feature/DeliveryEventsRulesTest.php
