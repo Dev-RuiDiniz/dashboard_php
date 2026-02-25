@@ -10,6 +10,7 @@ use App\Auth\UserStore;
 use App\Domain\CpfValidator;
 use App\Domain\SocialStore;
 use App\Domain\StreetStore;
+use App\Domain\DeliveryStore;
 
 final class Kernel
 {
@@ -20,12 +21,14 @@ final class Kernel
         private ?SocialStore $socialStore = null,
         private ?CpfValidator $cpfValidator = null,
         private ?StreetStore $streetStore = null,
+        private ?DeliveryStore $deliveryStore = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
         $this->socialStore = $this->socialStore ?? new SocialStore();
         $this->cpfValidator = $this->cpfValidator ?? new CpfValidator();
         $this->streetStore = $this->streetStore ?? new StreetStore();
+        $this->deliveryStore = $this->deliveryStore ?? new DeliveryStore();
     }
 
     /**
@@ -278,6 +281,53 @@ final class Kernel
 
             $this->audit('street.referral.status_updated', $requestId, ['referral_id' => $match[1], 'status' => $status]);
             return ['status' => 200, 'body' => ['item' => $updated, 'request_id' => $requestId]];
+        }
+
+        
+        // Sprint 6: deliveries/events
+        if ($path === '/deliveries/events' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            return ['status' => 200, 'body' => ['items' => $this->deliveryStore->listEvents(), 'request_id' => $requestId]];
+        }
+
+        if ($path === '/deliveries/events' && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $name = trim((string)($payload['name'] ?? ''));
+            $eventDate = trim((string)($payload['event_date'] ?? ''));
+            if ($name === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $eventDate)) {
+                return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
+            }
+            $event = $this->deliveryStore->createEvent($name, $eventDate);
+            $this->audit('delivery.event.created', $requestId, ['event_id'=>(string)$event['id']]);
+            return ['status'=>201,'body'=>['item'=>$event,'request_id'=>$requestId]];
+        }
+
+        if (preg_match('#^/deliveries/events/(\d+)/invites$#', $path, $m) === 1 && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $familyId = (int)($payload['family_id'] ?? 0);
+            if ($familyId <= 0) return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
+            $invite = $this->deliveryStore->inviteFamily((int)$m[1], $familyId);
+            if (!$invite) return ['status'=>404,'body'=>['error'=>'event_not_found','request_id'=>$requestId]];
+            $this->audit('delivery.invite.created', $requestId, ['invite_id'=>(string)$invite['id']]);
+            return ['status'=>201,'body'=>['item'=>$invite,'request_id'=>$requestId]];
+        }
+
+        if (preg_match('#^/deliveries/events/(\d+)/withdrawals$#', $path, $m) === 1 && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $familyId = (int)($payload['family_id'] ?? 0);
+            $signatureAccepted = (bool)($payload['signature_accepted'] ?? false);
+            $signatureName = trim((string)($payload['signature_name'] ?? ''));
+            if ($familyId <= 0) return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
+            $w = $this->deliveryStore->registerWithdrawal((int)$m[1], $familyId, $signatureAccepted, $signatureName);
+            if (!$w) return ['status'=>404,'body'=>['error'=>'event_not_found','request_id'=>$requestId]];
+            if (isset($w['error']) && $w['error']==='duplicate_month') return ['status'=>409,'body'=>['error'=>'duplicate_month_withdrawal','request_id'=>$requestId]];
+            if (isset($w['error']) && $w['error']==='signature_required') return ['status'=>422,'body'=>['error'=>'signature_required','request_id'=>$requestId]];
+            $this->audit('delivery.withdrawal.registered', $requestId, ['withdrawal_id'=>(string)$w['id']]);
+            return ['status'=>201,'body'=>['item'=>$w,'request_id'=>$requestId]];
         }
 
         if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE'], true)) {

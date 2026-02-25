@@ -52,3 +52,15 @@ Credenciais de bootstrap (somente ambiente de desenvolvimento):
 - `POST /street/referrals/{id}/status`
 
 Regra LGPD aplicada: conclusão de atendimento exige `consent_accepted=true` e `signature_name`.
+
+
+### Endpoints entregas/eventos (Sprint 06)
+
+- `GET/POST /deliveries/events`
+- `POST /deliveries/events/{id}/invites`
+- `POST /deliveries/events/{id}/withdrawals`
+
+Regras críticas:
+- bloqueio de retirada duplicada no mesmo mês por família;
+- retirada exige assinatura simples (`signature_accepted` + `signature_name`);
+- convite gera `withdrawal_code` automático (6 chars).
