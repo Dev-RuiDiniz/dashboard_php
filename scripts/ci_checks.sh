@@ -30,6 +30,7 @@ php -l tests/Feature/ReportsEligibilitySettingsTest.php
 php -l tests/Feature/SecurityHardeningTest.php
 php -l tests/Feature/RelationalMigrationReadinessTest.php
 php -l tests/Feature/StreetRelationalMigrationReadinessTest.php
+php -l tests/Feature/RemainingDomainsRelationalReadinessTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
 php tests/Feature/FamilyDomainCrudTest.php
@@ -43,3 +44,5 @@ php tests/Feature/SecurityHardeningTest.php
 php tests/Feature/RelationalMigrationReadinessTest.php
 
 php tests/Feature/StreetRelationalMigrationReadinessTest.php
+
+php tests/Feature/RemainingDomainsRelationalReadinessTest.php
