@@ -13,7 +13,7 @@ Este repositório contém:
 - hardening básico (lockout + headers de segurança);
 - documentação de execução e relatórios de sprints.
 
-> **Status atual:** o plano de 10 sprints foi concluído em modo bootstrap técnico, com pendências conhecidas para produção (persistência definitiva, paridade visual final de exports, validação estatística A/B e hardening avançado).
+> **Status atual:** Sprints 01–11 concluídas em modo bootstrap técnico. A Sprint 11 iniciou a persistência relacional para o domínio social (famílias/dependentes/crianças), mantendo fallback JSON para continuidade operacional.
 
 ---
 
@@ -130,7 +130,24 @@ Status suportados:
 
 ---
 
-## 6) Testes automatizados atuais
+## 6) Persistência e migrations (Sprint 11)
+
+### Modos de persistência do SocialStore
+- `SOCIAL_STORE_DRIVER=json` (padrão): usa `data/social_store.json`;
+- `SOCIAL_STORE_DRIVER=mysql`: usa MySQL via variáveis `MYSQL_*` ou `MYSQL_DSN`.
+
+### Executar migrations
+```bash
+php scripts/run_migrations.php
+```
+
+Variáveis suportadas:
+- `MYSQL_DSN` (opcional, prioridade máxima)
+- `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_CHARSET`
+
+---
+
+## 7) Testes automatizados atuais
 
 Suites em `tests/Feature/`:
 - `HealthReadyTest`
@@ -150,9 +167,9 @@ bash scripts/ci_checks.sh
 
 ---
 
-## 7) Documentação de sprints e auditoria
+## 8) Documentação de sprints e auditoria
 
-- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_10_*`.
+- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_11_*`.
 - Runbook Sprint 10: `docs/sprints/SPRINT_10_RUNBOOK.md`.
 - Inventário legado: `docs/sprints/artifacts/INVENTORY_SPRINT01.md`.
 - Snapshot OpenAPI legado (estático): `docs/sprints/artifacts/openapi_legacy_sprint01.json`.
@@ -160,16 +177,16 @@ bash scripts/ci_checks.sh
 
 ---
 
-## 8) Limitações conhecidas (bootstrap)
+## 9) Limitações conhecidas (bootstrap)
 
-- persistência em JSON (não relacional);
+- persistência relacional parcial (apenas domínio social em MySQL opcional);
 - exportadores XLSX/PDF simplificados;
 - ausência de dashboard visual no frontend;
 - ausência de cutover real de produção neste repositório.
 
 ---
 
-## 9) Próximos passos
+## 10) Próximos passos
 
 Ver relatório consolidado e plano estendido em:
 - `docs/sprints/SPRINTS_CONSOLIDATED_AUDIT_AND_NEXT_PLAN.md`

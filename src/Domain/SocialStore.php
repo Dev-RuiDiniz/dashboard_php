@@ -4,17 +4,49 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
+use PDO;
+
 final class SocialStore
 {
     private string $storagePath;
+    private ?PDO $pdo;
 
-    public function __construct(?string $storagePath = null)
+    public function __construct(?string $storagePath = null, ?PDO $pdo = null)
     {
         $this->storagePath = $storagePath ?? __DIR__ . '/../../data/social_store.json';
-        $dir = dirname($this->storagePath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+        $this->pdo = $pdo ?? $this->resolvePdoFromEnvironment();
+
+        if ($this->pdo === null) {
+            $dir = dirname($this->storagePath);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
         }
+    }
+
+    private function resolvePdoFromEnvironment(): ?PDO
+    {
+        $driver = strtolower((string) (getenv('SOCIAL_STORE_DRIVER') ?: 'json'));
+        if ($driver !== 'mysql') {
+            return null;
+        }
+
+        $dsn = getenv('MYSQL_DSN') ?: '';
+        if ($dsn === '') {
+            $host = getenv('MYSQL_HOST') ?: '127.0.0.1';
+            $port = getenv('MYSQL_PORT') ?: '3306';
+            $database = getenv('MYSQL_DATABASE') ?: 'dashboard_php';
+            $charset = getenv('MYSQL_CHARSET') ?: 'utf8mb4';
+            $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $host, $port, $database, $charset);
+        }
+
+        $username = getenv('MYSQL_USER') ?: 'root';
+        $password = getenv('MYSQL_PASSWORD') ?: '';
+
+        return new PDO($dsn, $username, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
     }
 
     /** @return array<string,mixed> */
@@ -63,6 +95,11 @@ final class SocialStore
     /** @return array<int,array<string,mixed>> */
     public function listFamilies(): array
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->query('SELECT id, responsible_full_name, responsible_cpf FROM families ORDER BY id ASC');
+            return $stmt->fetchAll() ?: [];
+        }
+
         $data = $this->load();
         return array_values($data['families']);
     }
@@ -70,6 +107,13 @@ final class SocialStore
     /** @return array<string,mixed>|null */
     public function getFamily(int $id): ?array
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('SELECT id, responsible_full_name, responsible_cpf FROM families WHERE id = :id LIMIT 1');
+            $stmt->execute(['id' => $id]);
+            $item = $stmt->fetch();
+            return is_array($item) ? $item : null;
+        }
+
         $data = $this->load();
         return $data['families'][(string) $id] ?? null;
     }
@@ -77,6 +121,13 @@ final class SocialStore
     /** @return array<string,mixed> */
     public function createFamily(string $name, string $cpf): array
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('INSERT INTO families (responsible_full_name, responsible_cpf) VALUES (:name, :cpf)');
+            $stmt->execute(['name' => $name, 'cpf' => $cpf]);
+            $id = (int) $this->pdo->lastInsertId();
+            return ['id' => $id, 'responsible_full_name' => $name, 'responsible_cpf' => $cpf];
+        }
+
         $data = $this->load();
         $id = (int) $data['familySeq'];
         $data['familySeq'] = $id + 1;
@@ -91,6 +142,15 @@ final class SocialStore
     /** @return array<string,mixed>|null */
     public function updateFamily(int $id, string $name, string $cpf): ?array
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('UPDATE families SET responsible_full_name = :name, responsible_cpf = :cpf WHERE id = :id');
+            $stmt->execute(['name' => $name, 'cpf' => $cpf, 'id' => $id]);
+            if ($stmt->rowCount() === 0) {
+                return null;
+            }
+            return $this->getFamily($id);
+        }
+
         $data = $this->load();
         if (!isset($data['families'][(string) $id])) {
             return null;
@@ -105,6 +165,12 @@ final class SocialStore
 
     public function deleteFamily(int $id): bool
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('DELETE FROM families WHERE id = :id');
+            $stmt->execute(['id' => $id]);
+            return $stmt->rowCount() > 0;
+        }
+
         $data = $this->load();
         if (!isset($data['families'][(string) $id])) {
             return false;
@@ -130,6 +196,17 @@ final class SocialStore
 
     public function familyCpfExists(string $cpf, ?int $ignoreId = null): bool
     {
+        if ($this->pdo !== null) {
+            if ($ignoreId !== null) {
+                $stmt = $this->pdo->prepare('SELECT 1 FROM families WHERE responsible_cpf = :cpf AND id <> :id LIMIT 1');
+                $stmt->execute(['cpf' => $cpf, 'id' => $ignoreId]);
+            } else {
+                $stmt = $this->pdo->prepare('SELECT 1 FROM families WHERE responsible_cpf = :cpf LIMIT 1');
+                $stmt->execute(['cpf' => $cpf]);
+            }
+            return (bool) $stmt->fetchColumn();
+        }
+
         $data = $this->load();
         foreach ($data['families'] as $family) {
             if ((string) $family['responsible_cpf'] === $cpf && (int) $family['id'] !== (int) ($ignoreId ?? 0)) {
@@ -143,6 +220,11 @@ final class SocialStore
     /** @return array<int,array<string,mixed>> */
     public function listDependents(): array
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->query('SELECT id, family_id, full_name FROM dependents ORDER BY id ASC');
+            return $stmt->fetchAll() ?: [];
+        }
+
         $data = $this->load();
         return array_values($data['dependents']);
     }
@@ -150,6 +232,15 @@ final class SocialStore
     /** @return array<string,mixed>|null */
     public function createDependent(int $familyId, string $name): ?array
     {
+        if ($this->pdo !== null) {
+            if ($this->getFamily($familyId) === null) {
+                return null;
+            }
+            $stmt = $this->pdo->prepare('INSERT INTO dependents (family_id, full_name) VALUES (:family_id, :full_name)');
+            $stmt->execute(['family_id' => $familyId, 'full_name' => $name]);
+            return ['id' => (int) $this->pdo->lastInsertId(), 'family_id' => $familyId, 'full_name' => $name];
+        }
+
         $data = $this->load();
         if (!isset($data['families'][(string) $familyId])) {
             return null;
@@ -167,6 +258,12 @@ final class SocialStore
 
     public function deleteDependent(int $id): bool
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('DELETE FROM dependents WHERE id = :id');
+            $stmt->execute(['id' => $id]);
+            return $stmt->rowCount() > 0;
+        }
+
         $data = $this->load();
         if (!isset($data['dependents'][(string) $id])) {
             return false;
@@ -181,6 +278,11 @@ final class SocialStore
     /** @return array<int,array<string,mixed>> */
     public function listChildren(): array
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->query('SELECT id, family_id, full_name FROM children ORDER BY id ASC');
+            return $stmt->fetchAll() ?: [];
+        }
+
         $data = $this->load();
         return array_values($data['children']);
     }
@@ -188,6 +290,15 @@ final class SocialStore
     /** @return array<string,mixed>|null */
     public function createChild(int $familyId, string $name): ?array
     {
+        if ($this->pdo !== null) {
+            if ($this->getFamily($familyId) === null) {
+                return null;
+            }
+            $stmt = $this->pdo->prepare('INSERT INTO children (family_id, full_name) VALUES (:family_id, :full_name)');
+            $stmt->execute(['family_id' => $familyId, 'full_name' => $name]);
+            return ['id' => (int) $this->pdo->lastInsertId(), 'family_id' => $familyId, 'full_name' => $name];
+        }
+
         $data = $this->load();
         if (!isset($data['families'][(string) $familyId])) {
             return null;
@@ -205,6 +316,12 @@ final class SocialStore
 
     public function deleteChild(int $id): bool
     {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('DELETE FROM children WHERE id = :id');
+            $stmt->execute(['id' => $id]);
+            return $stmt->rowCount() > 0;
+        }
+
         $data = $this->load();
         if (!isset($data['children'][(string) $id])) {
             return false;
@@ -218,6 +335,13 @@ final class SocialStore
 
     public function reset(): void
     {
+        if ($this->pdo !== null) {
+            $this->pdo->exec('DELETE FROM children');
+            $this->pdo->exec('DELETE FROM dependents');
+            $this->pdo->exec('DELETE FROM families');
+            return;
+        }
+
         if (file_exists($this->storagePath)) {
             unlink($this->storagePath);
         }

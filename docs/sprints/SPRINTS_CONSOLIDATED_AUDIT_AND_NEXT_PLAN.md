@@ -1,4 +1,4 @@
-# Consolidação e Auditoria das Sprints (01–10) + Plano Estendido
+# Consolidação e Auditoria das Sprints (01–11) + Plano Estendido
 
 ## 1) Resumo executivo
 
@@ -8,7 +8,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ---
 
-## 2) Auditoria consolidada das sprints 01–10
+## 2) Auditoria consolidada das sprints 01–11
 
 | Sprint | Objetivo do plano | Status | Evidência principal | Observações |
 |---|---|---|---|---|
@@ -22,6 +22,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 | 08 | Equipamentos + empréstimos | ✅ Concluída | `SPRINT_08_REPORT.md` | empréstimo/devolução com status |
 | 09 | Relatórios gerenciais + elegibilidade | ✅ Concluída | `SPRINT_09_REPORT.md` | summary + settings + check |
 | 10 | Hardening + rollout/rollback | ✅ Concluída | `SPRINT_10_REPORT.md` + `SPRINT_10_RUNBOOK.md` | lockout básico + headers segurança |
+| 11 | Persistência relacional inicial (social) | ✅ Concluída | `SPRINT_11_REPORT.md` + `database/migrations/*` | MySQL opcional + fallback JSON |
 
 ---
 
@@ -55,22 +56,22 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 > Proposta para fechamento do sistema após Sprint 10.
 
-### Sprint 11 — Persistência relacional e migrações
-- Migrar stores JSON para persistência em banco.
-- Criar migrations idempotentes e seeds controladas.
+### Sprint 12 — Persistência relacional expandida + data migration
+- Migrar stores restantes para persistência relacional (street, deliveries, equipment, settings).
+- Criar scripts de data migration JSON→MySQL com execução idempotente.
 - Validar integridade e constraints equivalentes por domínio.
 
-### Sprint 12 — Contratos de API e compatibilidade final
+### Sprint 13 — Contratos de API e compatibilidade final
 - Publicar OpenAPI v1 do backend PHP.
 - Implementar facade/aliases de compatibilidade legada críticos.
 - Adicionar contract tests de compatibilidade Python x PHP.
 
-### Sprint 13 — Exportações de fidelidade e homologação funcional
+### Sprint 14 — Exportações de fidelidade e homologação funcional
 - Evoluir engine de XLSX/PDF para paridade visual.
 - Golden files e testes de snapshot de layout.
 - Homologação com usuários-chave.
 
-### Sprint 14 — Produção assistida e encerramento de migração
+### Sprint 15 — Produção assistida e encerramento de migração
 - Plano de cutover real (janela, comunicação, fallback).
 - DR drill e testes de rollback operacional.
 - Go/No-Go final e documento de encerramento da migração.
@@ -89,7 +90,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ## 7) Evidências e referências
 
-- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_10_REPORT.md`
-- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_10_EXECUTION.md`
+- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_11_REPORT.md`
+- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_11_EXECUTION.md`
 - Runbook: `docs/sprints/SPRINT_10_RUNBOOK.md`
 - Artefatos baseline: `docs/sprints/artifacts/*`
