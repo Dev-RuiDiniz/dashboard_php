@@ -1,14 +1,14 @@
-# Consolidação e Auditoria das Sprints (01–13) + Plano Estendido
+# Consolidação e Auditoria das Sprints (01–14) + Plano Estendido
 
 ## 1) Resumo executivo
 
-A execução das sprints 01–13 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
+A execução das sprints 01–14 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
 
 O estado atual é funcional para validação incremental, porém ainda **não é estado final de produção**.
 
 ---
 
-## 2) Auditoria consolidada das sprints 01–13
+## 2) Auditoria consolidada das sprints 01–14
 
 | Sprint | Objetivo do plano | Status | Evidência principal | Observações |
 |---|---|---|---|---|
@@ -25,6 +25,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 | 11 | Persistência relacional inicial (social) | ✅ Concluída | `SPRINT_11_REPORT.md` + `database/migrations/*` | MySQL opcional + fallback JSON |
 | 12 | Persistência relacional Street + data migration inicial | ✅ Concluída | `SPRINT_12_REPORT.md` + `scripts/migrate_json_to_mysql.php` | Street em MySQL opcional + script idempotente |
 | 13 | Persistência relacional final dos stores | ✅ Concluída | `SPRINT_13_REPORT.md` + `003_create_delivery_equipment_settings_core.sql` | Delivery/Equipment/Settings com MySQL opcional |
+| 14 | Contrato OpenAPI v1 e testes de contrato | ✅ Concluída | `SPRINT_14_REPORT.md` + `openapi_php_v1.json` | Contrato versionado e validado por teste |
 
 ---
 
@@ -58,11 +59,6 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 > Proposta para fechamento do sistema após Sprint 10.
 
-### Sprint 14 — Contratos de API e compatibilidade final
-- Publicar OpenAPI v1 do backend PHP.
-- Implementar facade/aliases de compatibilidade legada críticos.
-- Adicionar contract tests de compatibilidade Python x PHP.
-
 ### Sprint 15 — Exportações de fidelidade e homologação funcional
 - Evoluir engine de XLSX/PDF para paridade visual.
 - Golden files e testes de snapshot de layout.
@@ -87,7 +83,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ## 7) Evidências e referências
 
-- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_13_REPORT.md`
-- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_13_EXECUTION.md`
+- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_14_REPORT.md`
+- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_14_EXECUTION.md`
 - Runbook: `docs/sprints/SPRINT_10_RUNBOOK.md`
 - Artefatos baseline: `docs/sprints/artifacts/*`
