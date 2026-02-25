@@ -33,3 +33,13 @@ Credenciais de bootstrap (somente ambiente de desenvolvimento):
 - `admin@local` / `admin123`
 - `operador@local` / `operador123`
 - `leitura@local` / `leitura123`
+
+
+### Endpoints de domínio social (Sprint 04)
+
+- `GET/POST /families`
+- `GET/PUT/DELETE /families/{id}`
+- `GET/POST /dependents`
+- `DELETE /dependents/{id}`
+- `GET/POST /children`
+- `DELETE /children/{id}`

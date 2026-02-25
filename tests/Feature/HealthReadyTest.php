@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../src/Auth/JwtService.php';
 require_once __DIR__ . '/../../src/Auth/UserStore.php';
+require_once __DIR__ . '/../../src/Domain/CpfValidator.php';
+require_once __DIR__ . '/../../src/Domain/SocialStore.php';
 require_once __DIR__ . '/../../src/Http/Kernel.php';
 
 use App\Http\Kernel;
