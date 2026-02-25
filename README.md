@@ -20,3 +20,16 @@ bash scripts/ci_checks.sh
 ```bash
 php -S 127.0.0.1:8099 -t public
 ```
+
+
+### Endpoints técnicos de autenticação (Sprint 03)
+
+- `POST /auth/login`
+- `GET /me`
+- `POST /auth/logout`
+
+Credenciais de bootstrap (somente ambiente de desenvolvimento):
+
+- `admin@local` / `admin123`
+- `operador@local` / `operador123`
+- `leitura@local` / `leitura123`
