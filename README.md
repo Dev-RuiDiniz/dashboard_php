@@ -73,3 +73,13 @@ Regras críticas:
 - `GET /reports/export.pdf`
 
 Observação: no bootstrap técnico, XLSX e PDF são versões simplificadas para validação incremental dos fluxos de exportação.
+
+
+### Endpoints equipamentos/empréstimos (Sprint 08)
+
+- `GET/POST /equipment`
+- `PUT /equipment/{id}`
+- `GET/POST /equipment/loans`
+- `POST /equipment/loans/{id}/return`
+
+Status suportados: `disponivel`, `emprestado`, `manutencao`.

@@ -12,6 +12,7 @@ use App\Domain\SocialStore;
 use App\Domain\StreetStore;
 use App\Domain\DeliveryStore;
 use App\Reports\ExportService;
+use App\Domain\EquipmentStore;
 
 final class Kernel
 {
@@ -24,6 +25,7 @@ final class Kernel
         private ?StreetStore $streetStore = null,
         private ?DeliveryStore $deliveryStore = null,
         private ?ExportService $exportService = null,
+        private ?EquipmentStore $equipmentStore = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
@@ -32,6 +34,7 @@ final class Kernel
         $this->streetStore = $this->streetStore ?? new StreetStore();
         $this->deliveryStore = $this->deliveryStore ?? new DeliveryStore();
         $this->exportService = $this->exportService ?? new ExportService();
+        $this->equipmentStore = $this->equipmentStore ?? new EquipmentStore();
     }
 
     /**
@@ -287,6 +290,74 @@ final class Kernel
         }
 
         
+
+
+        // Sprint 8: equipment + loans
+        if ($path === '/equipment' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            return ['status'=>200,'body'=>['items'=>$this->equipmentStore->listEquipments(),'request_id'=>$requestId]];
+        }
+
+        if ($path === '/equipment' && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $type=trim((string)($payload['type']??''));
+            $condition=trim((string)($payload['condition']??''));
+            $notes=trim((string)($payload['notes']??''));
+            if ($type==='' || $condition==='') return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
+            $e=$this->equipmentStore->createEquipment($type,$condition,$notes);
+            $this->audit('equipment.created',$requestId,['equipment_id'=>(string)$e['id']]);
+            return ['status'=>201,'body'=>['item'=>$e,'request_id'=>$requestId]];
+        }
+
+        if (preg_match('#^/equipment/(\d+)$#',$path,$m)===1 && $method==='PUT') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $status=trim((string)($payload['status']??''));
+            $condition=trim((string)($payload['condition']??''));
+            $notes=trim((string)($payload['notes']??''));
+            $u=$this->equipmentStore->updateEquipment((int)$m[1],$status,$condition,$notes);
+            if (!$u) return ['status'=>404,'body'=>['error'=>'equipment_not_found','request_id'=>$requestId]];
+            if (isset($u['error'])&&$u['error']==='invalid_status') return ['status'=>422,'body'=>['error'=>'invalid_status','request_id'=>$requestId]];
+            $this->audit('equipment.updated',$requestId,['equipment_id'=>$m[1]]);
+            return ['status'=>200,'body'=>['item'=>$u,'request_id'=>$requestId]];
+        }
+
+        if ($path === '/equipment/loans' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            return ['status'=>200,'body'=>['items'=>$this->equipmentStore->listLoans(),'request_id'=>$requestId]];
+        }
+
+        if ($path === '/equipment/loans' && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $equipmentId=(int)($payload['equipment_id']??0);
+            $familyId=(int)($payload['family_id']??0);
+            $dueDate=trim((string)($payload['due_date']??''));
+            if ($equipmentId<=0 || $familyId<=0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$dueDate)) {
+                return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
+            }
+            $loan=$this->equipmentStore->createLoan($equipmentId,$familyId,$dueDate);
+            if (!$loan) return ['status'=>404,'body'=>['error'=>'equipment_not_found','request_id'=>$requestId]];
+            if (isset($loan['error'])&&$loan['error']==='equipment_unavailable') return ['status'=>409,'body'=>['error'=>'equipment_unavailable','request_id'=>$requestId]];
+            $this->audit('equipment.loan.created',$requestId,['loan_id'=>(string)$loan['id']]);
+            return ['status'=>201,'body'=>['item'=>$loan,'request_id'=>$requestId]];
+        }
+
+        if (preg_match('#^/equipment/loans/(\d+)/return$#',$path,$m)===1 && $method==='POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $condition=trim((string)($payload['condition']??''));
+            $notes=trim((string)($payload['notes']??''));
+            if ($condition==='') return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
+            $loan=$this->equipmentStore->returnLoan((int)$m[1],$condition,$notes);
+            if (!$loan) return ['status'=>404,'body'=>['error'=>'loan_not_found','request_id'=>$requestId]];
+            if (isset($loan['error'])&&$loan['error']==='loan_closed') return ['status'=>409,'body'=>['error'=>'loan_already_closed','request_id'=>$requestId]];
+            $this->audit('equipment.loan.returned',$requestId,['loan_id'=>$m[1]]);
+            return ['status'=>200,'body'=>['item'=>$loan,'request_id'=>$requestId]];
+        }
 
         // Sprint 7: exports
         if (in_array($path, ['/reports/export.csv', '/reports/export.xlsx', '/reports/export.pdf'], true) && $method === 'GET') {
