@@ -1,14 +1,14 @@
-# Consolidação e Auditoria das Sprints (01–15) + Plano Estendido
+# Consolidação e Auditoria das Sprints (01–16) + Plano Estendido
 
 ## 1) Resumo executivo
 
-A execução das sprints 01–15 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
+A execução das sprints 01–16 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
 
 O estado atual é funcional para validação incremental, porém ainda **não é estado final de produção**.
 
 ---
 
-## 2) Auditoria consolidada das sprints 01–15
+## 2) Auditoria consolidada das sprints 01–16
 
 | Sprint | Objetivo do plano | Status | Evidência principal | Observações |
 |---|---|---|---|---|
@@ -27,6 +27,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 | 13 | Persistência relacional final dos stores | ✅ Concluída | `SPRINT_13_REPORT.md` + `003_create_delivery_equipment_settings_core.sql` | Delivery/Equipment/Settings com MySQL opcional |
 | 14 | Contrato OpenAPI v1 e testes de contrato | ✅ Concluída | `SPRINT_14_REPORT.md` + `openapi_php_v1.json` | Contrato versionado e validado por teste |
 | 15 | Fidelidade de exportações e golden files | ✅ Concluída | `SPRINT_15_REPORT.md` + `golden_exports/*` | CSV/XLSX/PDF com validação determinística |
+| 16 | Produção assistida e encerramento da migração | ✅ Concluída | `SPRINT_16_REPORT.md` + `SPRINT_16_RUNBOOK.md` | Runbook final, Go/No-Go e rollback operacional |
 
 ---
 
@@ -40,7 +41,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 - Não houve criação/alteração de telas no escopo desta trilha backend.
 
 ### 3.3 Ordem e escopo do plano de migração
-- A sequência de entregas respeitou o planejamento incremental 01→13 (com plano estendido).
+- A sequência de entregas respeitou o planejamento incremental 01→16 (com plano estendido).
 - Cada sprint possui plano e relatório próprios.
 
 ---
@@ -56,14 +57,10 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ---
 
-## 5) Plano de sprints adicionais (necessárias)
+## 5) Encerramento do plano estendido
 
-> Proposta para fechamento do sistema após Sprint 10.
-
-### Sprint 16 — Produção assistida e encerramento de migração
-- Plano de cutover real (janela, comunicação, fallback).
-- DR drill e testes de rollback operacional.
-- Go/No-Go final e documento de encerramento da migração.
+- Sprints 11–16 concluídas com entregáveis documentados.
+- Próximo passo fora desta trilha: execução operacional real do cutover conforme runbook.
 
 ---
 
@@ -79,7 +76,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ## 7) Evidências e referências
 
-- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_15_REPORT.md`
-- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_15_EXECUTION.md`
-- Runbook: `docs/sprints/SPRINT_10_RUNBOOK.md`
+- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_16_REPORT.md`
+- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_16_EXECUTION.md`
+- Runbooks: `docs/sprints/SPRINT_10_RUNBOOK.md`, `docs/sprints/SPRINT_16_RUNBOOK.md`
 - Artefatos baseline: `docs/sprints/artifacts/*`

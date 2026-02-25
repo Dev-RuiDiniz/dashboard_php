@@ -13,7 +13,7 @@ Este repositório contém:
 - hardening básico (lockout + headers de segurança);
 - documentação de execução e relatórios de sprints.
 
-> **Status atual:** Sprints 01–15 concluídas em modo bootstrap técnico. As Sprints 11–15 consolidaram persistência relacional incremental, contrato OpenAPI v1 e evolução de fidelidade nas exportações (CSV/XLSX/PDF) com testes de golden files.
+> **Status atual:** Sprints 01–16 concluídas em modo bootstrap técnico. As Sprints 11–16 consolidaram persistência relacional incremental, contrato OpenAPI v1, fidelidade de exportações e runbook final de produção assistida.
 
 ---
 
@@ -179,8 +179,9 @@ bash scripts/ci_checks.sh
 
 ## 8) Documentação de sprints e auditoria
 
-- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_15_*`.
+- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_16_*`.
 - Runbook Sprint 10: `docs/sprints/SPRINT_10_RUNBOOK.md`.
+- Runbook final Sprint 16: `docs/sprints/SPRINT_16_RUNBOOK.md`.
 - Inventário legado: `docs/sprints/artifacts/INVENTORY_SPRINT01.md`.
 - Snapshot OpenAPI legado (estático): `docs/sprints/artifacts/openapi_legacy_sprint01.json`.
 - Matriz de compatibilidade: `docs/sprints/artifacts/COMPATIBILITY_MATRIX_SPRINT01.md`.
