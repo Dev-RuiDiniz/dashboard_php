@@ -78,6 +78,14 @@ final class Kernel
             $this->audit('auth.logout', $requestId, []);
             return ['status' => 200, 'body' => ['status' => 'logged_out', 'request_id' => $requestId]];
         }
+
+        $permission = $this->resolvePermission($method, $path);
+        if ($permission !== null) {
+            $authz = $this->requirePermission($requestId, $headers, $env, $permission);
+            if (isset($authz['response'])) {
+                return $authz['response'];
+            }
+        }
         if ($method === 'GET' && $path === '/admin/ping') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) {
@@ -588,6 +596,63 @@ final class Kernel
             return ['response' => ['status' => 401, 'body' => ['error' => 'unknown_user', 'request_id' => $requestId]]];
         }
         return ['user' => $user];
+    }
+
+    /** @param array<string,string> $headers @param array<string,mixed> $env @return array<string,mixed> */
+    private function requirePermission(string $requestId, array $headers, array $env, string $permission): array
+    {
+        $auth = $this->requireAuth($requestId, $headers, $env);
+        if (isset($auth['response'])) {
+            return $auth;
+        }
+        if (!$this->userStore->hasPermission($auth['user'], $permission)) {
+            $this->audit('auth.forbidden', $requestId, ['path' => 'permission_scope', 'permission' => $permission]);
+            return ['response' => ['status' => 403, 'body' => ['error' => 'forbidden', 'request_id' => $requestId]]];
+        }
+
+        return $auth;
+    }
+
+    private function resolvePermission(string $method, string $path): ?string
+    {
+        if ($path === '/admin/ping' && $method === 'GET') {
+            return 'admin.ping';
+        }
+
+
+        if ($path === '/families' || preg_match('#^/families/\d+$#', $path) === 1 || $path === '/dependents' || preg_match('#^/dependents/\d+$#', $path) === 1 || $path === '/children' || preg_match('#^/children/\d+$#', $path) === 1) {
+            return $method === 'GET' ? 'families.read' : 'families.write';
+        }
+
+        if ($path === '/street/people') {
+            return $method === 'GET' ? 'street.read' : 'street.write';
+        }
+
+        if ($path === '/street/referrals' || preg_match('#^/street/referrals/\d+/status$#', $path) === 1) {
+            return 'street.write';
+        }
+
+        if ($path === '/deliveries/events' || preg_match('#^/deliveries/events/\d+/(invites|withdrawals)$#', $path) === 1) {
+            return $method === 'GET' ? 'delivery.read' : 'delivery.write';
+        }
+
+        if ($path === '/equipment' || preg_match('#^/equipment/\d+$#', $path) === 1 || $path === '/equipment/loans' || preg_match('#^/equipment/loans/\d+/return$#', $path) === 1) {
+            return $method === 'GET' ? 'equipment.read' : 'equipment.write';
+        }
+
+        if ($path === '/reports/summary' || in_array($path, ['/reports/export.csv', '/reports/export.xlsx', '/reports/export.pdf'], true)) {
+            return 'reports.read';
+        }
+
+        if ($path === '/settings/eligibility') {
+            return $method === 'GET' ? 'settings.read' : 'settings.write';
+        }
+
+        if ($path === '/eligibility/check') {
+            return 'eligibility.check';
+        }
+
+        return null;
     }
 
     /** @param array<string,string> $headers @param array<string,mixed> $env @return array<string,mixed> */

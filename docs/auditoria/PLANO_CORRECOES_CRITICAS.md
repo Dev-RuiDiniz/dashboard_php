@@ -52,3 +52,10 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - Persistir fluxo de reset em storage transacional (atualmente em memória para bootstrap local).
 - Implementar UI/fluxo operacional de visitas pendentes/concluídas e dashboard operacional com indicadores reais.
 - Completar relatórios mensais oficiais em todos formatos e política de limpeza/retensão de legado.
+
+## 7) Próximo passo executado (Sprint 22)
+
+- **RBAC expandido para matriz por rota/módulo/ação**: adicionado resolver central de permissão no kernel (`families.*`, `street.*`, `delivery.*`, `equipment.*`, `reports.read`, `settings.*`, `eligibility.check`, `admin.ping`) com bloqueio `403` e trilha de auditoria quando houver violação.
+- **Cobertura de teste**: atualizado teste de autenticação/RBAC para validar bloqueio de escrita para perfil `viewer` e leitura permitida em configurações.
+
+> Observação: o enforcement de permissão foi aplicado no gateway HTTP atual, preservando compatibilidade com as validações de papel já existentes para rotas de escrita.
