@@ -187,3 +187,5 @@ Recomendações futuras:
 - Login/Reset: `/login`, `/password/forgot`, `/password/reset`.
 - Entregas: criar/listar eventos (`/entregas`, `/entregas/eventos`), convidar, registrar retirada, encerrar evento.
 - Timeline agregada (API): `GET /timeline?family_id=...` ou `GET /timeline?person_id=...`.
+
+> Nota de migração: os diretórios `templates/` e `static/` foram isolados em `../frontend/legacy/igreja_dashboard_python/` e mantidos via symlink para compatibilidade.

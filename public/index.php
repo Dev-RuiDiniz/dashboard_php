@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../src/Http/Kernel.php';
 require_once __DIR__ . '/../src/Http/RequestContext.php';
+require_once __DIR__ . '/../src/Http/WebFrontend.php';
 require_once __DIR__ . '/../src/Observability/JsonLogger.php';
 require_once __DIR__ . '/../src/Auth/JwtService.php';
 require_once __DIR__ . '/../src/Auth/UserStore.php';
@@ -21,6 +22,7 @@ require_once __DIR__ . '/../src/Reports/ExportService.php';
 use App\Audit\AuditLogger;
 use App\Http\Kernel;
 use App\Http\RequestContext;
+use App\Http\WebFrontend;
 use App\Observability\JsonLogger;
 
 $start = microtime(true);
@@ -40,6 +42,34 @@ $requestId = $requestContext->resolveRequestId($headers);
 $logger = new JsonLogger();
 $auditLogger = new AuditLogger($logger);
 $kernel = new Kernel(auditLogger: $auditLogger);
+$webFrontend = new WebFrontend();
+$webRoutes = require __DIR__ . '/../routes/web.php';
+$webResponse = $webFrontend->handle($method, $path, $webRoutes, $_SERVER);
+
+if ($webResponse !== null) {
+    http_response_code($webResponse['status']);
+    header('X-Request-Id: ' . $requestId);
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: DENY');
+    header('Referrer-Policy: no-referrer');
+    header("Content-Security-Policy: default-src 'self' 'unsafe-inline'; frame-ancestors 'none';");
+    foreach ($webResponse['headers'] as $name => $value) {
+        header($name . ': ' . $value);
+    }
+    echo $webResponse['body'];
+
+    $durationMs = (int) round((microtime(true) - $start) * 1000);
+    $logger->info('http_request', [
+        'request_id' => $requestId,
+        'method' => $method,
+        'path' => $path,
+        'status' => $webResponse['status'],
+        'duration_ms' => $durationMs,
+        'channel' => 'web',
+    ]);
+    return;
+}
+
 $response = $kernel->handle($method, $path, $requestId, $headers, $payload);
 
 http_response_code($response['status']);
