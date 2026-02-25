@@ -1,14 +1,14 @@
-# Consolidação e Auditoria das Sprints (01–14) + Plano Estendido
+# Consolidação e Auditoria das Sprints (01–15) + Plano Estendido
 
 ## 1) Resumo executivo
 
-A execução das sprints 01–14 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
+A execução das sprints 01–15 foi concluída em modo **bootstrap técnico**. Houve evolução contínua de fundação (infra mínima, auth, domínios, exports, configurações e hardening), com rastreabilidade documental por sprint.
 
 O estado atual é funcional para validação incremental, porém ainda **não é estado final de produção**.
 
 ---
 
-## 2) Auditoria consolidada das sprints 01–14
+## 2) Auditoria consolidada das sprints 01–15
 
 | Sprint | Objetivo do plano | Status | Evidência principal | Observações |
 |---|---|---|---|---|
@@ -26,6 +26,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 | 12 | Persistência relacional Street + data migration inicial | ✅ Concluída | `SPRINT_12_REPORT.md` + `scripts/migrate_json_to_mysql.php` | Street em MySQL opcional + script idempotente |
 | 13 | Persistência relacional final dos stores | ✅ Concluída | `SPRINT_13_REPORT.md` + `003_create_delivery_equipment_settings_core.sql` | Delivery/Equipment/Settings com MySQL opcional |
 | 14 | Contrato OpenAPI v1 e testes de contrato | ✅ Concluída | `SPRINT_14_REPORT.md` + `openapi_php_v1.json` | Contrato versionado e validado por teste |
+| 15 | Fidelidade de exportações e golden files | ✅ Concluída | `SPRINT_15_REPORT.md` + `golden_exports/*` | CSV/XLSX/PDF com validação determinística |
 
 ---
 
@@ -59,11 +60,6 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 > Proposta para fechamento do sistema após Sprint 10.
 
-### Sprint 15 — Exportações de fidelidade e homologação funcional
-- Evoluir engine de XLSX/PDF para paridade visual.
-- Golden files e testes de snapshot de layout.
-- Homologação com usuários-chave.
-
 ### Sprint 16 — Produção assistida e encerramento de migração
 - Plano de cutover real (janela, comunicação, fallback).
 - DR drill e testes de rollback operacional.
@@ -83,7 +79,7 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ## 7) Evidências e referências
 
-- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_14_REPORT.md`
-- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_14_EXECUTION.md`
+- Relatórios: `docs/sprints/SPRINT_01_REPORT.md` ... `docs/sprints/SPRINT_15_REPORT.md`
+- Planos: `docs/sprints/SPRINT_01_EXECUTION.md` ... `docs/sprints/SPRINT_15_EXECUTION.md`
 - Runbook: `docs/sprints/SPRINT_10_RUNBOOK.md`
 - Artefatos baseline: `docs/sprints/artifacts/*`

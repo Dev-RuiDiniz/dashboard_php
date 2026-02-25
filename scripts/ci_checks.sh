@@ -32,6 +32,7 @@ php -l tests/Feature/RelationalMigrationReadinessTest.php
 php -l tests/Feature/StreetRelationalMigrationReadinessTest.php
 php -l tests/Feature/RemainingDomainsRelationalReadinessTest.php
 php -l tests/Feature/OpenApiContractTest.php
+php -l tests/Feature/ReportsExportFidelityTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
 php tests/Feature/FamilyDomainCrudTest.php
@@ -49,3 +50,5 @@ php tests/Feature/StreetRelationalMigrationReadinessTest.php
 php tests/Feature/RemainingDomainsRelationalReadinessTest.php
 
 php tests/Feature/OpenApiContractTest.php
+
+php tests/Feature/ReportsExportFidelityTest.php

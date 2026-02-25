@@ -49,10 +49,12 @@ assertTrue(str_contains((string)$csv['body']['__raw'],'responsible_full_name'),'
 $xlsx=$kernel->handle('GET','/reports/export.xlsx','req-xlsx',$h,[],$env);
 assertTrue($xlsx['status']===200,'xlsx deve retornar 200');
 assertTrue(str_contains((string)$xlsx['body']['__content_type'],'spreadsheetml'),'content type xlsx');
+assertTrue(str_starts_with((string)$xlsx['body']['__raw'], '<?xml version="1.0" encoding="UTF-8"?>'),'xlsx deve ser xml spreadsheet');
 
 $pdf=$kernel->handle('GET','/reports/export.pdf','req-pdf',$h,[],$env);
 assertTrue($pdf['status']===200,'pdf deve retornar 200');
 assertTrue((string)$pdf['body']['__content_type']==='application/pdf','content type pdf');
+assertTrue(str_starts_with((string)$pdf['body']['__raw'], "%PDF-1.4\n"),'pdf deve iniciar com assinatura');
 assertTrue(str_contains((string)$pdf['body']['__raw'],'RELATORIO DE FAMILIAS'),'pdf deve conter titulo');
 
 $social->reset(); $street->reset(); $delivery->reset();

@@ -13,7 +13,7 @@ Este repositório contém:
 - hardening básico (lockout + headers de segurança);
 - documentação de execução e relatórios de sprints.
 
-> **Status atual:** Sprints 01–14 concluídas em modo bootstrap técnico. As Sprints 11–14 consolidaram persistência relacional incremental e formalização de contrato OpenAPI v1, mantendo fallback JSON para continuidade operacional.
+> **Status atual:** Sprints 01–15 concluídas em modo bootstrap técnico. As Sprints 11–15 consolidaram persistência relacional incremental, contrato OpenAPI v1 e evolução de fidelidade nas exportações (CSV/XLSX/PDF) com testes de golden files.
 
 ---
 
@@ -168,6 +168,7 @@ Suites em `tests/Feature/`:
 - `StreetRelationalMigrationReadinessTest`
 - `RemainingDomainsRelationalReadinessTest`
 - `OpenApiContractTest`
+- `ReportsExportFidelityTest`
 
 Execução:
 ```bash
@@ -178,12 +179,13 @@ bash scripts/ci_checks.sh
 
 ## 8) Documentação de sprints e auditoria
 
-- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_14_*`.
+- Planos/relatórios: `docs/sprints/SPRINT_01_*` até `SPRINT_15_*`.
 - Runbook Sprint 10: `docs/sprints/SPRINT_10_RUNBOOK.md`.
 - Inventário legado: `docs/sprints/artifacts/INVENTORY_SPRINT01.md`.
 - Snapshot OpenAPI legado (estático): `docs/sprints/artifacts/openapi_legacy_sprint01.json`.
 - Matriz de compatibilidade: `docs/sprints/artifacts/COMPATIBILITY_MATRIX_SPRINT01.md`.
 - OpenAPI PHP v1: `docs/sprints/artifacts/openapi_php_v1.json`.
+- Golden exports: `docs/sprints/artifacts/golden_exports/*`.
 
 ---
 
