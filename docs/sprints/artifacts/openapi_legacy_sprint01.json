@@ -1,0 +1,1207 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Legacy API (static extracted)",
+    "version": "sprint01-static"
+  },
+  "paths": {
+    "": {
+      "get": {
+        "operationId": "reports_page",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 292,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "operationId": "read_root",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 731,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/admin/audit": {
+      "get": {
+        "operationId": "admin_audit_logs",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1223,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/admin/config": {
+      "get": {
+        "operationId": "admin_config_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1118,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "admin_config_update",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1134,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/admin/consentimento": {
+      "get": {
+        "operationId": "admin_consent_terms",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1178,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_consent_term",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1190,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "operationId": "list_users",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 985,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/admin/users/new": {
+      "get": {
+        "operationId": "new_user_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1008,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_user",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1020,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/admin/users/{user_id}/edit": {
+      "get": {
+        "operationId": "edit_user_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1060,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "update_user",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1076,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/admin/usuarios": {
+      "get": {
+        "operationId": "admin_users_alias",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1003,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/api/cep/{cep}": {
+      "get": {
+        "operationId": "cep_lookup",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 749,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/api/historico/series": {
+      "get": {
+        "operationId": "monthly_history_series",
+        "x-source-file": "igreja_dashboard_python/app/history/monthly_history.py",
+        "x-source-line": 199,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login_api",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 849,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/busca": {
+      "get": {
+        "operationId": "global_search",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1264,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/cestas.pdf": {
+      "get": {
+        "operationId": "report_cestas_pdf",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 401,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/close": {
+      "post": {
+        "operationId": "close_month",
+        "x-source-file": "igreja_dashboard_python/app/closures/routes.py",
+        "x-source-line": 108,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/criancas": {
+      "get": {
+        "operationId": "list_children",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1451,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_child",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1524,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/criancas.pdf": {
+      "get": {
+        "operationId": "report_criancas_pdf",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 418,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/criancas/nova": {
+      "get": {
+        "operationId": "new_child_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1507,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/criancas/{child_id}": {
+      "get": {
+        "operationId": "view_child",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1567,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "update_child",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1608,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/criancas/{child_id}/delete": {
+      "post": {
+        "operationId": "delete_child",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1653,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/criancas/{child_id}/edit": {
+      "get": {
+        "operationId": "edit_child_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1587,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/encaminhamentos.pdf": {
+      "get": {
+        "operationId": "report_encaminhamentos_pdf",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 435,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/entregas": {
+      "get": {
+        "operationId": "deliveries_page",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1439,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/equipamentos": {
+      "get": {
+        "operationId": "list_equipment",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2658,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/equipamentos.pdf": {
+      "get": {
+        "operationId": "report_equipamentos_pdf",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 457,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/equipamentos/novo": {
+      "get": {
+        "operationId": "new_equipment_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2671,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_equipment",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2680,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/equipamentos/{equipment_id}": {
+      "get": {
+        "operationId": "view_equipment",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2708,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/equipamentos/{equipment_id}/devolver": {
+      "post": {
+        "operationId": "return_loan",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2873,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/equipamentos/{equipment_id}/editar": {
+      "get": {
+        "operationId": "edit_equipment_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2728,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "update_equipment",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2743,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/equipamentos/{equipment_id}/emprestimo": {
+      "get": {
+        "operationId": "new_loan_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2791,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_loan",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2806,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos": {
+      "get": {
+        "operationId": "list_delivery_events",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 121,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_delivery_event",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 93,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/close": {
+      "post": {
+        "operationId": "close_event",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 278,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/convidar": {
+      "post": {
+        "operationId": "invite_families",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 143,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/criancas": {
+      "get": {
+        "operationId": "event_children_list",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 460,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/criancas/export.pdf": {
+      "get": {
+        "operationId": "export_event_children_pdf",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 520,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/criancas/export.xlsx": {
+      "get": {
+        "operationId": "export_event_children_xlsx",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 501,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/export.csv": {
+      "get": {
+        "operationId": "export_event_csv",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 345,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/export.pdf": {
+      "get": {
+        "operationId": "export_event_pdf",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 561,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/export.xlsx": {
+      "get": {
+        "operationId": "export_event_xlsx",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 360,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/eventos/{event_id}/retirada/{family_id}": {
+      "post": {
+        "operationId": "register_withdrawal",
+        "x-source-file": "igreja_dashboard_python/app/deliveries/routes.py",
+        "x-source-line": 207,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/export.csv": {
+      "get": {
+        "operationId": "export_csv",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 321,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/export.xlsx": {
+      "get": {
+        "operationId": "export_xlsx",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 350,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias": {
+      "get": {
+        "operationId": "list_families",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1392,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias.pdf": {
+      "get": {
+        "operationId": "report_familias_pdf",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 379,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/nova": {
+      "get": {
+        "operationId": "new_family_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1752,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_family",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1762,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/nova/step/{step}": {
+      "get": {
+        "operationId": "family_wizard_step",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1666,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "family_wizard_submit",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1679,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}": {
+      "get": {
+        "operationId": "view_family",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1965,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/cestas": {
+      "post": {
+        "operationId": "create_food_basket",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2307,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/cestas/{basket_id}/editar": {
+      "post": {
+        "operationId": "update_food_basket",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2457,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/cestas/{basket_id}/remover": {
+      "post": {
+        "operationId": "remove_food_basket",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2492,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/dependentes/novo": {
+      "get": {
+        "operationId": "new_dependent_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2138,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_dependent",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2165,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/dependentes/{dependent_id}/editar": {
+      "get": {
+        "operationId": "edit_dependent_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2223,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "update_dependent",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2239,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/dependentes/{dependent_id}/remover": {
+      "post": {
+        "operationId": "remove_dependent",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2290,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/editar": {
+      "get": {
+        "operationId": "edit_family_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2006,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "update_family",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2020,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/export.pdf": {
+      "get": {
+        "operationId": "export_family_pdf",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1903,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/inativar": {
+      "post": {
+        "operationId": "inactivate_family",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2123,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/visitas": {
+      "post": {
+        "operationId": "create_visit_request",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2507,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/familias/{family_id}/visitas/{visit_request_id}/executar": {
+      "post": {
+        "operationId": "execute_visit_request",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2582,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 736,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/historico": {
+      "get": {
+        "operationId": "monthly_history_list",
+        "x-source-file": "igreja_dashboard_python/app/history/monthly_history.py",
+        "x-source-line": 115,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/historico/{year}/{month}": {
+      "get": {
+        "operationId": "monthly_history_detail",
+        "x-source-file": "igreja_dashboard_python/app/history/monthly_history.py",
+        "x-source-line": 164,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/historico/{year}/{month}/snapshot.json": {
+      "get": {
+        "operationId": "monthly_history_snapshot_json",
+        "x-source-file": "igreja_dashboard_python/app/history/monthly_history.py",
+        "x-source-line": 247,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "operationId": "login_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 783,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "login",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 790,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "get": {
+        "operationId": "logout",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 977,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/mapa-calor-bairros": {
+      "get": {
+        "operationId": "neighborhood_heatmap_page",
+        "x-source-file": "igreja_dashboard_python/app/dashboard/routes.py",
+        "x-source-line": 68,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "operationId": "whoami",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 3248,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/password/forgot": {
+      "get": {
+        "operationId": "forgot_password_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 881,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "forgot_password_submit",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 888,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/password/reset": {
+      "get": {
+        "operationId": "reset_password_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 920,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "reset_password_submit",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 941,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/pendencias.pdf": {
+      "get": {
+        "operationId": "report_pendencias_pdf",
+        "x-source-file": "igreja_dashboard_python/app/reports/routes.py",
+        "x-source-line": 479,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/pessoas": {
+      "get": {
+        "operationId": "people_alias",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1434,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/pessoas/{person_id}/export.pdf": {
+      "get": {
+        "operationId": "export_street_person_pdf",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 3038,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/reopen": {
+      "post": {
+        "operationId": "reopen_month_disabled",
+        "x-source-file": "igreja_dashboard_python/app/closures/routes.py",
+        "x-source-line": 247,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/rua": {
+      "get": {
+        "operationId": "list_street_people",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2922,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/rua/encaminhamentos/{referral_id}/status": {
+      "post": {
+        "operationId": "update_referral_status",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 3197,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/rua/nova": {
+      "get": {
+        "operationId": "new_street_person_form",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2944,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_street_person",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 2955,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/rua/{person_id}": {
+      "get": {
+        "operationId": "street_person_detail",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 3091,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/rua/{person_id}/atendimentos": {
+      "post": {
+        "operationId": "create_street_service",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 3122,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/rua/{person_id}/encaminhamentos": {
+      "post": {
+        "operationId": "create_referral",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 3158,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/timeline": {
+      "get": {
+        "operationId": "timeline",
+        "x-source-file": "igreja_dashboard_python/app/main.py",
+        "x-source-line": 1312,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/{year}/{month}/gerar-relatorio-oficial": {
+      "post": {
+        "operationId": "generate_official_monthly_report",
+        "x-source-file": "igreja_dashboard_python/app/closures/routes.py",
+        "x-source-line": 161,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/{year}/{month}/pdf": {
+      "get": {
+        "operationId": "download_monthly_pdf",
+        "x-source-file": "igreja_dashboard_python/app/closures/routes.py",
+        "x-source-line": 254,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/{year}/{month}/relatorio-oficial.pdf": {
+      "get": {
+        "operationId": "download_official_monthly_pdf",
+        "x-source-file": "igreja_dashboard_python/app/closures/routes.py",
+        "x-source-line": 278,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/{year}/{month}/relatorio-oficial.snapshot.json": {
+      "get": {
+        "operationId": "monthly_official_snapshot_json",
+        "x-source-file": "igreja_dashboard_python/app/closures/routes.py",
+        "x-source-line": 318,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    },
+    "/{year}/{month}/snapshot.json": {
+      "get": {
+        "operationId": "monthly_snapshot_json",
+        "x-source-file": "igreja_dashboard_python/app/closures/routes.py",
+        "x-source-line": 299,
+        "responses": {
+          "200": {
+            "description": "placeholder"
+          }
+        }
+      }
+    }
+  }
+}
