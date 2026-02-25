@@ -203,3 +203,47 @@ bash scripts/ci_checks.sh
 
 Ver relatório consolidado e plano estendido em:
 - `docs/sprints/SPRINTS_CONSOLIDATED_AUDIT_AND_NEXT_PLAN.md`
+
+
+---
+
+## 11) Configuração de ambiente
+
+Variáveis principais:
+- `JWT_SECRET` (obrigatória em ambientes reais)
+- `APP_READY` (`true`/`false`)
+- `MYSQL_DSN` (opcional)
+- `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_CHARSET`
+- `SOCIAL_STORE_DRIVER`, `STREET_STORE_DRIVER`, `DELIVERY_STORE_DRIVER`, `EQUIPMENT_STORE_DRIVER`, `SETTINGS_STORE_DRIVER`
+
+Exemplo local (bash):
+```bash
+export JWT_SECRET='change-me'
+export SOCIAL_STORE_DRIVER='json'
+export STREET_STORE_DRIVER='json'
+```
+
+---
+
+## 12) Fluxo recomendado de migração de dados (staging/prod)
+
+1. Aplicar schema:
+```bash
+php scripts/run_migrations.php
+```
+2. Migrar dados do fallback JSON:
+```bash
+php scripts/migrate_json_to_mysql.php
+```
+3. Executar validação:
+```bash
+bash scripts/ci_checks.sh
+```
+4. Executar smoke funcional por domínio (health/auth/reports/settings).
+
+---
+
+## 13) Relatórios de consolidação
+
+- Auditoria consolidada: `docs/sprints/SPRINTS_CONSOLIDATED_AUDIT_AND_NEXT_PLAN.md`
+- Relatório mestre: `docs/sprints/SPRINTS_MASTER_CONSOLIDATION_REPORT.md`

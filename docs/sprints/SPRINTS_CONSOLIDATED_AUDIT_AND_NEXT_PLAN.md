@@ -57,10 +57,15 @@ O estado atual é funcional para validação incremental, porém ainda **não é
 
 ---
 
-## 5) Encerramento do plano estendido
+## 5) Encerramento do plano estendido (bootstrap) e extensão operacional
 
 - Sprints 11–16 concluídas com entregáveis documentados.
-- Próximo passo fora desta trilha: execução operacional real do cutover conforme runbook.
+- Para conclusão real em produção, recomenda-se extensão operacional 17–20:
+  - **Sprint 17**: homologação integrada com massa representativa e reconciliação total.
+  - **Sprint 18**: hardening corporativo (SAST/DAST, SLO/alertas, gestão de segredos).
+  - **Sprint 19**: cutover controlado em janela piloto com rollback testado.
+  - **Sprint 20**: encerramento formal e handover de operação.
+- Relatório mestre: `docs/sprints/SPRINTS_MASTER_CONSOLIDATION_REPORT.md`.
 
 ---
 
