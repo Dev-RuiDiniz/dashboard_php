@@ -65,6 +65,12 @@ final class Kernel
         if ($method === 'POST' && $path === '/auth/login') {
             return $this->login($requestId, $payload, $env);
         }
+        if ($method === 'POST' && $path === '/auth/forgot') {
+            return $this->forgotPassword($requestId, $payload, $env);
+        }
+        if ($method === 'POST' && $path === '/auth/reset') {
+            return $this->resetPassword($requestId, $payload, $env);
+        }
         if ($method === 'GET' && $path === '/me') {
             return $this->me($requestId, $headers, $env);
         }
@@ -77,7 +83,7 @@ final class Kernel
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-            if (($auth['user']['role'] ?? '') !== 'Admin') {
+            if (!$this->userStore->hasPermission($auth['user'], 'admin.ping')) {
                 $this->audit('auth.forbidden', $requestId, ['path' => '/admin/ping']);
                 return ['status' => 403, 'body' => ['error' => 'forbidden', 'request_id' => $requestId]];
             }
@@ -509,6 +515,50 @@ final class Kernel
         return ['status' => 200, 'body' => ['access_token' => $token, 'token_type' => 'bearer', 'request_id' => $requestId]];
     }
 
+    /** @param array<string,mixed> $payload @param array<string,mixed> $env */
+    private function forgotPassword(string $requestId, array $payload, array $env): array
+    {
+        $email = trim((string) ($payload['email'] ?? ''));
+        $expiresIn = (int) ($env['RESET_TOKEN_TTL_SECONDS'] ?? getenv('RESET_TOKEN_TTL_SECONDS') ?: 3600);
+        $nowTs = (int) ($env['NOW_TS'] ?? time());
+
+        if ($email !== '') {
+            $token = $this->userStore->issuePasswordResetToken($email, $nowTs + $expiresIn);
+            if ($token !== null) {
+                $this->audit('auth.password_reset_requested', $requestId, ['email' => $email]);
+                $debugTokenEnabled = (($env['DEBUG_PASSWORD_RESET_TOKEN'] ?? getenv('DEBUG_PASSWORD_RESET_TOKEN') ?: 'false') === 'true');
+                if ($debugTokenEnabled) {
+                    return ['status' => 200, 'body' => ['status' => 'reset_requested', 'request_id' => $requestId, 'reset_token' => $token, 'expires_in' => $expiresIn]];
+                }
+            }
+        }
+
+        return ['status' => 200, 'body' => ['status' => 'reset_requested', 'request_id' => $requestId]];
+    }
+
+    /** @param array<string,mixed> $payload @param array<string,mixed> $env */
+    private function resetPassword(string $requestId, array $payload, array $env): array
+    {
+        $token = trim((string) ($payload['token'] ?? ''));
+        $newPassword = (string) ($payload['new_password'] ?? '');
+        $nowTs = (int) ($env['NOW_TS'] ?? time());
+
+        if ($token === '' || strlen($newPassword) < 8) {
+            return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
+        }
+
+        $email = $this->userStore->consumePasswordResetToken($token, $nowTs);
+        if ($email === null || $email === '') {
+            return ['status' => 422, 'body' => ['error' => 'invalid_or_expired_token', 'request_id' => $requestId]];
+        }
+
+        $this->userStore->resetPassword($email, $newPassword);
+        $this->authThrottleStore->clear($email);
+        $this->audit('auth.password_reset_completed', $requestId, ['email' => $email]);
+
+        return ['status' => 200, 'body' => ['status' => 'password_reset', 'request_id' => $requestId]];
+    }
+
     /** @param array<string,string> $headers @param array<string,mixed> $env */
     private function me(string $requestId, array $headers, array $env): array
     {
@@ -548,7 +598,7 @@ final class Kernel
             return $auth;
         }
         $role = (string) ($auth['user']['role'] ?? '');
-        if (!in_array($role, ['Admin', 'Operador'], true)) {
+        if (!in_array($role, ['admin', 'voluntario', 'pastoral'], true)) {
             $this->audit('auth.forbidden', $requestId, ['path' => 'writer_scope']);
             return ['response' => ['status' => 403, 'body' => ['error' => 'forbidden', 'request_id' => $requestId]]];
         }
