@@ -16,6 +16,7 @@ use App\Domain\EquipmentStore;
 use App\Domain\SettingsStore;
 use App\Domain\EligibilityService;
 use App\Domain\AuthThrottleStore;
+use App\Domain\AuthResetTokenStore;
 
 final class Kernel
 {
@@ -32,6 +33,7 @@ final class Kernel
         private ?SettingsStore $settingsStore = null,
         private ?EligibilityService $eligibilityService = null,
         private ?AuthThrottleStore $authThrottleStore = null,
+        private ?AuthResetTokenStore $authResetTokenStore = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
@@ -44,6 +46,7 @@ final class Kernel
         $this->settingsStore = $this->settingsStore ?? new SettingsStore();
         $this->eligibilityService = $this->eligibilityService ?? new EligibilityService();
         $this->authThrottleStore = $this->authThrottleStore ?? new AuthThrottleStore();
+        $this->authResetTokenStore = $this->authResetTokenStore ?? new AuthResetTokenStore();
     }
 
     /**
@@ -531,8 +534,10 @@ final class Kernel
         $nowTs = (int) ($env['NOW_TS'] ?? time());
 
         if ($email !== '') {
-            $token = $this->userStore->issuePasswordResetToken($email, $nowTs + $expiresIn);
-            if ($token !== null) {
+            $knownUser = $this->userStore->findByEmail($email);
+            if ($knownUser !== null) {
+                $this->authResetTokenStore->purgeExpired($nowTs);
+                $token = $this->authResetTokenStore->issueToken($email, $nowTs + $expiresIn, $nowTs);
                 $this->audit('auth.password_reset_requested', $requestId, ['email' => $email]);
                 $debugTokenEnabled = (($env['DEBUG_PASSWORD_RESET_TOKEN'] ?? getenv('DEBUG_PASSWORD_RESET_TOKEN') ?: 'false') === 'true');
                 if ($debugTokenEnabled) {
@@ -555,7 +560,7 @@ final class Kernel
             return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
         }
 
-        $email = $this->userStore->consumePasswordResetToken($token, $nowTs);
+        $email = $this->authResetTokenStore->consumeToken($token, $nowTs);
         if ($email === null || $email === '') {
             return ['status' => 422, 'body' => ['error' => 'invalid_or_expired_token', 'request_id' => $requestId]];
         }

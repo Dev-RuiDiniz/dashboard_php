@@ -13,11 +13,14 @@ require_once __DIR__ . '/../../src/Domain/EquipmentStore.php';
 require_once __DIR__ . '/../../src/Domain/SettingsStore.php';
 require_once __DIR__ . '/../../src/Domain/EligibilityService.php';
 require_once __DIR__ . '/../../src/Domain/AuthThrottleStore.php';
+require_once __DIR__ . '/../../src/Domain/AuthResetTokenStore.php';
 require_once __DIR__ . '/../../src/Reports/ExportService.php';
 
 use App\Auth\JwtService;
 use App\Auth\UserStore;
 use App\Http\Kernel;
+use App\Domain\AuthThrottleStore;
+use App\Domain\AuthResetTokenStore;
 
 function assertTrue(bool $condition, string $message): void
 {
@@ -33,7 +36,11 @@ assertTrue(is_array($admin), 'admin deve existir');
 assertTrue(!isset($admin['password']), 'nao deve existir senha plaintext no cadastro bootstrap');
 assertTrue(isset($admin['password_hash']), 'deve existir password_hash no cadastro bootstrap');
 
-$kernel = new Kernel(new JwtService(), $store);
+$tmpThrottle = sys_get_temp_dir() . '/auth_throttle_' . uniqid('', true) . '.json';
+$tmpReset = sys_get_temp_dir() . '/auth_reset_' . uniqid('', true) . '.json';
+$throttleStore = new AuthThrottleStore($tmpThrottle);
+$resetStore = new AuthResetTokenStore($tmpReset);
+$kernel = new Kernel(new JwtService(), $store, null, null, null, null, null, null, null, null, null, $throttleStore, $resetStore);
 $env = ['JWT_SECRET' => 'test-secret', 'DEBUG_PASSWORD_RESET_TOKEN' => 'true', 'NOW_TS' => 1710000000];
 
 $forgot = $kernel->handle('POST', '/auth/forgot', 'req-forgot', [], ['email' => 'admin@local'], $env);
@@ -57,3 +64,6 @@ $expired = $kernel->handle('POST', '/auth/reset', 'req-expired', [], ['token' =>
 assertTrue(($expired['status'] ?? 0) === 422, 'token expirado deve ser rejeitado');
 
 echo "OK: AuthPasswordResetHashTest" . PHP_EOL;
+
+$throttleStore->reset();
+$resetStore->reset();

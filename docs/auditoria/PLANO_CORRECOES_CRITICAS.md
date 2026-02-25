@@ -59,3 +59,10 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Cobertura de teste**: atualizado teste de autenticação/RBAC para validar bloqueio de escrita para perfil `viewer` e leitura permitida em configurações.
 
 > Observação: o enforcement de permissão foi aplicado no gateway HTTP atual, preservando compatibilidade com as validações de papel já existentes para rotas de escrita.
+
+## 8) Próximo passo executado (Sprint 23)
+
+- **Persistência durável no reset de senha:** fluxo `/auth/forgot` e `/auth/reset` migrado para armazenamento persistente de tokens (`AuthResetTokenStore`) com limpeza de expirados, consumo único e armazenamento por hash de token.
+- **Qualidade de execução em testes:** testes de autenticação/RBAC e reset agora usam storage temporário isolado para evitar artefatos locais em `data/` durante a suíte.
+
+> Resultado: pendência de “persistir fluxo de reset em storage transacional” foi parcialmente endereçada com persistência local durável; etapa futura recomendada é migrar o armazenamento para tabela relacional dedicada.

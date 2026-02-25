@@ -9,8 +9,6 @@ final class UserStore
     /** @var array<string, array<string, mixed>> */
     private array $users;
 
-    /** @var array<string, array{email:string,expires_at:int}> */
-    private array $resetTokens = [];
 
     public function __construct()
     {
@@ -64,32 +62,6 @@ final class UserStore
     {
         $user = $this->users[$email] ?? null;
         return is_array($user) ? $user : null;
-    }
-
-    public function issuePasswordResetToken(string $email, int $expiresAt): ?string
-    {
-        if (!isset($this->users[$email])) {
-            return null;
-        }
-
-        $token = bin2hex(random_bytes(24));
-        $this->resetTokens[$token] = ['email' => $email, 'expires_at' => $expiresAt];
-        return $token;
-    }
-
-    public function consumePasswordResetToken(string $token, int $nowTs): ?string
-    {
-        $state = $this->resetTokens[$token] ?? null;
-        if (!is_array($state)) {
-            return null;
-        }
-
-        unset($this->resetTokens[$token]);
-        if (($state['expires_at'] ?? 0) < $nowTs) {
-            return null;
-        }
-
-        return (string) ($state['email'] ?? '');
     }
 
     public function resetPassword(string $email, string $newPassword): bool

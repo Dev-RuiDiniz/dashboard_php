@@ -13,6 +13,7 @@ require_once __DIR__ . '/../../src/Domain/EquipmentStore.php';
 require_once __DIR__ . '/../../src/Domain/SettingsStore.php';
 require_once __DIR__ . '/../../src/Domain/EligibilityService.php';
 require_once __DIR__ . '/../../src/Domain/AuthThrottleStore.php';
+require_once __DIR__ . '/../../src/Domain/AuthResetTokenStore.php';
 require_once __DIR__ . '/../../src/Reports/ExportService.php';
 require_once __DIR__ . '/../../src/Audit/AuditLogger.php';
 require_once __DIR__ . '/../../src/Observability/JsonLogger.php';
@@ -20,6 +21,8 @@ require_once __DIR__ . '/../../src/Observability/JsonLogger.php';
 use App\Audit\AuditLogger;
 use App\Auth\JwtService;
 use App\Auth\UserStore;
+use App\Domain\AuthThrottleStore;
+use App\Domain\AuthResetTokenStore;
 use App\Http\Kernel;
 use App\Observability\JsonLogger;
 
@@ -44,7 +47,11 @@ function assertTrue(bool $condition, string $message): void
 
 $memoryLogger = new MemoryJsonLogger();
 $auditLogger = new AuditLogger($memoryLogger);
-$kernel = new Kernel(new JwtService(), new UserStore(), $auditLogger);
+$tmpThrottle = sys_get_temp_dir() . '/auth_throttle_' . uniqid('', true) . '.json';
+$tmpReset = sys_get_temp_dir() . '/auth_reset_' . uniqid('', true) . '.json';
+$throttleStore = new AuthThrottleStore($tmpThrottle);
+$resetStore = new AuthResetTokenStore($tmpReset);
+$kernel = new Kernel(new JwtService(), new UserStore(), $auditLogger, null, null, null, null, null, null, null, null, $throttleStore, $resetStore);
 $env = ['JWT_SECRET' => 'test-secret'];
 
 $loginFail = $kernel->handle('POST', '/auth/login', 'req-fail', [], ['email' => 'admin@local', 'password' => 'x'], $env);
@@ -86,3 +93,6 @@ assertTrue(in_array('auth.forbidden', $actions, true), 'auditoria deve registrar
 assertTrue(in_array('auth.logout', $actions, true), 'auditoria deve registrar logout');
 
 echo "OK: AuthRbacAuditTest" . PHP_EOL;
+
+$throttleStore->reset();
+$resetStore->reset();
