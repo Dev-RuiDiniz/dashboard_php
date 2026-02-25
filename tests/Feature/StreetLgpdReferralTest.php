@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../src/Domain/CpfValidator.php';
 require_once __DIR__ . '/../../src/Domain/SocialStore.php';
 require_once __DIR__ . '/../../src/Domain/StreetStore.php';
 require_once __DIR__ . '/../../src/Domain/DeliveryStore.php';
+require_once __DIR__ . '/../../src/Reports/ExportService.php';
 require_once __DIR__ . '/../../src/Http/Kernel.php';
 
 use App\Domain\SocialStore;

@@ -64,3 +64,12 @@ Regras críticas:
 - bloqueio de retirada duplicada no mesmo mês por família;
 - retirada exige assinatura simples (`signature_accepted` + `signature_name`);
 - convite gera `withdrawal_code` automático (6 chars).
+
+
+### Endpoints de exportação (Sprint 07)
+
+- `GET /reports/export.csv`
+- `GET /reports/export.xlsx`
+- `GET /reports/export.pdf`
+
+Observação: no bootstrap técnico, XLSX e PDF são versões simplificadas para validação incremental dos fluxos de exportação.

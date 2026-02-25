@@ -11,6 +11,7 @@ use App\Domain\CpfValidator;
 use App\Domain\SocialStore;
 use App\Domain\StreetStore;
 use App\Domain\DeliveryStore;
+use App\Reports\ExportService;
 
 final class Kernel
 {
@@ -22,6 +23,7 @@ final class Kernel
         private ?CpfValidator $cpfValidator = null,
         private ?StreetStore $streetStore = null,
         private ?DeliveryStore $deliveryStore = null,
+        private ?ExportService $exportService = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
@@ -29,6 +31,7 @@ final class Kernel
         $this->cpfValidator = $this->cpfValidator ?? new CpfValidator();
         $this->streetStore = $this->streetStore ?? new StreetStore();
         $this->deliveryStore = $this->deliveryStore ?? new DeliveryStore();
+        $this->exportService = $this->exportService ?? new ExportService();
     }
 
     /**
@@ -284,6 +287,25 @@ final class Kernel
         }
 
         
+
+        // Sprint 7: exports
+        if (in_array($path, ['/reports/export.csv', '/reports/export.xlsx', '/reports/export.pdf'], true) && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+
+            $families = $this->socialStore->listFamilies();
+            if ($path === '/reports/export.csv') {
+                $raw = $this->exportService->buildCsv($families);
+                return ['status'=>200,'body'=>['__raw'=>$raw,'__content_type'=>'text/csv; charset=utf-8','__file_name'=>'families.csv','request_id'=>$requestId]];
+            }
+            if ($path === '/reports/export.xlsx') {
+                $raw = $this->exportService->buildXlsx($families);
+                return ['status'=>200,'body'=>['__raw'=>$raw,'__content_type'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','__file_name'=>'families.xlsx','request_id'=>$requestId]];
+            }
+            $raw = $this->exportService->buildPdf($families);
+            return ['status'=>200,'body'=>['__raw'=>$raw,'__content_type'=>'application/pdf','__file_name'=>'families.pdf','request_id'=>$requestId]];
+        }
+
         // Sprint 6: deliveries/events
         if ($path === '/deliveries/events' && $method === 'GET') {
             $auth = $this->requireAuth($requestId, $headers, $env);
