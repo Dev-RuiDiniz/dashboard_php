@@ -67,6 +67,15 @@ $opToken = (string) ($opLogin['body']['access_token'] ?? '');
 $forbidden = $kernel->handle('GET', '/admin/ping', 'req-forbidden', ['Authorization' => 'Bearer ' . $opToken], [], $env);
 assertTrue($forbidden['status'] === 403, 'rota admin deve bloquear operador');
 
+
+$readLogin = $kernel->handle('POST', '/auth/login', 'req-read', [], ['email' => 'leitura@local', 'password' => 'leitura123'], $env);
+$readToken = (string) ($readLogin['body']['access_token'] ?? '');
+$viewerWrite = $kernel->handle('POST', '/families', 'req-viewer-write', ['Authorization' => 'Bearer ' . $readToken], ['responsible_full_name' => 'Teste', 'responsible_cpf' => '390.533.447-05'], $env);
+assertTrue($viewerWrite['status'] === 403, 'viewer não deve ter permissão de escrita em famílias');
+
+$settingsGet = $kernel->handle('GET', '/settings/eligibility', 'req-settings-get', ['Authorization' => 'Bearer ' . $readToken], [], $env);
+assertTrue($settingsGet['status'] === 200, 'viewer deve ter permissão de leitura em settings');
+
 $logout = $kernel->handle('POST', '/auth/logout', 'req-logout', [], [], $env);
 assertTrue($logout['status'] === 200, 'logout deve retornar 200');
 
