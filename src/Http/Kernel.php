@@ -16,6 +16,7 @@ use App\Domain\EquipmentStore;
 use App\Domain\SettingsStore;
 use App\Domain\EligibilityService;
 use App\Domain\AuthThrottleStore;
+use App\Domain\AuthResetTokenStore;
 
 final class Kernel
 {
@@ -32,6 +33,7 @@ final class Kernel
         private ?SettingsStore $settingsStore = null,
         private ?EligibilityService $eligibilityService = null,
         private ?AuthThrottleStore $authThrottleStore = null,
+        private ?AuthResetTokenStore $authResetTokenStore = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
@@ -44,6 +46,7 @@ final class Kernel
         $this->settingsStore = $this->settingsStore ?? new SettingsStore();
         $this->eligibilityService = $this->eligibilityService ?? new EligibilityService();
         $this->authThrottleStore = $this->authThrottleStore ?? new AuthThrottleStore();
+        $this->authResetTokenStore = $this->authResetTokenStore ?? new AuthResetTokenStore();
     }
 
     /**
@@ -65,6 +68,12 @@ final class Kernel
         if ($method === 'POST' && $path === '/auth/login') {
             return $this->login($requestId, $payload, $env);
         }
+        if ($method === 'POST' && $path === '/auth/forgot') {
+            return $this->forgotPassword($requestId, $payload, $env);
+        }
+        if ($method === 'POST' && $path === '/auth/reset') {
+            return $this->resetPassword($requestId, $payload, $env);
+        }
         if ($method === 'GET' && $path === '/me') {
             return $this->me($requestId, $headers, $env);
         }
@@ -72,12 +81,20 @@ final class Kernel
             $this->audit('auth.logout', $requestId, []);
             return ['status' => 200, 'body' => ['status' => 'logged_out', 'request_id' => $requestId]];
         }
+
+        $permission = $this->resolvePermission($method, $path);
+        if ($permission !== null) {
+            $authz = $this->requirePermission($requestId, $headers, $env, $permission);
+            if (isset($authz['response'])) {
+                return $authz['response'];
+            }
+        }
         if ($method === 'GET' && $path === '/admin/ping') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-            if (($auth['user']['role'] ?? '') !== 'Admin') {
+            if (!$this->userStore->hasPermission($auth['user'], 'admin.ping')) {
                 $this->audit('auth.forbidden', $requestId, ['path' => '/admin/ping']);
                 return ['status' => 403, 'body' => ['error' => 'forbidden', 'request_id' => $requestId]];
             }
@@ -509,6 +526,52 @@ final class Kernel
         return ['status' => 200, 'body' => ['access_token' => $token, 'token_type' => 'bearer', 'request_id' => $requestId]];
     }
 
+    /** @param array<string,mixed> $payload @param array<string,mixed> $env */
+    private function forgotPassword(string $requestId, array $payload, array $env): array
+    {
+        $email = trim((string) ($payload['email'] ?? ''));
+        $expiresIn = (int) ($env['RESET_TOKEN_TTL_SECONDS'] ?? getenv('RESET_TOKEN_TTL_SECONDS') ?: 3600);
+        $nowTs = (int) ($env['NOW_TS'] ?? time());
+
+        if ($email !== '') {
+            $knownUser = $this->userStore->findByEmail($email);
+            if ($knownUser !== null) {
+                $this->authResetTokenStore->purgeExpired($nowTs);
+                $token = $this->authResetTokenStore->issueToken($email, $nowTs + $expiresIn, $nowTs);
+                $this->audit('auth.password_reset_requested', $requestId, ['email' => $email]);
+                $debugTokenEnabled = (($env['DEBUG_PASSWORD_RESET_TOKEN'] ?? getenv('DEBUG_PASSWORD_RESET_TOKEN') ?: 'false') === 'true');
+                if ($debugTokenEnabled) {
+                    return ['status' => 200, 'body' => ['status' => 'reset_requested', 'request_id' => $requestId, 'reset_token' => $token, 'expires_in' => $expiresIn]];
+                }
+            }
+        }
+
+        return ['status' => 200, 'body' => ['status' => 'reset_requested', 'request_id' => $requestId]];
+    }
+
+    /** @param array<string,mixed> $payload @param array<string,mixed> $env */
+    private function resetPassword(string $requestId, array $payload, array $env): array
+    {
+        $token = trim((string) ($payload['token'] ?? ''));
+        $newPassword = (string) ($payload['new_password'] ?? '');
+        $nowTs = (int) ($env['NOW_TS'] ?? time());
+
+        if ($token === '' || strlen($newPassword) < 8) {
+            return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
+        }
+
+        $email = $this->authResetTokenStore->consumeToken($token, $nowTs);
+        if ($email === null || $email === '') {
+            return ['status' => 422, 'body' => ['error' => 'invalid_or_expired_token', 'request_id' => $requestId]];
+        }
+
+        $this->userStore->resetPassword($email, $newPassword);
+        $this->authThrottleStore->clear($email);
+        $this->audit('auth.password_reset_completed', $requestId, ['email' => $email]);
+
+        return ['status' => 200, 'body' => ['status' => 'password_reset', 'request_id' => $requestId]];
+    }
+
     /** @param array<string,string> $headers @param array<string,mixed> $env */
     private function me(string $requestId, array $headers, array $env): array
     {
@@ -541,6 +604,63 @@ final class Kernel
     }
 
     /** @param array<string,string> $headers @param array<string,mixed> $env @return array<string,mixed> */
+    private function requirePermission(string $requestId, array $headers, array $env, string $permission): array
+    {
+        $auth = $this->requireAuth($requestId, $headers, $env);
+        if (isset($auth['response'])) {
+            return $auth;
+        }
+        if (!$this->userStore->hasPermission($auth['user'], $permission)) {
+            $this->audit('auth.forbidden', $requestId, ['path' => 'permission_scope', 'permission' => $permission]);
+            return ['response' => ['status' => 403, 'body' => ['error' => 'forbidden', 'request_id' => $requestId]]];
+        }
+
+        return $auth;
+    }
+
+    private function resolvePermission(string $method, string $path): ?string
+    {
+        if ($path === '/admin/ping' && $method === 'GET') {
+            return 'admin.ping';
+        }
+
+
+        if ($path === '/families' || preg_match('#^/families/\d+$#', $path) === 1 || $path === '/dependents' || preg_match('#^/dependents/\d+$#', $path) === 1 || $path === '/children' || preg_match('#^/children/\d+$#', $path) === 1) {
+            return $method === 'GET' ? 'families.read' : 'families.write';
+        }
+
+        if ($path === '/street/people') {
+            return $method === 'GET' ? 'street.read' : 'street.write';
+        }
+
+        if ($path === '/street/referrals' || preg_match('#^/street/referrals/\d+/status$#', $path) === 1) {
+            return 'street.write';
+        }
+
+        if ($path === '/deliveries/events' || preg_match('#^/deliveries/events/\d+/(invites|withdrawals)$#', $path) === 1) {
+            return $method === 'GET' ? 'delivery.read' : 'delivery.write';
+        }
+
+        if ($path === '/equipment' || preg_match('#^/equipment/\d+$#', $path) === 1 || $path === '/equipment/loans' || preg_match('#^/equipment/loans/\d+/return$#', $path) === 1) {
+            return $method === 'GET' ? 'equipment.read' : 'equipment.write';
+        }
+
+        if ($path === '/reports/summary' || in_array($path, ['/reports/export.csv', '/reports/export.xlsx', '/reports/export.pdf'], true)) {
+            return 'reports.read';
+        }
+
+        if ($path === '/settings/eligibility') {
+            return $method === 'GET' ? 'settings.read' : 'settings.write';
+        }
+
+        if ($path === '/eligibility/check') {
+            return 'eligibility.check';
+        }
+
+        return null;
+    }
+
+    /** @param array<string,string> $headers @param array<string,mixed> $env @return array<string,mixed> */
     private function requireWriter(string $requestId, array $headers, array $env): array
     {
         $auth = $this->requireAuth($requestId, $headers, $env);
@@ -548,7 +668,7 @@ final class Kernel
             return $auth;
         }
         $role = (string) ($auth['user']['role'] ?? '');
-        if (!in_array($role, ['Admin', 'Operador'], true)) {
+        if (!in_array($role, ['admin', 'voluntario', 'pastoral'], true)) {
             $this->audit('auth.forbidden', $requestId, ['path' => 'writer_scope']);
             return ['response' => ['status' => 403, 'body' => ['error' => 'forbidden', 'request_id' => $requestId]]];
         }
