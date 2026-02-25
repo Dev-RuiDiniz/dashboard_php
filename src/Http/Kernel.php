@@ -9,6 +9,7 @@ use App\Auth\JwtService;
 use App\Auth\UserStore;
 use App\Domain\CpfValidator;
 use App\Domain\SocialStore;
+use App\Domain\StreetStore;
 
 final class Kernel
 {
@@ -18,11 +19,13 @@ final class Kernel
         private ?AuditLogger $auditLogger = null,
         private ?SocialStore $socialStore = null,
         private ?CpfValidator $cpfValidator = null,
+        private ?StreetStore $streetStore = null,
     ) {
         $this->jwtService = $this->jwtService ?? new JwtService();
         $this->userStore = $this->userStore ?? new UserStore();
         $this->socialStore = $this->socialStore ?? new SocialStore();
         $this->cpfValidator = $this->cpfValidator ?? new CpfValidator();
+        $this->streetStore = $this->streetStore ?? new StreetStore();
     }
 
     /**
@@ -31,39 +34,26 @@ final class Kernel
      * @param array<string, mixed> $env
      * @return array{status:int, body:array<string,mixed>}
      */
-    public function handle(
-        string $method,
-        string $path,
-        string $requestId,
-        array $headers = [],
-        array $payload = [],
-        array $env = [],
-    ): array {
+    public function handle(string $method, string $path, string $requestId, array $headers = [], array $payload = [], array $env = []): array
+    {
         if ($method === 'GET' && $path === '/health') {
             return ['status' => 200, 'body' => ['status' => 'ok', 'service' => 'dashboard_php', 'request_id' => $requestId]];
         }
-
         if ($method === 'GET' && $path === '/ready') {
             $isReady = ($env['APP_READY'] ?? getenv('APP_READY') ?: 'true') !== 'false';
-            return [
-                'status' => $isReady ? 200 : 503,
-                'body' => ['status' => $isReady ? 'ready' : 'not_ready', 'service' => 'dashboard_php', 'request_id' => $requestId],
-            ];
+            return ['status' => $isReady ? 200 : 503, 'body' => ['status' => $isReady ? 'ready' : 'not_ready', 'service' => 'dashboard_php', 'request_id' => $requestId]];
         }
 
         if ($method === 'POST' && $path === '/auth/login') {
             return $this->login($requestId, $payload, $env);
         }
-
         if ($method === 'GET' && $path === '/me') {
             return $this->me($requestId, $headers, $env);
         }
-
         if ($method === 'POST' && $path === '/auth/logout') {
             $this->audit('auth.logout', $requestId, []);
             return ['status' => 200, 'body' => ['status' => 'logged_out', 'request_id' => $requestId]];
         }
-
         if ($method === 'GET' && $path === '/admin/ping') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) {
@@ -76,22 +66,19 @@ final class Kernel
             return ['status' => 200, 'body' => ['status' => 'ok', 'scope' => 'admin', 'request_id' => $requestId]];
         }
 
-        // Sprint 4 APIs
+        // Sprint 4: families/dependents/children
         if ($path === '/families' && $method === 'GET') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-
             return ['status' => 200, 'body' => ['items' => $this->socialStore->listFamilies(), 'request_id' => $requestId]];
         }
-
         if ($path === '/families' && $method === 'POST') {
             $auth = $this->requireWriter($requestId, $headers, $env);
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-
             $name = trim((string) ($payload['responsible_full_name'] ?? ''));
             $cpf = $this->cpfValidator->normalize((string) ($payload['responsible_cpf'] ?? ''));
             if ($name === '' || !$this->cpfValidator->isValid($cpf)) {
@@ -100,36 +87,28 @@ final class Kernel
             if ($this->socialStore->familyCpfExists($cpf)) {
                 return ['status' => 409, 'body' => ['error' => 'duplicate_cpf', 'request_id' => $requestId]];
             }
-
             $family = $this->socialStore->createFamily($name, $cpf);
             $this->audit('family.created', $requestId, ['family_id' => (string) $family['id']]);
-
             return ['status' => 201, 'body' => ['item' => $family, 'request_id' => $requestId]];
         }
-
         if (preg_match('#^/families/(\d+)$#', $path, $match) === 1) {
             $familyId = (int) $match[1];
-
             if ($method === 'GET') {
                 $auth = $this->requireAuth($requestId, $headers, $env);
                 if (isset($auth['response'])) {
                     return $auth['response'];
                 }
-
                 $family = $this->socialStore->getFamily($familyId);
                 if (!$family) {
                     return ['status' => 404, 'body' => ['error' => 'family_not_found', 'request_id' => $requestId]];
                 }
-
                 return ['status' => 200, 'body' => ['item' => $family, 'request_id' => $requestId]];
             }
-
             if ($method === 'PUT') {
                 $auth = $this->requireWriter($requestId, $headers, $env);
                 if (isset($auth['response'])) {
                     return $auth['response'];
                 }
-
                 $name = trim((string) ($payload['responsible_full_name'] ?? ''));
                 $cpf = $this->cpfValidator->normalize((string) ($payload['responsible_cpf'] ?? ''));
                 if ($name === '' || !$this->cpfValidator->isValid($cpf)) {
@@ -138,7 +117,6 @@ final class Kernel
                 if ($this->socialStore->familyCpfExists($cpf, $familyId)) {
                     return ['status' => 409, 'body' => ['error' => 'duplicate_cpf', 'request_id' => $requestId]];
                 }
-
                 $updated = $this->socialStore->updateFamily($familyId, $name, $cpf);
                 if (!$updated) {
                     return ['status' => 404, 'body' => ['error' => 'family_not_found', 'request_id' => $requestId]];
@@ -146,22 +124,18 @@ final class Kernel
                 $this->audit('family.updated', $requestId, ['family_id' => (string) $familyId]);
                 return ['status' => 200, 'body' => ['item' => $updated, 'request_id' => $requestId]];
             }
-
             if ($method === 'DELETE') {
                 $auth = $this->requireWriter($requestId, $headers, $env);
                 if (isset($auth['response'])) {
                     return $auth['response'];
                 }
-
                 if (!$this->socialStore->deleteFamily($familyId)) {
                     return ['status' => 404, 'body' => ['error' => 'family_not_found', 'request_id' => $requestId]];
                 }
-
                 $this->audit('family.deleted', $requestId, ['family_id' => (string) $familyId]);
                 return ['status' => 200, 'body' => ['status' => 'deleted', 'request_id' => $requestId]];
             }
         }
-
         if ($path === '/dependents' && $method === 'GET') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) {
@@ -169,19 +143,16 @@ final class Kernel
             }
             return ['status' => 200, 'body' => ['items' => $this->socialStore->listDependents(), 'request_id' => $requestId]];
         }
-
         if ($path === '/dependents' && $method === 'POST') {
             $auth = $this->requireWriter($requestId, $headers, $env);
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-
             $familyId = (int) ($payload['family_id'] ?? 0);
             $name = trim((string) ($payload['full_name'] ?? ''));
             if ($familyId <= 0 || $name === '') {
                 return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
             }
-
             $item = $this->socialStore->createDependent($familyId, $name);
             if (!$item) {
                 return ['status' => 404, 'body' => ['error' => 'family_not_found', 'request_id' => $requestId]];
@@ -189,20 +160,17 @@ final class Kernel
             $this->audit('dependent.created', $requestId, ['dependent_id' => (string) $item['id']]);
             return ['status' => 201, 'body' => ['item' => $item, 'request_id' => $requestId]];
         }
-
         if (preg_match('#^/dependents/(\d+)$#', $path, $match) === 1 && $method === 'DELETE') {
             $auth = $this->requireWriter($requestId, $headers, $env);
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-
             if (!$this->socialStore->deleteDependent((int) $match[1])) {
                 return ['status' => 404, 'body' => ['error' => 'dependent_not_found', 'request_id' => $requestId]];
             }
             $this->audit('dependent.deleted', $requestId, ['dependent_id' => $match[1]]);
             return ['status' => 200, 'body' => ['status' => 'deleted', 'request_id' => $requestId]];
         }
-
         if ($path === '/children' && $method === 'GET') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) {
@@ -210,19 +178,16 @@ final class Kernel
             }
             return ['status' => 200, 'body' => ['items' => $this->socialStore->listChildren(), 'request_id' => $requestId]];
         }
-
         if ($path === '/children' && $method === 'POST') {
             $auth = $this->requireWriter($requestId, $headers, $env);
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-
             $familyId = (int) ($payload['family_id'] ?? 0);
             $name = trim((string) ($payload['full_name'] ?? ''));
             if ($familyId <= 0 || $name === '') {
                 return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
             }
-
             $item = $this->socialStore->createChild($familyId, $name);
             if (!$item) {
                 return ['status' => 404, 'body' => ['error' => 'family_not_found', 'request_id' => $requestId]];
@@ -230,13 +195,11 @@ final class Kernel
             $this->audit('child.created', $requestId, ['child_id' => (string) $item['id']]);
             return ['status' => 201, 'body' => ['item' => $item, 'request_id' => $requestId]];
         }
-
         if (preg_match('#^/children/(\d+)$#', $path, $match) === 1 && $method === 'DELETE') {
             $auth = $this->requireWriter($requestId, $headers, $env);
             if (isset($auth['response'])) {
                 return $auth['response'];
             }
-
             if (!$this->socialStore->deleteChild((int) $match[1])) {
                 return ['status' => 404, 'body' => ['error' => 'child_not_found', 'request_id' => $requestId]];
             }
@@ -244,10 +207,82 @@ final class Kernel
             return ['status' => 200, 'body' => ['status' => 'deleted', 'request_id' => $requestId]];
         }
 
+        // Sprint 5: street + referrals + consent
+        if ($path === '/street/people' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) {
+                return $auth['response'];
+            }
+            return ['status' => 200, 'body' => ['items' => $this->streetStore->listPeople(), 'request_id' => $requestId]];
+        }
+
+        if ($path === '/street/people' && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) {
+                return $auth['response'];
+            }
+
+            $name = trim((string) ($payload['full_name'] ?? ''));
+            $concluded = (bool) ($payload['concluded'] ?? false);
+            $consentAccepted = (bool) ($payload['consent_accepted'] ?? false);
+            $signatureName = trim((string) ($payload['signature_name'] ?? ''));
+
+            if ($name === '') {
+                return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
+            }
+            if ($concluded && (!$consentAccepted || $signatureName === '')) {
+                return ['status' => 422, 'body' => ['error' => 'consent_required', 'request_id' => $requestId]];
+            }
+
+            $person = $this->streetStore->createPerson($name, $concluded, $consentAccepted, $signatureName);
+            $this->audit('street.person.created', $requestId, ['person_id' => (string) $person['id']]);
+            return ['status' => 201, 'body' => ['item' => $person, 'request_id' => $requestId]];
+        }
+
+        if ($path === '/street/referrals' && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) {
+                return $auth['response'];
+            }
+
+            $personId = (int) ($payload['person_id'] ?? 0);
+            $target = trim((string) ($payload['target'] ?? ''));
+            if ($personId <= 0 || $target === '') {
+                return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
+            }
+
+            $referral = $this->streetStore->createReferral($personId, $target);
+            if (!$referral) {
+                return ['status' => 404, 'body' => ['error' => 'person_not_found', 'request_id' => $requestId]];
+            }
+
+            $this->audit('street.referral.created', $requestId, ['referral_id' => (string) $referral['id']]);
+            return ['status' => 201, 'body' => ['item' => $referral, 'request_id' => $requestId]];
+        }
+
+        if (preg_match('#^/street/referrals/(\d+)/status$#', $path, $match) === 1 && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) {
+                return $auth['response'];
+            }
+
+            $status = trim((string) ($payload['status'] ?? ''));
+            if ($status === '') {
+                return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
+            }
+
+            $updated = $this->streetStore->updateReferralStatus((int) $match[1], $status);
+            if (!$updated) {
+                return ['status' => 404, 'body' => ['error' => 'referral_not_found', 'request_id' => $requestId]];
+            }
+
+            $this->audit('street.referral.status_updated', $requestId, ['referral_id' => $match[1], 'status' => $status]);
+            return ['status' => 200, 'body' => ['item' => $updated, 'request_id' => $requestId]];
+        }
+
         if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE'], true)) {
             return ['status' => 405, 'body' => ['error' => 'method_not_allowed', 'request_id' => $requestId]];
         }
-
         return ['status' => 404, 'body' => ['error' => 'not_found', 'request_id' => $requestId]];
     }
 
@@ -257,16 +292,13 @@ final class Kernel
         $email = (string) ($payload['email'] ?? '');
         $password = (string) ($payload['password'] ?? '');
         $user = $this->userStore->authenticate($email, $password);
-
         if (!$user) {
             $this->audit('auth.login_failed', $requestId, ['email' => $email]);
             return ['status' => 401, 'body' => ['error' => 'invalid_credentials', 'request_id' => $requestId]];
         }
-
         $secret = (string) ($env['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: 'dev-secret');
         $token = $this->jwtService->issueToken((string) $user['email'], $secret);
         $this->audit('auth.login_success', $requestId, ['user_email' => (string) $user['email']]);
-
         return ['status' => 200, 'body' => ['access_token' => $token, 'token_type' => 'bearer', 'request_id' => $requestId]];
     }
 
@@ -277,19 +309,8 @@ final class Kernel
         if (isset($auth['response'])) {
             return $auth['response'];
         }
-
         $user = $auth['user'];
-        return [
-            'status' => 200,
-            'body' => [
-                'id' => $user['id'],
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'role' => $user['role'],
-                'permissions' => $user['permissions'],
-                'request_id' => $requestId,
-            ],
-        ];
+        return ['status' => 200, 'body' => ['id' => $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role'], 'permissions' => $user['permissions'], 'request_id' => $requestId]];
     }
 
     /** @param array<string,string> $headers @param array<string,mixed> $env @return array<string,mixed> */
@@ -300,18 +321,15 @@ final class Kernel
         if ($token === '') {
             return ['response' => ['status' => 401, 'body' => ['error' => 'missing_token', 'request_id' => $requestId]]];
         }
-
         $secret = (string) ($env['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: 'dev-secret');
         $claims = $this->jwtService->verifyToken($token, $secret);
         if (!$claims || !isset($claims['sub'])) {
             return ['response' => ['status' => 401, 'body' => ['error' => 'invalid_token', 'request_id' => $requestId]]];
         }
-
         $user = $this->userStore->findByEmail((string) $claims['sub']);
         if (!$user) {
             return ['response' => ['status' => 401, 'body' => ['error' => 'unknown_user', 'request_id' => $requestId]]];
         }
-
         return ['user' => $user];
     }
 
@@ -322,13 +340,11 @@ final class Kernel
         if (isset($auth['response'])) {
             return $auth;
         }
-
         $role = (string) ($auth['user']['role'] ?? '');
         if (!in_array($role, ['Admin', 'Operador'], true)) {
             $this->audit('auth.forbidden', $requestId, ['path' => 'writer_scope']);
             return ['response' => ['status' => 403, 'body' => ['error' => 'forbidden', 'request_id' => $requestId]]];
         }
-
         return $auth;
     }
 
@@ -338,7 +354,6 @@ final class Kernel
         if (!$this->auditLogger) {
             return;
         }
-
         $this->auditLogger->record($action, array_merge(['request_id' => $requestId], $context));
     }
 }

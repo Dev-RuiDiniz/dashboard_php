@@ -43,3 +43,12 @@ Credenciais de bootstrap (somente ambiente de desenvolvimento):
 - `DELETE /dependents/{id}`
 - `GET/POST /children`
 - `DELETE /children/{id}`
+
+
+### Endpoints social street (Sprint 05)
+
+- `GET/POST /street/people`
+- `POST /street/referrals`
+- `POST /street/referrals/{id}/status`
+
+Regra LGPD aplicada: conclusão de atendimento exige `consent_accepted=true` e `signature_name`.

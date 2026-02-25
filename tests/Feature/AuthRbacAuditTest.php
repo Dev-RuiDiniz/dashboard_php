@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../src/Auth/JwtService.php';
 require_once __DIR__ . '/../../src/Auth/UserStore.php';
 require_once __DIR__ . '/../../src/Domain/CpfValidator.php';
 require_once __DIR__ . '/../../src/Domain/SocialStore.php';
+require_once __DIR__ . '/../../src/Domain/StreetStore.php';
 require_once __DIR__ . '/../../src/Audit/AuditLogger.php';
 require_once __DIR__ . '/../../src/Observability/JsonLogger.php';
 
