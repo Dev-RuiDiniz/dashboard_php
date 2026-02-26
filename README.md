@@ -261,6 +261,7 @@ php scripts/handover_closure_report.php
 7. Entrar em operação monitorada.
 
 Checklist detalhado: `docs/auditoria/READY_FOR_PRODUCTION_CHECKLIST.md`.
+Plano por prioridades (consolidação + envio para produção): `docs/auditoria/PLANO_CONSOLIDACAO_PRODUCAO_PRIORIDADES.md`.
 
 ---
 
