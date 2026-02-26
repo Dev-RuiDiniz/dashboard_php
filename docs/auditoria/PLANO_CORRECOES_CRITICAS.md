@@ -113,3 +113,9 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Relatórios mensais completos (P2, formatos):** adicionados endpoints `GET /reports/monthly/export.xlsx` e `GET /reports/monthly/export.pdf`.
 - **Padronização de métricas:** exportações mensal CSV/XLSX/PDF agora reutilizam o mesmo conjunto de métricas operacionais no backend.
 - **Confiabilidade de contrato:** OpenAPI e testes de contrato atualizados para os novos formatos de exportação mensal.
+
+## 16) Próximo passo executado (Sprint 31)
+
+- **Limpeza de legado com política (P2):** definida política formal de retenção e limpeza em `docs/auditoria/POLITICA_RETENCAO_LEGADO.md`.
+- **Inventário automatizado:** criado `scripts/legacy_cleanup_report.php` para inventariar caminhos legados e apoiar decisão de arquivamento/remoção.
+- **Governança de execução:** incluído teste automatizado do relatório (`LegacyCleanupReportTest`) e integração na rotina de checks.

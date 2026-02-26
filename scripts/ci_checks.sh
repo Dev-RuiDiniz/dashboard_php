@@ -17,6 +17,7 @@ php -l scripts/reconciliation_report.php
 php -l scripts/security_posture_report.php
 php -l scripts/pilot_cutover_dry_run.php
 php -l scripts/handover_closure_report.php
+php -l scripts/legacy_cleanup_report.php
 php -l src/Domain/DeliveryStore.php
 php -l src/Domain/EquipmentStore.php
 php -l src/Domain/SettingsStore.php
@@ -47,6 +48,7 @@ php -l tests/Feature/ReconciliationReportTest.php
 php -l tests/Feature/SecurityPostureReportTest.php
 php -l tests/Feature/PilotCutoverDryRunTest.php
 php -l tests/Feature/HandoverClosureReportTest.php
+php -l tests/Feature/LegacyCleanupReportTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
 php tests/Feature/AuthResetTokenStoreTest.php
@@ -79,3 +81,4 @@ php tests/Feature/SecurityPostureReportTest.php
 php tests/Feature/PilotCutoverDryRunTest.php
 
 php tests/Feature/HandoverClosureReportTest.php
+php tests/Feature/LegacyCleanupReportTest.php
