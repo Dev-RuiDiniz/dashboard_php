@@ -12,6 +12,7 @@ require_once __DIR__ . '/../../src/Domain/EquipmentStore.php';
 require_once __DIR__ . '/../../src/Domain/SettingsStore.php';
 require_once __DIR__ . '/../../src/Domain/EligibilityService.php';
 require_once __DIR__ . '/../../src/Domain/AuthThrottleStore.php';
+require_once __DIR__ . '/../../src/Domain/AuthResetTokenStore.php';
 require_once __DIR__ . '/../../src/Reports/ExportService.php';
 require_once __DIR__ . '/../../src/Http/Kernel.php';
 
@@ -42,9 +43,12 @@ $login=$kernel->handle('POST','/auth/login','req-login',[],['email'=>'operador@l
 $h=['Authorization'=>'Bearer '.(string)$login['body']['access_token']];
 
 $kernel->handle('POST','/families','req-f',$h,['responsible_full_name'=>'Fam 1','responsible_cpf'=>'529.982.247-25'],$env);
+$kernel->handle('POST','/visits','req-v1',$h,['person_id'=>1,'family_id'=>1,'scheduled_for'=>'2026-02-10 10:00:00','notes'=>'Acompanhamento'],$env);
 $summary=$kernel->handle('GET','/reports/summary','req-summary',$h,[],$env);
 assertTrue($summary['status']===200,'summary deve retornar 200');
 assertTrue((int)($summary['body']['families_total'] ?? 0) >= 1,'summary deve contabilizar familias');
+assertTrue((int)($summary['body']['pending_visits_total'] ?? 0) >= 1,'summary deve contabilizar visitas pendentes');
+assertTrue(is_array($summary['body']['alerts'] ?? null),'summary deve retornar alertas operacionais');
 
 $upd=$kernel->handle('PUT','/settings/eligibility','req-upd',$h,[
  'max_deliveries_per_month'=>2,
