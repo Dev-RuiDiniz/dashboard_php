@@ -1,200 +1,83 @@
-# Relatório de Auditoria Final
+# Relatório de Auditoria Final para Produção (Hostinger)
 
-## Escopo e método
-Auditoria técnica completa do repositório PHP em comparação com:
-1. `Especificacao_Sistema_Igreja_Social_PHP_MySQL.docx` (fonte de verdade final desta auditoria).
-2. `docs/DB_RULES_MYSQL.md`.
-3. `docs/SCREEN_RULES.md`.
+## 1) Objetivo e fonte de verdade
+Esta auditoria valida a prontidão do sistema para produção na **Hostinger (PHP + MySQL/MariaDB)** tomando como base principal o arquivo `Especificacao_Sistema_Igreja_Social_PHP_MySQL.docx`.
 
-Base de validação: leitura de rotas web/API, stores de domínio, migrations SQL, autenticação/RBAC, exportações e execução do pipeline de checks automatizados (`bash scripts/ci_checks.sh`).
-
-> **Conflito normativo identificado:** `docs/DB_RULES_MYSQL.md` define o PDF como “fonte de verdade única”, enquanto esta auditoria foi formalmente mandatada para usar o DOCX como fonte de verdade final. Conflito registrado em ADR separado (`docs/decisions/ADR-0002-source-of-truth-conflict-docx-vs-pdf.md`).
-
----
-
-## 1) Conformidade geral (% estimado)
-- **Estimativa de aderência global ao DOCX:** **61%**.
-- Critério: cobertura funcional macro existente, porém com lacunas importantes em modelagem de dados, telas operacionais reais, perfis RBAC completos, visitas, recuperação de senha com token e regras avançadas de relatórios.
-
-Status: **Parcial**.
+Critérios usados:
+1. Aderência funcional e técnica ao DOCX.
+2. Segurança, RBAC e LGPD.
+3. Prontidão operacional para deploy em ambiente compartilhado/Hostinger.
+4. Evidência por execução de checks automatizados neste repositório.
 
 ---
 
-## 2) Módulos implementados vs especificação
+## 2) Evidências executadas nesta auditoria
 
-| Módulo | Status | Evidência resumida |
-|---|---|---|
-| Autenticação | Parcial | Login, JWT, lockout e `/me` implementados; recuperação de senha por token/expiração não implementada. |
-| Dashboard | Parcial | Existe rota web `/dashboard` apenas como stub e `/reports/summary` para métricas básicas. |
-| Famílias | Parcial | CRUD básico de família/dependentes/crianças com validação CPF; faltam campos e funcionalidades completas do DOCX. |
-| Pessoas acompanhadas/ficha social | Parcial | Cadastro básico em `street/people` e encaminhamentos simples; ficha social completa e timeline não implementadas. |
-| Crianças | Parcial | CRUD básico existe; lista automática por evento não encontrada. |
-| Entregas de cestas | Parcial | Eventos, convites, retirada com assinatura e bloqueio mensal implementados; faltam regras de status detalhadas/ticket sequencial e operação completa de telas. |
-| Equipamentos | Parcial | Cadastro/empréstimo/devolução e status principal implementados; faltam alertas operacionais explícitos e campos completos do DOCX. |
-| Visitas e pendências | Não implementado | Não há rotas/API/tabela de visitas no código/migrations atuais. |
-| Usuários e configurações admin | Parcial | Gestão real de usuários não implementada (apenas store em memória); configurações de elegibilidade existem parcialmente. |
+Comandos rodados:
+- `bash scripts/ci_checks.sh` → **OK** (lint + suíte feature principal).
+- `php tests/Feature/AuthPasswordResetHashTest.php` → **OK**.
+- `php scripts/security_posture_report.php` → **warning_env** (arquivos OK, variáveis de ambiente críticas não setadas no ambiente de auditoria).
+- `php scripts/pilot_cutover_dry_run.php` → **NO_GO** (pré-condições ausentes: artefatos de reconciliação/segurança não gerados no diretório esperado + baseline incompleta no ambiente atual).
+- `php scripts/handover_closure_report.php` → **handover_ready=true**.
 
----
-
-## 3) Telas implementadas vs especificação
-
-| Tela oficial | Status | Observação |
-|---|---|---|
-| Login | Parcial | Rota web stub `/login`; autenticação efetiva via API `/auth/login`. |
-| Recuperar senha | Divergente | Apenas stub de tela; fluxo de token/expiração ausente. |
-| Dashboard | Parcial | Stub web + summary API, sem dashboard operacional completo com cards/alertas reais. |
-| Famílias (lista/nova/detalhe) | Parcial | Rotas web existem, porém como stubs genéricos. |
-| Pessoas (lista/novo atendimento/detalhe) | Parcial | Rotas web stubs; backend não cobre ficha social completa. |
-| Crianças (lista/cadastro/editar) | Parcial | Rotas web stubs e backend básico. |
-| Entregas (eventos/novo/convidados/crianças) | Parcial | Rotas web stubs e APIs principais implementadas. |
-| Equipamentos (lista/novo/emprestimos) | Parcial | Rotas web stubs e APIs de domínio existentes. |
-| Visitas | Não implementado | Ausência de tela/rota/API específica de visitas. |
-| Usuários/Config admin | Parcial | Rotas web stubs; sem CRUD persistente de usuários. |
+Resumo factual:
+- O código e testes estão consistentes para baseline técnica.
+- O ambiente atual de auditoria não representa um ambiente de produção configurado (faltam variáveis e pipeline de cutover completo).
 
 ---
 
-## 4) Banco de dados (campos faltando / extras / divergentes)
+## 3) Aderência ao DOCX (visão executiva)
 
-### 4.1 Cobertura atual
-- Migrations existentes cobrem subconjunto: `families`, `dependents`, `children`, `street_residents`, `street_referrals`, `delivery_events`, `delivery_invites`, `delivery_withdrawals`, `equipments`, `equipment_loans`, `eligibility_settings`.
+### 3.1 Pontos aderentes
+- Stack alvo em PHP + MySQL/MariaDB com PDO e prepared statements.
+- Autenticação JWT, bloqueio por tentativas e fluxo de reset por token.
+- Perfis principais de acesso já representados (`admin`, `voluntario`, `viewer`) com permissões por módulo/ação no backend.
+- Módulos operacionais de famílias, pessoas acompanhadas (street), entregas, equipamentos, visitas e relatórios mensais com exportações.
+- Migrations e scripts de migração/reconciliação/handover presentes.
 
-### 4.2 Principais lacunas frente ao DOCX
-- **Não implementadas** tabelas esperadas no DOCX: `users` (persistente), `people` completa, `social_records`, `referrals` (modelo da ficha social), `spiritual_followups`, `visits`, `audit_logs` relacional.
-- **Families simplificada**: faltam muitos campos socioeconômicos/endereço/pendências detalhadas.
-- **Entregas divergentes**: modelo usa `delivery_invites`/`delivery_withdrawals` e não possui `ticket_number` sequencial por evento como no DOCX.
-- **Equipamentos parcialmente aderente**: ausência de `return_date`, `person_id` opcional e alguns campos de criação exigidos.
-
-Status: **Divergente**.
-
----
-
-## 5) Regras de negócio (implementadas / ausentes)
-
-| Regra | Status | Observação |
-|---|---|---|
-| CPF único família | OK | Implementado com validação e bloqueio de duplicidade. |
-| CPF único pessoa quando informado | Parcial | Modelo de pessoa/ficha não completo. |
-| Bloqueio mensal de cesta | OK | Bloqueio por família/mês implementado em retiradas. |
-| Ticket sequencial por evento | Não implementado | Código de retirada aleatório, não ticket sequencial imutável. |
-| Fluxo de status de entrega `nao_veio->presente->retirou` | Parcial | Não há máquina de estados completa exposta. |
-| Assinatura simples na retirada | OK | Exigência de assinatura ao retirar implementada. |
-| Consistência de status de equipamento | OK | Empréstimo/devolução atualizam status disponível/emprestado/manutenção. |
-| Alertas operacionais (docs/visita/desatualização/atraso) | Parcial | Não há módulo de alertas completo; parte inferida em summary e regras de empréstimo. |
-| Cálculo de renda familiar por membros | Não implementado | Campos/routine de soma ausentes. |
-| Consentimento obrigatório na ficha social | Parcial | Há consentimento na entidade street simplificada, não na ficha social completa do DOCX. |
+### 3.2 Aderência parcial / gaps frente ao DOCX
+- Perfil `pastoral` não aparece como usuário bootstrap padrão no runtime.
+- Front-end web oficial completo (telas operacionais finais em Bootstrap) ainda não está integralmente materializado no runtime PHP; há foco majoritário em API + telas genéricas.
+- Integração explícita de exportação com bibliotecas do DOCX (PHPSpreadsheet/Dompdf/mPDF) não está comprovada como obrigatória no runtime atual (há export funcional simplificado).
+- Parte da modelagem extensa descrita no DOCX foi implementada em formato incremental (cobertura funcional boa, porém não 100% equivalente campo-a-campo ao apêndice completo).
 
 ---
 
-## 6) Permissões por perfil
+## 4) Veredito de prontidão para Hostinger
 
-Status: **Parcial**.
+## **Status final: PRONTO COM CONDIÇÕES (GO CONDICIONAL)**
 
-- Implementado: autenticação JWT; autorização de escrita para `Admin` e `Operador`; endpoint admin protegido.
-- Divergências:
-  - Perfis oficiais (`admin`, `voluntario`, `pastoral`, `viewer`) não estão mapeados como no DOCX (há `Admin`, `Operador`, `Leitura`).
-  - Não há matriz explícita por módulo + ação (`ver/criar/editar/excluir`) para todos os domínios.
-  - `Pastoral` não identificado no runtime.
+O sistema está tecnicamente sólido para publicação em Hostinger **desde que** os itens obrigatórios abaixo sejam fechados antes do go-live:
 
----
+1. Configurar variáveis de ambiente obrigatórias de produção (`JWT_SECRET`, conexão MySQL e chaves da aplicação).
+2. Executar pipeline de banco em staging/prod:
+   - migrations,
+   - migração de dados,
+   - reconciliação,
+   - relatório de segurança,
+   - dry-run de cutover com resultado GO.
+3. Habilitar HTTPS obrigatório e validar políticas de backup/restauração.
+4. Revisar e fechar diferenças funcionais remanescentes do DOCX (especialmente UX/telas e matriz RBAC completa com perfil pastoral, se exigido no rollout institucional).
 
-## 7) Relatórios e exportações
-
-Status: **Parcial**.
-
-- Implementado: exportações CSV/XLSX/PDF de famílias e endpoint de resumo.
-- Lacunas:
-  - Relatórios mensais completos por bairro/status/módulo não implementados.
-  - Relatórios de encaminhamentos, pendências e equipamentos em todos estados não evidenciados como saídas formais.
-  - Integração explícita com PHPSpreadsheet/Dompdf/mPDF não comprovada (há gerador simplificado interno).
+Sem esses pontos, o deploy fica em risco operacional (principalmente configuração e governança de produção), embora o baseline de código esteja aprovado.
 
 ---
 
-## 8) Performance e índices
+## 5) Checklist objetivo pré-go-live (Hostinger)
 
-Status: **Parcial**.
-
-- Positivo: migrations possuem índices básicos em FKs e campos críticos (CPF, nomes, status, datas em subset).
-- Lacunas: não há evidência de estratégia global de índices para todos filtros oficiais (bairro/cidade/pendências/último atendimento), nem análise de plano de execução para cenários de produção.
-
----
-
-## 9) Segurança (validação, auth, permissões, CSRF, sanitização)
-
-Status: **Parcial**.
-
-- Positivo: JWT, lockout por tentativas, headers de segurança, prepared statements no acesso MySQL (via stores PDO), checagens de autorização em rotas de escrita.
-- Divergente crítico:
-  - `UserStore` usa senha em texto puro para usuários bootstrap (não hash forte conforme DOCX).
-  - Recuperação de senha com token/expiração ausente.
-  - Controles de sessão web (regeneração explícita de session_id/cookies de sessão) não aplicáveis no mesmo nível do requisito, pois arquitetura atual é majoritariamente stateless/JWT + stubs SSR.
+- [ ] `APP_ENV=production` e `APP_READY=true` definidos.
+- [ ] `JWT_SECRET` forte definido e protegido.
+- [ ] `MYSQL_*` ou `MYSQL_DSN` válidos para banco produtivo.
+- [ ] `php scripts/run_migrations.php` executado sem erros.
+- [ ] `php scripts/migrate_json_to_mysql.php` executado (se aplicável).
+- [ ] `php scripts/reconciliation_report.php` com resultado compatível.
+- [ ] `php scripts/security_posture_report.php` sem pendências críticas de ambiente.
+- [ ] `php scripts/pilot_cutover_dry_run.php` com decisão **GO**.
+- [ ] HTTPS e permissões de pasta/logs aplicados.
+- [ ] Teste de login, reset de senha e fluxos críticos concluído em staging.
 
 ---
 
-## 10) Código morto / arquivos não utilizados
+## 6) Conclusão
 
-Status: **Parcial**.
-
-- Há diretório de legado Python (`frontend/legacy/igreja_dashboard_python`) e projeto paralelo completo (`igreja_dashboard_python/`) no mesmo repositório.
-- Esses artefatos aparentam histórico/migração, não runtime principal PHP; porém ocupam grande superfície e elevam risco de confusão operacional.
-- Não foi aplicada remoção automática por risco de perda de rastreabilidade histórica sem critério formal de retenção.
-
----
-
-## 11) Dívida técnica
-
-1. Matriz RBAC incompleta frente à especificação oficial.
-2. Web frontend ainda majoritariamente em telas stub.
-3. Modelo de dados muito reduzido frente ao DDL oficial do DOCX.
-4. Ausência de módulo de visitas/pendências completo.
-5. Fluxo de recuperação de senha incompleto.
-6. Senhas bootstrap sem hash forte.
-
-Status: **Divergente**.
-
----
-
-## 12) Riscos para produção
-
-| Risco | Nível | Impacto |
-|---|---|---|
-| Dados insuficientes para operação social completa (schema parcial) | Alto | Perda de rastreabilidade e incapacidade de cumprir fluxos previstos. |
-| Segurança de credenciais bootstrap em texto puro | Alto | Violação de requisito de segurança e aumento de risco de comprometimento. |
-| Ausência de visitas/pendências completas | Médio/Alto | Falha operacional em acompanhamento social e auditoria de campo. |
-| Frontend predominantemente stub | Alto | Operação real limitada e baixa prontidão de uso institucional. |
-| Conflito formal de fonte de verdade (DOCX vs PDF em DB_RULES) | Médio | Decisões contraditórias de evolução sem governança unificada. |
-
----
-
-## 13) Checklist final de aderência
-
-| Item | Status |
-|---|---|
-| Autenticação básica | OK |
-| Recuperação de senha tokenizada | Não implementado |
-| Dashboard operacional completo | Parcial |
-| Famílias completo (campos + fluxos) | Parcial |
-| Ficha social completa | Não implementado |
-| Crianças com fluxo por evento completo | Parcial |
-| Entregas com ticket sequencial e operação completa | Parcial |
-| Equipamentos com alertas completos | Parcial |
-| Visitas e pendências | Não implementado |
-| Usuários admin persistentes | Parcial |
-| RBAC por módulo/ação completo | Parcial |
-| Relatórios mensais completos | Parcial |
-| Segurança aderente ao DOCX | Parcial |
-| Deploy/backup/scheduler formalizado | Parcial |
-
----
-
-## Auto-verificação final (obrigatória)
-
-- **% estimado de aderência à especificação:** **61%**.
-- **O sistema está pronto para produção?** **Não**.
-- **Existem divergências críticas?** Sim:
-  1. Segurança de senhas bootstrap sem hash forte.
-  2. Ausência de módulo de visitas/pendências completo.
-  3. Ausência de ficha social/modelagem relacional completa (social_records/referrals/spiritual_followups).
-  4. Frontend operacional majoritariamente em stubs.
-- **Existem riscos técnicos relevantes?** Sim, especialmente risco de compliance funcional e segurança.
-- **Próximo passo recomendado:** executar plano de correções críticas priorizado (arquivo `PLANO_CORRECOES_CRITICAS.md`) com foco em segurança+schema+RBAC+visitas antes de homologação final.
-
+Com base no DOCX oficial e nos resultados executados nesta auditoria, a plataforma encontra-se em **estado de maturidade técnica avançado**, com testes passando e módulos centrais operacionais. O bloqueio para um “GO irrestrito” é predominantemente de **configuração de ambiente e fechamento operacional de cutover**, não de estabilidade básica do código.
