@@ -324,12 +324,31 @@ final class Kernel
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) { return $auth['response']; }
 
+            $familiesTotal = count($this->socialStore->listFamilies());
+            $streetPeople = $this->streetStore->listPeople();
+            $events = $this->deliveryStore->listEvents();
+            $equipments = $this->equipmentStore->listEquipments();
+            $openLoans = array_values(array_filter($this->equipmentStore->listLoans(), static fn($l) => ($l['status'] ?? '') === 'aberto'));
+            $pendingVisits = $this->socialStore->listVisits('pendente');
+            $publishedEvents = array_values(array_filter($events, static fn($e) => ($e['status'] ?? '') === 'publicado'));
+
+            $alerts = [];
+            if (count($pendingVisits) > 0) {
+                $alerts[] = ['code' => 'pending_visits', 'severity' => 'warning', 'message' => 'Existem visitas pendentes para acompanhamento.', 'count' => count($pendingVisits)];
+            }
+            if (count($openLoans) > 0) {
+                $alerts[] = ['code' => 'open_loans', 'severity' => 'info', 'message' => 'Há empréstimos em aberto.', 'count' => count($openLoans)];
+            }
+
             return ['status'=>200,'body'=>[
-                'families_total' => count($this->socialStore->listFamilies()),
-                'street_people_total' => count($this->streetStore->listPeople()),
-                'events_total' => count($this->deliveryStore->listEvents()),
-                'equipments_total' => count($this->equipmentStore->listEquipments()),
-                'open_loans_total' => count(array_values(array_filter($this->equipmentStore->listLoans(), static fn($l) => ($l['status'] ?? '') === 'aberto'))),
+                'families_total' => $familiesTotal,
+                'street_people_total' => count($streetPeople),
+                'events_total' => count($events),
+                'published_events_total' => count($publishedEvents),
+                'equipments_total' => count($equipments),
+                'open_loans_total' => count($openLoans),
+                'pending_visits_total' => count($pendingVisits),
+                'alerts' => $alerts,
                 'request_id' => $requestId,
             ]];
         }

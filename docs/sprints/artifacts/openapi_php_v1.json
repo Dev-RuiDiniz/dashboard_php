@@ -373,9 +373,10 @@
         "summary": "Resumo gerencial",
         "responses": {
           "200": {
-            "description": "Resumo"
+            "description": "Resumo operacional com totais e alertas"
           }
-        }
+        },
+        "description": "Resumo operacional com indicadores reais e alertas."
       }
     },
     "/reports/export.csv": {

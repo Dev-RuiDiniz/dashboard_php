@@ -89,3 +89,9 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Imutabilidade após publicação:** implementado endpoint `POST /deliveries/events/{id}/publish`; após publicação, novos convites no evento retornam conflito de imutabilidade.
 - **Persistência relacional:** criada migration `006_alter_delivery_invites_ticket_and_publish.sql` para `ticket_number` em `delivery_invites` e `published_at` em `delivery_events`.
 - **Contrato e testes:** OpenAPI atualizado e `DeliveryEventsRulesTest` expandido para validar sequência de tickets e bloqueio pós-publicação.
+
+## 12) Próximo passo executado (Sprint 27)
+
+- **Dashboard operacional real (P1):** endpoint `GET /reports/summary` evoluído para retornar métricas operacionais reais adicionais (`pending_visits_total`, `published_events_total`) e lista de alertas acionáveis.
+- **Alertas de operação:** incluídos alertas para visitas pendentes e empréstimos em aberto, com contagem agregada para priorização diária.
+- **Validação automatizada:** `ReportsEligibilitySettingsTest` ampliado para garantir presença de métricas operacionais e estrutura de alertas no resumo.
