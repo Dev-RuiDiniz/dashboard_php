@@ -6,99 +6,489 @@
     "description": "Contrato OpenAPI v1 do backend PHP (Sprint 14)."
   },
   "servers": [
-    { "url": "http://localhost:8099" }
+    {
+      "url": "http://localhost:8099"
+    }
   ],
   "paths": {
     "/health": {
-      "get": { "summary": "Healthcheck técnico", "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "summary": "Healthcheck técnico",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     },
     "/ready": {
-      "get": { "summary": "Readiness técnico", "responses": { "200": { "description": "Ready" }, "503": { "description": "Not ready" } } }
+      "get": {
+        "summary": "Readiness técnico",
+        "responses": {
+          "200": {
+            "description": "Ready"
+          },
+          "503": {
+            "description": "Not ready"
+          }
+        }
+      }
     },
     "/auth/login": {
-      "post": { "summary": "Autenticação", "responses": { "200": { "description": "JWT emitido" }, "401": { "description": "Credenciais inválidas" } } }
+      "post": {
+        "summary": "Autenticação",
+        "responses": {
+          "200": {
+            "description": "JWT emitido"
+          },
+          "401": {
+            "description": "Credenciais inválidas"
+          }
+        }
+      }
     },
     "/me": {
-      "get": { "summary": "Perfil autenticado", "responses": { "200": { "description": "Perfil" }, "401": { "description": "Não autenticado" } } }
+      "get": {
+        "summary": "Perfil autenticado",
+        "responses": {
+          "200": {
+            "description": "Perfil"
+          },
+          "401": {
+            "description": "Não autenticado"
+          }
+        }
+      }
     },
     "/auth/logout": {
-      "post": { "summary": "Logout lógico", "responses": { "200": { "description": "Sessão encerrada" } } }
+      "post": {
+        "summary": "Logout lógico",
+        "responses": {
+          "200": {
+            "description": "Sessão encerrada"
+          }
+        }
+      }
     },
     "/families": {
-      "get": { "summary": "Listar famílias", "responses": { "200": { "description": "Lista" } } },
-      "post": { "summary": "Criar família", "responses": { "201": { "description": "Criada" }, "409": { "description": "CPF duplicado" }, "422": { "description": "Payload inválido" } } }
+      "get": {
+        "summary": "Listar famílias",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar família",
+        "responses": {
+          "201": {
+            "description": "Criada"
+          },
+          "409": {
+            "description": "CPF duplicado"
+          },
+          "422": {
+            "description": "Payload inválido"
+          }
+        }
+      }
     },
     "/families/{id}": {
-      "get": { "summary": "Detalhar família", "responses": { "200": { "description": "Detalhe" }, "404": { "description": "Não encontrada" } } },
-      "put": { "summary": "Atualizar família", "responses": { "200": { "description": "Atualizada" }, "404": { "description": "Não encontrada" } } },
-      "delete": { "summary": "Remover família", "responses": { "200": { "description": "Removida" }, "404": { "description": "Não encontrada" } } }
+      "get": {
+        "summary": "Detalhar família",
+        "responses": {
+          "200": {
+            "description": "Detalhe"
+          },
+          "404": {
+            "description": "Não encontrada"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualizar família",
+        "responses": {
+          "200": {
+            "description": "Atualizada"
+          },
+          "404": {
+            "description": "Não encontrada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remover família",
+        "responses": {
+          "200": {
+            "description": "Removida"
+          },
+          "404": {
+            "description": "Não encontrada"
+          }
+        }
+      }
     },
     "/dependents": {
-      "get": { "summary": "Listar dependentes", "responses": { "200": { "description": "Lista" } } },
-      "post": { "summary": "Criar dependente", "responses": { "201": { "description": "Criado" }, "404": { "description": "Família não encontrada" } } }
+      "get": {
+        "summary": "Listar dependentes",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar dependente",
+        "responses": {
+          "201": {
+            "description": "Criado"
+          },
+          "404": {
+            "description": "Família não encontrada"
+          }
+        }
+      }
     },
     "/dependents/{id}": {
-      "delete": { "summary": "Remover dependente", "responses": { "200": { "description": "Removido" }, "404": { "description": "Não encontrado" } } }
+      "delete": {
+        "summary": "Remover dependente",
+        "responses": {
+          "200": {
+            "description": "Removido"
+          },
+          "404": {
+            "description": "Não encontrado"
+          }
+        }
+      }
     },
     "/children": {
-      "get": { "summary": "Listar crianças", "responses": { "200": { "description": "Lista" } } },
-      "post": { "summary": "Criar criança", "responses": { "201": { "description": "Criada" }, "404": { "description": "Família não encontrada" } } }
+      "get": {
+        "summary": "Listar crianças",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar criança",
+        "responses": {
+          "201": {
+            "description": "Criada"
+          },
+          "404": {
+            "description": "Família não encontrada"
+          }
+        }
+      }
     },
     "/children/{id}": {
-      "delete": { "summary": "Remover criança", "responses": { "200": { "description": "Removida" }, "404": { "description": "Não encontrada" } } }
+      "delete": {
+        "summary": "Remover criança",
+        "responses": {
+          "200": {
+            "description": "Removida"
+          },
+          "404": {
+            "description": "Não encontrada"
+          }
+        }
+      }
     },
     "/street/people": {
-      "get": { "summary": "Listar pessoas em situação de rua", "responses": { "200": { "description": "Lista" } } },
-      "post": { "summary": "Criar pessoa em situação de rua", "responses": { "201": { "description": "Criada" }, "422": { "description": "Payload inválido" } } }
+      "get": {
+        "summary": "Listar pessoas em situação de rua",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar pessoa em situação de rua",
+        "responses": {
+          "201": {
+            "description": "Criada"
+          },
+          "422": {
+            "description": "Payload inválido"
+          }
+        }
+      }
     },
     "/street/referrals": {
-      "post": { "summary": "Criar encaminhamento", "responses": { "201": { "description": "Criado" }, "404": { "description": "Pessoa não encontrada" } } }
+      "post": {
+        "summary": "Criar encaminhamento",
+        "responses": {
+          "201": {
+            "description": "Criado"
+          },
+          "404": {
+            "description": "Pessoa não encontrada"
+          }
+        }
+      }
     },
     "/street/referrals/{id}/status": {
-      "post": { "summary": "Atualizar status de encaminhamento", "responses": { "200": { "description": "Atualizado" }, "404": { "description": "Não encontrado" } } }
+      "post": {
+        "summary": "Atualizar status de encaminhamento",
+        "responses": {
+          "200": {
+            "description": "Atualizado"
+          },
+          "404": {
+            "description": "Não encontrado"
+          }
+        }
+      }
     },
     "/deliveries/events": {
-      "get": { "summary": "Listar eventos de entrega", "responses": { "200": { "description": "Lista" } } },
-      "post": { "summary": "Criar evento de entrega", "responses": { "201": { "description": "Criado" } } }
+      "get": {
+        "summary": "Listar eventos de entrega",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar evento de entrega",
+        "responses": {
+          "201": {
+            "description": "Criado"
+          }
+        }
+      }
     },
     "/deliveries/events/{id}/invites": {
-      "post": { "summary": "Convidar família", "responses": { "201": { "description": "Convite" }, "404": { "description": "Evento não encontrado" } } }
+      "post": {
+        "summary": "Convidar família",
+        "responses": {
+          "201": {
+            "description": "Convite"
+          },
+          "404": {
+            "description": "Evento não encontrado"
+          }
+        }
+      }
     },
     "/deliveries/events/{id}/withdrawals": {
-      "post": { "summary": "Registrar retirada", "responses": { "201": { "description": "Retirada" }, "409": { "description": "Bloqueio mensal" }, "422": { "description": "Assinatura obrigatória" } } }
+      "post": {
+        "summary": "Registrar retirada",
+        "responses": {
+          "201": {
+            "description": "Retirada"
+          },
+          "409": {
+            "description": "Bloqueio mensal"
+          },
+          "422": {
+            "description": "Assinatura obrigatória"
+          }
+        }
+      }
     },
     "/equipment": {
-      "get": { "summary": "Listar equipamentos", "responses": { "200": { "description": "Lista" } } },
-      "post": { "summary": "Criar equipamento", "responses": { "201": { "description": "Criado" } } }
+      "get": {
+        "summary": "Listar equipamentos",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar equipamento",
+        "responses": {
+          "201": {
+            "description": "Criado"
+          }
+        }
+      }
     },
     "/equipment/{id}": {
-      "put": { "summary": "Atualizar equipamento", "responses": { "200": { "description": "Atualizado" }, "422": { "description": "Status inválido" }, "404": { "description": "Não encontrado" } } }
+      "put": {
+        "summary": "Atualizar equipamento",
+        "responses": {
+          "200": {
+            "description": "Atualizado"
+          },
+          "422": {
+            "description": "Status inválido"
+          },
+          "404": {
+            "description": "Não encontrado"
+          }
+        }
+      }
     },
     "/equipment/loans": {
-      "get": { "summary": "Listar empréstimos", "responses": { "200": { "description": "Lista" } } },
-      "post": { "summary": "Criar empréstimo", "responses": { "201": { "description": "Criado" }, "409": { "description": "Indisponível" }, "404": { "description": "Não encontrado" } } }
+      "get": {
+        "summary": "Listar empréstimos",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar empréstimo",
+        "responses": {
+          "201": {
+            "description": "Criado"
+          },
+          "409": {
+            "description": "Indisponível"
+          },
+          "404": {
+            "description": "Não encontrado"
+          }
+        }
+      }
     },
     "/equipment/loans/{id}/return": {
-      "post": { "summary": "Devolver equipamento", "responses": { "200": { "description": "Devolvido" }, "409": { "description": "Empréstimo fechado" }, "404": { "description": "Não encontrado" } } }
+      "post": {
+        "summary": "Devolver equipamento",
+        "responses": {
+          "200": {
+            "description": "Devolvido"
+          },
+          "409": {
+            "description": "Empréstimo fechado"
+          },
+          "404": {
+            "description": "Não encontrado"
+          }
+        }
+      }
     },
     "/reports/summary": {
-      "get": { "summary": "Resumo gerencial", "responses": { "200": { "description": "Resumo" } } }
+      "get": {
+        "summary": "Resumo gerencial",
+        "responses": {
+          "200": {
+            "description": "Resumo"
+          }
+        }
+      }
     },
     "/reports/export.csv": {
-      "get": { "summary": "Exportar CSV", "responses": { "200": { "description": "Arquivo" } } }
+      "get": {
+        "summary": "Exportar CSV",
+        "responses": {
+          "200": {
+            "description": "Arquivo"
+          }
+        }
+      }
     },
     "/reports/export.xlsx": {
-      "get": { "summary": "Exportar XLSX", "responses": { "200": { "description": "Arquivo" } } }
+      "get": {
+        "summary": "Exportar XLSX",
+        "responses": {
+          "200": {
+            "description": "Arquivo"
+          }
+        }
+      }
     },
     "/reports/export.pdf": {
-      "get": { "summary": "Exportar PDF", "responses": { "200": { "description": "Arquivo" } } }
+      "get": {
+        "summary": "Exportar PDF",
+        "responses": {
+          "200": {
+            "description": "Arquivo"
+          }
+        }
+      }
     },
     "/settings/eligibility": {
-      "get": { "summary": "Ler configurações de elegibilidade", "responses": { "200": { "description": "Configuração" } } },
-      "put": { "summary": "Atualizar configurações de elegibilidade", "responses": { "200": { "description": "Atualizada" } } }
+      "get": {
+        "summary": "Ler configurações de elegibilidade",
+        "responses": {
+          "200": {
+            "description": "Configuração"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualizar configurações de elegibilidade",
+        "responses": {
+          "200": {
+            "description": "Atualizada"
+          }
+        }
+      }
     },
     "/eligibility/check": {
-      "post": { "summary": "Checar elegibilidade", "responses": { "200": { "description": "Resultado" } } }
+      "post": {
+        "summary": "Checar elegibilidade",
+        "responses": {
+          "200": {
+            "description": "Resultado"
+          }
+        }
+      }
+    },
+    "/auth/forgot": {
+      "post": {
+        "summary": "Solicitar recuperação de senha",
+        "responses": {
+          "200": {
+            "description": "Solicitação processada"
+          }
+        }
+      }
+    },
+    "/auth/reset": {
+      "post": {
+        "summary": "Redefinir senha por token",
+        "responses": {
+          "200": {
+            "description": "Senha redefinida"
+          },
+          "422": {
+            "description": "Token inválido/expirado"
+          }
+        }
+      }
+    },
+    "/visits": {
+      "get": {
+        "summary": "Listar visitas",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar visita",
+        "responses": {
+          "201": {
+            "description": "Criada"
+          },
+          "422": {
+            "description": "Payload inválido"
+          }
+        }
+      }
+    },
+    "/visits/{id}/complete": {
+      "post": {
+        "summary": "Concluir visita",
+        "responses": {
+          "200": {
+            "description": "Concluída"
+          },
+          "404": {
+            "description": "Visita não encontrada"
+          }
+        }
+      }
     }
   }
 }

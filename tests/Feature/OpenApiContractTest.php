@@ -34,6 +34,8 @@ $required = [
     '/reports/summary' => ['get'],
     '/settings/eligibility' => ['get', 'put'],
     '/eligibility/check' => ['post'],
+    '/visits' => ['get', 'post'],
+    '/visits/{id}/complete' => ['post'],
 ];
 
 foreach ($required as $path => $methods) {
