@@ -492,6 +492,49 @@ final class Kernel
             return ['status'=>201,'body'=>['item'=>$w,'request_id'=>$requestId]];
         }
 
+
+        // Sprint 24: visitas e pendências
+        if ($path === '/visits' && $method === 'GET') {
+            $status = trim((string) ($payload['status'] ?? ''));
+            if ($status !== '' && !in_array($status, ['pendente', 'concluida', 'cancelada'], true)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_status', 'request_id' => $requestId]];
+            }
+            return ['status' => 200, 'body' => ['items' => $this->socialStore->listVisits($status !== '' ? $status : null), 'request_id' => $requestId]];
+        }
+
+        if ($path === '/visits' && $method === 'POST') {
+            $personId = (int) ($payload['person_id'] ?? 0);
+            $familyIdRaw = $payload['family_id'] ?? null;
+            $familyId = is_numeric($familyIdRaw) ? (int) $familyIdRaw : null;
+            $scheduledFor = trim((string) ($payload['scheduled_for'] ?? ''));
+            $notes = trim((string) ($payload['notes'] ?? ''));
+            if ($personId <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $scheduledFor)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
+            }
+            $visit = $this->socialStore->createVisit($personId, $familyId, $scheduledFor, $notes);
+            if (!$visit) {
+                return ['status' => 404, 'body' => ['error' => 'visit_not_created', 'request_id' => $requestId]];
+            }
+            $this->audit('visit.created', $requestId, ['visit_id' => (string) $visit['id']]);
+            return ['status' => 201, 'body' => ['item' => $visit, 'request_id' => $requestId]];
+        }
+
+        if (preg_match('#^/visits/(\d+)/complete$#', $path, $m) === 1 && $method === 'POST') {
+            $completedAt = trim((string) ($payload['completed_at'] ?? ''));
+            if ($completedAt === '') {
+                $completedAt = gmdate('Y-m-d H:i:s');
+            }
+            if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $completedAt)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_payload', 'request_id' => $requestId]];
+            }
+            $visit = $this->socialStore->completeVisit((int) $m[1], $completedAt);
+            if (!$visit) {
+                return ['status' => 404, 'body' => ['error' => 'visit_not_found', 'request_id' => $requestId]];
+            }
+            $this->audit('visit.completed', $requestId, ['visit_id' => (string) $m[1]]);
+            return ['status' => 200, 'body' => ['item' => $visit, 'request_id' => $requestId]];
+        }
+
         if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE'], true)) {
             return ['status' => 405, 'body' => ['error' => 'method_not_allowed', 'request_id' => $requestId]];
         }
@@ -655,6 +698,10 @@ final class Kernel
 
         if ($path === '/eligibility/check') {
             return 'eligibility.check';
+        }
+
+        if ($path === '/visits' || preg_match('#^/visits/\d+/complete$#', $path) === 1) {
+            return $method === 'GET' ? 'visits.read' : 'visits.write';
         }
 
         return null;

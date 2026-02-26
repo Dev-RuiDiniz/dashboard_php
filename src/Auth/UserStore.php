@@ -27,7 +27,7 @@ final class UserStore
                 'email' => 'operador@local',
                 'password_hash' => '$2y$12$RQQZ.h8IDSA0xmNJKER5IuEb87ZAY0jYBAd88jNDvT1fbbDO6ture',
                 'role' => 'voluntario',
-                'permissions' => ['families.read', 'families.write', 'street.read', 'street.write', 'delivery.read', 'delivery.write', 'equipment.read', 'equipment.write', 'reports.read', 'settings.read', 'settings.write', 'eligibility.check'],
+                'permissions' => ['families.read', 'families.write', 'street.read', 'street.write', 'delivery.read', 'delivery.write', 'equipment.read', 'equipment.write', 'reports.read', 'settings.read', 'settings.write', 'eligibility.check', 'visits.read', 'visits.write'],
             ],
             'leitura@local' => [
                 'id' => 3,
@@ -35,7 +35,7 @@ final class UserStore
                 'email' => 'leitura@local',
                 'password_hash' => '$2y$12$yhJBe0y4WdSRD5uTG59ba.a3Eag5QTdpnSbQiw3c4wl6bMjQFbtQ.',
                 'role' => 'viewer',
-                'permissions' => ['families.read', 'street.read', 'delivery.read', 'equipment.read', 'reports.read', 'settings.read'],
+                'permissions' => ['families.read', 'street.read', 'delivery.read', 'equipment.read', 'reports.read', 'settings.read', 'visits.read'],
             ],
         ];
     }

@@ -75,3 +75,10 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Cobertura de teste do store:** novo teste `AuthResetTokenStoreTest` valida não persistir token plaintext, uso único e rejeição de token expirado.
 
 > Resultado: pendência de evoluir reset para base transacional foi atendida com suporte relacional dedicado e compatibilidade retroativa.
+
+## 10) Próximo passo executado (Sprint 25)
+
+- **Módulo de Visitas e Pendências (P1):** implementados endpoints `GET /visits`, `POST /visits` e `POST /visits/{id}/complete` com fluxo pendente/concluída e vínculo por `person_id`/`family_id`.
+- **Persistência no domínio social:** `SocialStore` passou a suportar visitas em JSON e em MySQL (`visits`), incluindo listagem com filtro por status e conclusão.
+- **RBAC aplicado ao módulo de visitas:** matriz de permissões estendida para `visits.read` e `visits.write` por rota.
+- **Contrato e testes:** OpenAPI atualizado e novo teste `VisitsModuleTest` cobrindo criação, listagem, conclusão e bloqueio de escrita para perfil de leitura.

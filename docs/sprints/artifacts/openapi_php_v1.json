@@ -455,6 +455,40 @@
           }
         }
       }
+    },
+    "/visits": {
+      "get": {
+        "summary": "Listar visitas",
+        "responses": {
+          "200": {
+            "description": "Lista"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar visita",
+        "responses": {
+          "201": {
+            "description": "Criada"
+          },
+          "422": {
+            "description": "Payload inválido"
+          }
+        }
+      }
+    },
+    "/visits/{id}/complete": {
+      "post": {
+        "summary": "Concluir visita",
+        "responses": {
+          "200": {
+            "description": "Concluída"
+          },
+          "404": {
+            "description": "Visita não encontrada"
+          }
+        }
+      }
     }
   }
 }
