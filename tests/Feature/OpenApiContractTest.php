@@ -34,6 +34,7 @@ $required = [
     '/equipment' => ['get', 'post'],
     '/reports/summary' => ['get'],
     '/reports/monthly' => ['get'],
+    '/reports/monthly/export.csv' => ['get'],
     '/settings/eligibility' => ['get', 'put'],
     '/eligibility/check' => ['post'],
     '/visits' => ['get', 'post'],

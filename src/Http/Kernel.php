@@ -395,6 +395,53 @@ final class Kernel
             ]];
         }
 
+        if ($path === '/reports/monthly/export.csv' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+
+            $period = trim((string) ($payload['period'] ?? gmdate('Y-m')));
+            $visitStatus = trim((string) ($payload['visit_status'] ?? ''));
+            if (!preg_match('/^\d{4}-\d{2}$/', $period)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_period', 'request_id' => $requestId]];
+            }
+            if ($visitStatus !== '' && !in_array($visitStatus, ['pendente', 'concluida', 'cancelada'], true)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_visit_status', 'request_id' => $requestId]];
+            }
+
+            $eventsInPeriod = array_values(array_filter(
+                $this->deliveryStore->listEvents(),
+                static fn(array $event): bool => str_starts_with((string) ($event['event_date'] ?? ''), $period)
+            ));
+            $visitsBase = $visitStatus === '' ? $this->socialStore->listVisits() : $this->socialStore->listVisits($visitStatus);
+            $visitsInPeriod = array_values(array_filter(
+                $visitsBase,
+                static fn(array $visit): bool => str_starts_with((string) ($visit['scheduled_for'] ?? ''), $period)
+            ));
+
+            $rows = [
+                ['period', 'metric', 'value'],
+                [$period, 'families_total', (string) count($this->socialStore->listFamilies())],
+                [$period, 'street_people_total', (string) count($this->streetStore->listPeople())],
+                [$period, 'delivery_events_total', (string) count($eventsInPeriod)],
+                [$period, 'delivery_events_published_total', (string) count(array_values(array_filter($eventsInPeriod, static fn(array $event): bool => ($event['status'] ?? '') === 'publicado')))],
+                [$period, 'visits_total', (string) count($visitsInPeriod)],
+                [$period, 'open_loans_total', (string) count(array_values(array_filter($this->equipmentStore->listLoans(), static fn(array $loan): bool => ($loan['status'] ?? '') === 'aberto')))],
+            ];
+
+            $csvLines = array_map(static fn(array $row): string => implode(',', array_map(static function (string $cell): string {
+                $escaped = str_replace('"', '""', $cell);
+                return '"' . $escaped . '"';
+            }, $row)), $rows);
+            $raw = implode("\n", $csvLines) . "\n";
+
+            return ['status' => 200, 'body' => [
+                '__raw' => $raw,
+                '__content_type' => 'text/csv; charset=utf-8',
+                '__file_name' => 'monthly_' . str_replace('-', '_', $period) . '.csv',
+                'request_id' => $requestId,
+            ]];
+        }
+
         if ($path === '/settings/eligibility' && $method === 'GET') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) { return $auth['response']; }

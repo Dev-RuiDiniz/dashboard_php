@@ -101,3 +101,9 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Relatórios mensais completos (P2, avanço):** adicionado endpoint `GET /reports/monthly` com período parametrizável (`YYYY-MM`) para consolidação mensal operacional.
 - **Indicadores mensais no backend:** resumo mensal passa a agregar famílias, pessoas de rua, eventos de entrega no período, eventos publicados no período, visitas totais e visitas por status, além de empréstimos em aberto.
 - **Contrato e qualidade:** OpenAPI e testes foram atualizados com validação de período inválido e consistência das métricas mensais.
+
+## 14) Próximo passo executado (Sprint 29)
+
+- **Relatórios mensais completos (P2, avanço adicional):** adicionado endpoint `GET /reports/monthly/export.csv` para exportação dos indicadores mensais em CSV.
+- **Filtro operacional:** exportação suporta `period` (`YYYY-MM`) e filtro opcional `visit_status` para recorte por status de visitas.
+- **Contrato e testes:** OpenAPI e contrato automatizado atualizados, com novo teste de exportação mensal validando sucesso e rejeição de parâmetros inválidos.

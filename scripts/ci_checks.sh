@@ -35,6 +35,7 @@ php -l tests/Feature/ReportsExportTest.php
 php -l tests/Feature/EquipmentLoansTest.php
 php -l tests/Feature/ReportsEligibilitySettingsTest.php
 php -l tests/Feature/ReportsMonthlyOperationalTest.php
+php -l tests/Feature/ReportsMonthlyExportTest.php
 php -l tests/Feature/SecurityHardeningTest.php
 php -l tests/Feature/RelationalMigrationReadinessTest.php
 php -l tests/Feature/StreetRelationalMigrationReadinessTest.php
@@ -56,6 +57,7 @@ php tests/Feature/ReportsExportTest.php
 php tests/Feature/EquipmentLoansTest.php
 php tests/Feature/ReportsEligibilitySettingsTest.php
 php tests/Feature/ReportsMonthlyOperationalTest.php
+php tests/Feature/ReportsMonthlyExportTest.php
 php tests/Feature/SecurityHardeningTest.php
 
 php tests/Feature/RelationalMigrationReadinessTest.php
