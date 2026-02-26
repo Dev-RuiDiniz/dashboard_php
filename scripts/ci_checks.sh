@@ -17,20 +17,27 @@ php -l scripts/reconciliation_report.php
 php -l scripts/security_posture_report.php
 php -l scripts/pilot_cutover_dry_run.php
 php -l scripts/handover_closure_report.php
+php -l scripts/legacy_cleanup_report.php
 php -l src/Domain/DeliveryStore.php
 php -l src/Domain/EquipmentStore.php
 php -l src/Domain/SettingsStore.php
 php -l src/Domain/EligibilityService.php
 php -l src/Domain/AuthThrottleStore.php
+php -l src/Domain/AuthResetTokenStore.php
 php -l src/Reports/ExportService.php
 php -l tests/Feature/HealthReadyTest.php
 php -l tests/Feature/AuthRbacAuditTest.php
+php -l tests/Feature/AuthResetTokenStoreTest.php
+php -l tests/Feature/VisitsModuleTest.php
 php -l tests/Feature/FamilyDomainCrudTest.php
 php -l tests/Feature/StreetLgpdReferralTest.php
 php -l tests/Feature/DeliveryEventsRulesTest.php
 php -l tests/Feature/ReportsExportTest.php
 php -l tests/Feature/EquipmentLoansTest.php
 php -l tests/Feature/ReportsEligibilitySettingsTest.php
+php -l tests/Feature/ReportsMonthlyOperationalTest.php
+php -l tests/Feature/ReportsMonthlyExportTest.php
+php -l tests/Feature/ReportsMonthlyBinaryExportsTest.php
 php -l tests/Feature/SecurityHardeningTest.php
 php -l tests/Feature/RelationalMigrationReadinessTest.php
 php -l tests/Feature/StreetRelationalMigrationReadinessTest.php
@@ -41,14 +48,20 @@ php -l tests/Feature/ReconciliationReportTest.php
 php -l tests/Feature/SecurityPostureReportTest.php
 php -l tests/Feature/PilotCutoverDryRunTest.php
 php -l tests/Feature/HandoverClosureReportTest.php
+php -l tests/Feature/LegacyCleanupReportTest.php
 php tests/Feature/HealthReadyTest.php
 php tests/Feature/AuthRbacAuditTest.php
+php tests/Feature/AuthResetTokenStoreTest.php
+php tests/Feature/VisitsModuleTest.php
 php tests/Feature/FamilyDomainCrudTest.php
 php tests/Feature/StreetLgpdReferralTest.php
 php tests/Feature/DeliveryEventsRulesTest.php
 php tests/Feature/ReportsExportTest.php
 php tests/Feature/EquipmentLoansTest.php
 php tests/Feature/ReportsEligibilitySettingsTest.php
+php tests/Feature/ReportsMonthlyOperationalTest.php
+php tests/Feature/ReportsMonthlyExportTest.php
+php tests/Feature/ReportsMonthlyBinaryExportsTest.php
 php tests/Feature/SecurityHardeningTest.php
 
 php tests/Feature/RelationalMigrationReadinessTest.php
@@ -68,3 +81,4 @@ php tests/Feature/SecurityPostureReportTest.php
 php tests/Feature/PilotCutoverDryRunTest.php
 
 php tests/Feature/HandoverClosureReportTest.php
+php tests/Feature/LegacyCleanupReportTest.php

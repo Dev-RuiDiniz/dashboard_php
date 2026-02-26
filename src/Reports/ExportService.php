@@ -74,6 +74,50 @@ final class ExportService
         return $this->buildMinimalPdf($textLines);
     }
 
+    /** @param array<int,array{metric:string,value:string}> $metrics */
+    public function buildMetricsCsv(string $period, array $metrics): string
+    {
+        $lines = ['period,metric,value'];
+        foreach ($metrics as $row) {
+            $metric = str_replace('"', '""', (string) ($row['metric'] ?? ''));
+            $value = str_replace('"', '""', (string) ($row['value'] ?? ''));
+            $lines[] = sprintf('"%s","%s","%s"', $period, $metric, $value);
+        }
+
+        return implode("\n", $lines) . "\n";
+    }
+
+    /** @param array<int,array{metric:string,value:string}> $metrics */
+    public function buildMetricsXlsx(string $period, array $metrics): string
+    {
+        $xml = [];
+        $xml[] = '<?xml version="1.0" encoding="UTF-8"?>';
+        $xml[] = '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"';
+        $xml[] = ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
+        $xml[] = '  <Worksheet ss:Name="monthly_metrics">';
+        $xml[] = '    <Table>';
+        $xml[] = $this->spreadsheetRow(['period', 'metric', 'value']);
+        foreach ($metrics as $row) {
+            $xml[] = $this->spreadsheetRow([$period, (string) ($row['metric'] ?? ''), (string) ($row['value'] ?? '')]);
+        }
+        $xml[] = '    </Table>';
+        $xml[] = '  </Worksheet>';
+        $xml[] = '</Workbook>';
+
+        return implode("\n", $xml) . "\n";
+    }
+
+    /** @param array<int,array{metric:string,value:string}> $metrics */
+    public function buildMetricsPdf(string $period, array $metrics): string
+    {
+        $lines = ['RELATORIO MENSAL', 'PERIODO: ' . $period, ''];
+        foreach ($metrics as $row) {
+            $lines[] = sprintf('%s: %s', (string) ($row['metric'] ?? ''), (string) ($row['value'] ?? ''));
+        }
+
+        return $this->buildMinimalPdf($lines);
+    }
+
     /** @param array<int,string> $lines */
     private function buildMinimalPdf(array $lines): string
     {
