@@ -95,3 +95,9 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Dashboard operacional real (P1):** endpoint `GET /reports/summary` evoluído para retornar métricas operacionais reais adicionais (`pending_visits_total`, `published_events_total`) e lista de alertas acionáveis.
 - **Alertas de operação:** incluídos alertas para visitas pendentes e empréstimos em aberto, com contagem agregada para priorização diária.
 - **Validação automatizada:** `ReportsEligibilitySettingsTest` ampliado para garantir presença de métricas operacionais e estrutura de alertas no resumo.
+
+## 13) Próximo passo executado (Sprint 28)
+
+- **Relatórios mensais completos (P2, avanço):** adicionado endpoint `GET /reports/monthly` com período parametrizável (`YYYY-MM`) para consolidação mensal operacional.
+- **Indicadores mensais no backend:** resumo mensal passa a agregar famílias, pessoas de rua, eventos de entrega no período, eventos publicados no período, visitas totais e visitas por status, além de empréstimos em aberto.
+- **Contrato e qualidade:** OpenAPI e testes foram atualizados com validação de período inválido e consistência das métricas mensais.

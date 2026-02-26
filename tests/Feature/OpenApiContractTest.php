@@ -33,6 +33,7 @@ $required = [
     '/deliveries/events/{id}/publish' => ['post'],
     '/equipment' => ['get', 'post'],
     '/reports/summary' => ['get'],
+    '/reports/monthly' => ['get'],
     '/settings/eligibility' => ['get', 'put'],
     '/eligibility/check' => ['post'],
     '/visits' => ['get', 'post'],

@@ -353,6 +353,48 @@ final class Kernel
             ]];
         }
 
+        if ($path === '/reports/monthly' && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+
+            $period = trim((string) ($payload['period'] ?? gmdate('Y-m')));
+            if (!preg_match('/^\d{4}-\d{2}$/', $period)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_period', 'request_id' => $requestId]];
+            }
+
+            $eventsInPeriod = array_values(array_filter(
+                $this->deliveryStore->listEvents(),
+                static fn(array $event): bool => str_starts_with((string) ($event['event_date'] ?? ''), $period)
+            ));
+            $visitsInPeriod = array_values(array_filter(
+                $this->socialStore->listVisits(),
+                static fn(array $visit): bool => str_starts_with((string) ($visit['scheduled_for'] ?? ''), $period)
+            ));
+
+            $statusTotals = ['pendente' => 0, 'concluida' => 0, 'cancelada' => 0];
+            foreach ($visitsInPeriod as $visit) {
+                $status = (string) ($visit['status'] ?? 'pendente');
+                if (!isset($statusTotals[$status])) {
+                    $statusTotals[$status] = 0;
+                }
+                $statusTotals[$status]++;
+            }
+
+            return ['status' => 200, 'body' => [
+                'period' => $period,
+                'summary' => [
+                    'families_total' => count($this->socialStore->listFamilies()),
+                    'street_people_total' => count($this->streetStore->listPeople()),
+                    'delivery_events_total' => count($eventsInPeriod),
+                    'delivery_events_published_total' => count(array_values(array_filter($eventsInPeriod, static fn($event) => ($event['status'] ?? '') === 'publicado'))),
+                    'visits_total' => count($visitsInPeriod),
+                    'visits_by_status' => $statusTotals,
+                    'open_loans_total' => count(array_values(array_filter($this->equipmentStore->listLoans(), static fn($loan) => ($loan['status'] ?? '') === 'aberto'))),
+                ],
+                'request_id' => $requestId,
+            ]];
+        }
+
         if ($path === '/settings/eligibility' && $method === 'GET') {
             $auth = $this->requireAuth($requestId, $headers, $env);
             if (isset($auth['response'])) { return $auth['response']; }

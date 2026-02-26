@@ -506,6 +506,20 @@
           }
         }
       }
+    },
+    "/reports/monthly": {
+      "get": {
+        "summary": "Resumo operacional mensal",
+        "description": "Agrega indicadores mensais por período (YYYY-MM) com visitas e entregas.",
+        "responses": {
+          "200": {
+            "description": "Resumo mensal"
+          },
+          "422": {
+            "description": "Período inválido"
+          }
+        }
+      }
     }
   }
 }
