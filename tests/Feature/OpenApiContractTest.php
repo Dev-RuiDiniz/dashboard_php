@@ -30,10 +30,13 @@ $required = [
     '/families/{id}' => ['get', 'put', 'delete'],
     '/street/people' => ['get', 'post'],
     '/deliveries/events' => ['get', 'post'],
+    '/deliveries/events/{id}/publish' => ['post'],
     '/equipment' => ['get', 'post'],
     '/reports/summary' => ['get'],
     '/settings/eligibility' => ['get', 'put'],
     '/eligibility/check' => ['post'],
+    '/visits' => ['get', 'post'],
+    '/visits/{id}/complete' => ['post'],
 ];
 
 foreach ($required as $path => $methods) {
