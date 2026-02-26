@@ -75,7 +75,7 @@ final class DeliveryStore
     public function listEvents(): array
     {
         if ($this->pdo !== null) {
-            $stmt = $this->pdo->query('SELECT id, name, event_date, status FROM delivery_events ORDER BY id ASC');
+            $stmt = $this->pdo->query('SELECT id, name, event_date, status, published_at FROM delivery_events ORDER BY id ASC');
             return $stmt->fetchAll() ?: [];
         }
 
@@ -88,13 +88,13 @@ final class DeliveryStore
         if ($this->pdo !== null) {
             $stmt = $this->pdo->prepare('INSERT INTO delivery_events (name, event_date, status) VALUES (:name, :event_date, :status)');
             $stmt->execute(['name' => $name, 'event_date' => $date, 'status' => 'aberto']);
-            return ['id' => (int) $this->pdo->lastInsertId(), 'name' => $name, 'event_date' => $date, 'status' => 'aberto'];
+            return ['id' => (int) $this->pdo->lastInsertId(), 'name' => $name, 'event_date' => $date, 'status' => 'aberto', 'published_at' => null];
         }
 
         $d = $this->load();
         $id = (int) $d['eventSeq'];
         $d['eventSeq'] = $id + 1;
-        $event = ['id' => $id, 'name' => $name, 'event_date' => $date, 'status' => 'aberto'];
+        $event = ['id' => $id, 'name' => $name, 'event_date' => $date, 'status' => 'aberto', 'published_at' => null];
         $d['events'][(string) $id] = $event;
         $this->save($d);
         return $event;
@@ -104,28 +104,39 @@ final class DeliveryStore
     public function inviteFamily(int $eventId, int $familyId): ?array
     {
         if ($this->pdo !== null) {
-            $exists = $this->pdo->prepare('SELECT id, delivery_event_id, family_id, withdrawal_code, status FROM delivery_invites WHERE delivery_event_id = :event_id AND family_id = :family_id LIMIT 1');
+            $exists = $this->pdo->prepare('SELECT id, delivery_event_id, family_id, ticket_number, withdrawal_code, status FROM delivery_invites WHERE delivery_event_id = :event_id AND family_id = :family_id LIMIT 1');
             $exists->execute(['event_id' => $eventId, 'family_id' => $familyId]);
             $row = $exists->fetch();
             if (is_array($row)) {
-                return ['id' => (int) $row['id'], 'event_id' => (int) $row['delivery_event_id'], 'family_id' => (int) $row['family_id'], 'withdrawal_code' => (string) $row['withdrawal_code'], 'status' => (string) $row['status']];
+                return ['id' => (int) $row['id'], 'event_id' => (int) $row['delivery_event_id'], 'family_id' => (int) $row['family_id'], 'ticket_number' => (int) ($row['ticket_number'] ?? 0), 'withdrawal_code' => (string) $row['withdrawal_code'], 'status' => (string) $row['status']];
             }
 
-            $event = $this->pdo->prepare('SELECT id FROM delivery_events WHERE id = :id LIMIT 1');
+            $event = $this->pdo->prepare('SELECT id, status FROM delivery_events WHERE id = :id LIMIT 1');
             $event->execute(['id' => $eventId]);
-            if (!$event->fetch()) {
+            $eventRow = $event->fetch();
+            if (!is_array($eventRow)) {
                 return null;
             }
+            if ((string) ($eventRow['status'] ?? '') === 'publicado') {
+                return ['error' => 'event_published_immutable'];
+            }
 
-            $code = strtoupper(substr(hash('sha256', $eventId . '-' . $familyId . '-' . uniqid('', true)), 0, 6));
-            $insert = $this->pdo->prepare('INSERT INTO delivery_invites (delivery_event_id, family_id, withdrawal_code, status) VALUES (:event_id, :family_id, :code, :status)');
-            $insert->execute(['event_id' => $eventId, 'family_id' => $familyId, 'code' => $code, 'status' => 'presente']);
-            return ['id' => (int) $this->pdo->lastInsertId(), 'event_id' => $eventId, 'family_id' => $familyId, 'withdrawal_code' => $code, 'status' => 'presente'];
+            $nextTicketStmt = $this->pdo->prepare('SELECT COALESCE(MAX(ticket_number), 0) + 1 AS next_ticket FROM delivery_invites WHERE delivery_event_id = :event_id');
+            $nextTicketStmt->execute(['event_id' => $eventId]);
+            $nextTicketRow = $nextTicketStmt->fetch();
+            $nextTicket = (int) ($nextTicketRow['next_ticket'] ?? 1);
+            $code = strtoupper(substr(hash('sha256', $eventId . '-' . $familyId . '-' . $nextTicket . '-' . uniqid('', true)), 0, 6));
+            $insert = $this->pdo->prepare('INSERT INTO delivery_invites (delivery_event_id, family_id, ticket_number, withdrawal_code, status) VALUES (:event_id, :family_id, :ticket_number, :code, :status)');
+            $insert->execute(['event_id' => $eventId, 'family_id' => $familyId, 'ticket_number' => $nextTicket, 'code' => $code, 'status' => 'presente']);
+            return ['id' => (int) $this->pdo->lastInsertId(), 'event_id' => $eventId, 'family_id' => $familyId, 'ticket_number' => $nextTicket, 'withdrawal_code' => $code, 'status' => 'presente'];
         }
 
         $d = $this->load();
         if (!isset($d['events'][(string) $eventId])) {
             return null;
+        }
+        if (((string) ($d['events'][(string) $eventId]['status'] ?? '')) === 'publicado') {
+            return ['error' => 'event_published_immutable'];
         }
         foreach ($d['invites'] as $inv) {
             if ((int) $inv['event_id'] === $eventId && (int) $inv['family_id'] === $familyId) {
@@ -134,11 +145,46 @@ final class DeliveryStore
         }
         $id = (int) $d['inviteSeq'];
         $d['inviteSeq'] = $id + 1;
-        $code = strtoupper(substr(hash('sha256', $eventId . '-' . $familyId . '-' . $id), 0, 6));
-        $invite = ['id' => $id, 'event_id' => $eventId, 'family_id' => $familyId, 'withdrawal_code' => $code, 'status' => 'presente'];
+        $maxTicket = 0;
+        foreach ($d['invites'] as $existingInvite) {
+            if ((int) ($existingInvite['event_id'] ?? 0) === $eventId) {
+                $maxTicket = max($maxTicket, (int) ($existingInvite['ticket_number'] ?? 0));
+            }
+        }
+        $ticketNumber = $maxTicket + 1;
+        $code = strtoupper(substr(hash('sha256', $eventId . '-' . $familyId . '-' . $ticketNumber), 0, 6));
+        $invite = ['id' => $id, 'event_id' => $eventId, 'family_id' => $familyId, 'ticket_number' => $ticketNumber, 'withdrawal_code' => $code, 'status' => 'presente'];
         $d['invites'][(string) $id] = $invite;
         $this->save($d);
         return $invite;
+    }
+
+    /** @return array<string,mixed>|null */
+    public function publishEvent(int $eventId, string $publishedAt): ?array
+    {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('UPDATE delivery_events SET status = :status, published_at = :published_at WHERE id = :id');
+            $stmt->execute(['status' => 'publicado', 'published_at' => $publishedAt, 'id' => $eventId]);
+            if ($stmt->rowCount() === 0) {
+                $find = $this->pdo->prepare('SELECT id, name, event_date, status, published_at FROM delivery_events WHERE id = :id LIMIT 1');
+                $find->execute(['id' => $eventId]);
+                $item = $find->fetch();
+                return is_array($item) ? $item : null;
+            }
+            $find = $this->pdo->prepare('SELECT id, name, event_date, status, published_at FROM delivery_events WHERE id = :id LIMIT 1');
+            $find->execute(['id' => $eventId]);
+            $item = $find->fetch();
+            return is_array($item) ? $item : null;
+        }
+
+        $d = $this->load();
+        if (!isset($d['events'][(string) $eventId])) {
+            return null;
+        }
+        $d['events'][(string) $eventId]['status'] = 'publicado';
+        $d['events'][(string) $eventId]['published_at'] = $publishedAt;
+        $this->save($d);
+        return $d['events'][(string) $eventId];
     }
 
     public function hasFamilyWithdrawalInMonth(int $familyId, string $eventDate): bool

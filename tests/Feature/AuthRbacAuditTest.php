@@ -13,6 +13,7 @@ require_once __DIR__ . '/../../src/Domain/EquipmentStore.php';
 require_once __DIR__ . '/../../src/Domain/SettingsStore.php';
 require_once __DIR__ . '/../../src/Domain/EligibilityService.php';
 require_once __DIR__ . '/../../src/Domain/AuthThrottleStore.php';
+require_once __DIR__ . '/../../src/Domain/AuthResetTokenStore.php';
 require_once __DIR__ . '/../../src/Reports/ExportService.php';
 require_once __DIR__ . '/../../src/Audit/AuditLogger.php';
 require_once __DIR__ . '/../../src/Observability/JsonLogger.php';
@@ -20,6 +21,8 @@ require_once __DIR__ . '/../../src/Observability/JsonLogger.php';
 use App\Audit\AuditLogger;
 use App\Auth\JwtService;
 use App\Auth\UserStore;
+use App\Domain\AuthThrottleStore;
+use App\Domain\AuthResetTokenStore;
 use App\Http\Kernel;
 use App\Observability\JsonLogger;
 
@@ -44,7 +47,11 @@ function assertTrue(bool $condition, string $message): void
 
 $memoryLogger = new MemoryJsonLogger();
 $auditLogger = new AuditLogger($memoryLogger);
-$kernel = new Kernel(new JwtService(), new UserStore(), $auditLogger);
+$tmpThrottle = sys_get_temp_dir() . '/auth_throttle_' . uniqid('', true) . '.json';
+$tmpReset = sys_get_temp_dir() . '/auth_reset_' . uniqid('', true) . '.json';
+$throttleStore = new AuthThrottleStore($tmpThrottle);
+$resetStore = new AuthResetTokenStore($tmpReset);
+$kernel = new Kernel(new JwtService(), new UserStore(), $auditLogger, null, null, null, null, null, null, null, null, $throttleStore, $resetStore);
 $env = ['JWT_SECRET' => 'test-secret'];
 
 $loginFail = $kernel->handle('POST', '/auth/login', 'req-fail', [], ['email' => 'admin@local', 'password' => 'x'], $env);
@@ -67,6 +74,15 @@ $opToken = (string) ($opLogin['body']['access_token'] ?? '');
 $forbidden = $kernel->handle('GET', '/admin/ping', 'req-forbidden', ['Authorization' => 'Bearer ' . $opToken], [], $env);
 assertTrue($forbidden['status'] === 403, 'rota admin deve bloquear operador');
 
+
+$readLogin = $kernel->handle('POST', '/auth/login', 'req-read', [], ['email' => 'leitura@local', 'password' => 'leitura123'], $env);
+$readToken = (string) ($readLogin['body']['access_token'] ?? '');
+$viewerWrite = $kernel->handle('POST', '/families', 'req-viewer-write', ['Authorization' => 'Bearer ' . $readToken], ['responsible_full_name' => 'Teste', 'responsible_cpf' => '390.533.447-05'], $env);
+assertTrue($viewerWrite['status'] === 403, 'viewer não deve ter permissão de escrita em famílias');
+
+$settingsGet = $kernel->handle('GET', '/settings/eligibility', 'req-settings-get', ['Authorization' => 'Bearer ' . $readToken], [], $env);
+assertTrue($settingsGet['status'] === 200, 'viewer deve ter permissão de leitura em settings');
+
 $logout = $kernel->handle('POST', '/auth/logout', 'req-logout', [], [], $env);
 assertTrue($logout['status'] === 200, 'logout deve retornar 200');
 
@@ -77,3 +93,6 @@ assertTrue(in_array('auth.forbidden', $actions, true), 'auditoria deve registrar
 assertTrue(in_array('auth.logout', $actions, true), 'auditoria deve registrar logout');
 
 echo "OK: AuthRbacAuditTest" . PHP_EOL;
+
+$throttleStore->reset();
+$resetStore->reset();

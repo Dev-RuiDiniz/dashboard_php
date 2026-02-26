@@ -60,6 +60,8 @@ final class SocialStore
                 'familySeq' => 1,
                 'dependentSeq' => 1,
                 'childSeq' => 1,
+                'visits' => [],
+                'visitSeq' => 1,
             ];
         }
 
@@ -73,6 +75,8 @@ final class SocialStore
                 'familySeq' => 1,
                 'dependentSeq' => 1,
                 'childSeq' => 1,
+                'visits' => [],
+                'visitSeq' => 1,
             ];
         }
 
@@ -82,6 +86,8 @@ final class SocialStore
         $decoded['familySeq'] = (int) ($decoded['familySeq'] ?? 1);
         $decoded['dependentSeq'] = (int) ($decoded['dependentSeq'] ?? 1);
         $decoded['childSeq'] = (int) ($decoded['childSeq'] ?? 1);
+        $decoded['visits'] = $decoded['visits'] ?? [];
+        $decoded['visitSeq'] = (int) ($decoded['visitSeq'] ?? 1);
 
         return $decoded;
     }
@@ -333,6 +339,97 @@ final class SocialStore
         return true;
     }
 
+
+
+    /** @return array<int,array<string,mixed>> */
+    public function listVisits(?string $status = null): array
+    {
+        if ($this->pdo !== null) {
+            if ($status !== null && $status !== '') {
+                $stmt = $this->pdo->prepare('SELECT id, person_id, family_id, scheduled_for, status, notes, completed_at FROM visits WHERE status = :status ORDER BY scheduled_for ASC, id ASC');
+                $stmt->execute(['status' => $status]);
+                return $stmt->fetchAll() ?: [];
+            }
+            $stmt = $this->pdo->query('SELECT id, person_id, family_id, scheduled_for, status, notes, completed_at FROM visits ORDER BY scheduled_for ASC, id ASC');
+            return $stmt->fetchAll() ?: [];
+        }
+
+        $data = $this->load();
+        $items = array_values($data['visits']);
+        if ($status === null || $status === '') {
+            return $items;
+        }
+
+        return array_values(array_filter($items, static fn(array $item): bool => (string) ($item['status'] ?? '') === $status));
+    }
+
+    /** @return array<string,mixed>|null */
+    public function createVisit(int $personId, ?int $familyId, string $scheduledFor, string $notes = ''): ?array
+    {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('INSERT INTO visits (person_id, family_id, scheduled_for, status, notes, created_at, updated_at) VALUES (:person_id, :family_id, :scheduled_for, :status, :notes, NOW(), NOW())');
+            $stmt->execute([
+                'person_id' => $personId,
+                'family_id' => $familyId,
+                'scheduled_for' => $scheduledFor,
+                'status' => 'pendente',
+                'notes' => $notes !== '' ? $notes : null,
+            ]);
+            return [
+                'id' => (int) $this->pdo->lastInsertId(),
+                'person_id' => $personId,
+                'family_id' => $familyId,
+                'scheduled_for' => $scheduledFor,
+                'status' => 'pendente',
+                'notes' => $notes,
+                'completed_at' => null,
+            ];
+        }
+
+        $data = $this->load();
+        $id = (int) $data['visitSeq'];
+        $data['visitSeq'] = $id + 1;
+
+        $visit = [
+            'id' => $id,
+            'person_id' => $personId,
+            'family_id' => $familyId,
+            'scheduled_for' => $scheduledFor,
+            'status' => 'pendente',
+            'notes' => $notes,
+            'completed_at' => null,
+        ];
+        $data['visits'][(string) $id] = $visit;
+        $this->save($data);
+
+        return $visit;
+    }
+
+    /** @return array<string,mixed>|null */
+    public function completeVisit(int $id, string $completedAt): ?array
+    {
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare('UPDATE visits SET status = :status, completed_at = :completed_at, updated_at = NOW() WHERE id = :id');
+            $stmt->execute(['status' => 'concluida', 'completed_at' => $completedAt, 'id' => $id]);
+            if ($stmt->rowCount() === 0) {
+                return null;
+            }
+            $find = $this->pdo->prepare('SELECT id, person_id, family_id, scheduled_for, status, notes, completed_at FROM visits WHERE id = :id LIMIT 1');
+            $find->execute(['id' => $id]);
+            $item = $find->fetch();
+            return is_array($item) ? $item : null;
+        }
+
+        $data = $this->load();
+        if (!isset($data['visits'][(string) $id])) {
+            return null;
+        }
+        $data['visits'][(string) $id]['status'] = 'concluida';
+        $data['visits'][(string) $id]['completed_at'] = $completedAt;
+        $this->save($data);
+
+        return $data['visits'][(string) $id];
+    }
     public function reset(): void
     {
         if ($this->pdo !== null) {
