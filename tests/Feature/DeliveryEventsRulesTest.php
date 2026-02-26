@@ -49,6 +49,19 @@ $eventId=(int)$e['body']['item']['id'];
 $i=$kernel->handle('POST','/deliveries/events/'.$eventId.'/invites','req-i',$h,['family_id'=>$familyId],$env);
 assertTrue($i['status']===201,'convite deve ser criado');
 assertTrue(strlen((string)($i['body']['item']['withdrawal_code']??''))===6,'codigo deve ter 6 chars');
+assertTrue((int)($i['body']['item']['ticket_number'] ?? 0)===1,'primeiro convite deve ter ticket 1');
+
+$f2=$kernel->handle('POST','/families','req-f2',$h,['responsible_full_name'=>'Fam 2','responsible_cpf'=>'390.533.447-05'],$env);
+$familyId2=(int)$f2['body']['item']['id'];
+$i2=$kernel->handle('POST','/deliveries/events/'.$eventId.'/invites','req-i2',$h,['family_id'=>$familyId2],$env);
+assertTrue($i2['status']===201,'segundo convite deve ser criado');
+assertTrue((int)($i2['body']['item']['ticket_number'] ?? 0)===2,'segundo convite deve ter ticket 2');
+
+$pub=$kernel->handle('POST','/deliveries/events/'.$eventId.'/publish','req-publish',$h,['published_at'=>'2026-05-09 08:00:00'],$env);
+assertTrue($pub['status']===200,'publicacao deve funcionar');
+
+$afterPub=$kernel->handle('POST','/deliveries/events/'.$eventId.'/invites','req-i3',$h,['family_id'=>$familyId2],$env);
+assertTrue($afterPub['status']===409,'apos publicacao convites devem ser imutaveis');
 
 $w1=$kernel->handle('POST','/deliveries/events/'.$eventId.'/withdrawals','req-w1',$h,['family_id'=>$familyId,'signature_accepted'=>true,'signature_name'=>'Assinante'],$env);
 assertTrue($w1['status']===201,'primeira retirada deve funcionar');

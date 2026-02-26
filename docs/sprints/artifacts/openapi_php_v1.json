@@ -271,6 +271,9 @@
           },
           "404": {
             "description": "Evento não encontrado"
+          },
+          "409": {
+            "description": "Evento publicado (imutável)"
           }
         }
       }
@@ -486,6 +489,19 @@
           },
           "404": {
             "description": "Visita não encontrada"
+          }
+        }
+      }
+    },
+    "/deliveries/events/{id}/publish": {
+      "post": {
+        "summary": "Publicar evento de entrega",
+        "responses": {
+          "200": {
+            "description": "Publicado"
+          },
+          "404": {
+            "description": "Evento não encontrado"
           }
         }
       }

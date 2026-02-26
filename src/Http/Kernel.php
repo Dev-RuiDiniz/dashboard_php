@@ -473,8 +473,26 @@ final class Kernel
             if ($familyId <= 0) return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
             $invite = $this->deliveryStore->inviteFamily((int)$m[1], $familyId);
             if (!$invite) return ['status'=>404,'body'=>['error'=>'event_not_found','request_id'=>$requestId]];
+            if (isset($invite['error']) && $invite['error'] === 'event_published_immutable') {
+                return ['status'=>409,'body'=>['error'=>'event_published_immutable','request_id'=>$requestId]];
+            }
             $this->audit('delivery.invite.created', $requestId, ['invite_id'=>(string)$invite['id']]);
             return ['status'=>201,'body'=>['item'=>$invite,'request_id'=>$requestId]];
+        }
+
+        if (preg_match('#^/deliveries/events/(\d+)/publish$#', $path, $m) === 1 && $method === 'POST') {
+            $auth = $this->requireWriter($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+            $publishedAt = trim((string) ($payload['published_at'] ?? gmdate('Y-m-d H:i:s')));
+            if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $publishedAt)) {
+                return ['status'=>422,'body'=>['error'=>'invalid_payload','request_id'=>$requestId]];
+            }
+            $event = $this->deliveryStore->publishEvent((int) $m[1], $publishedAt);
+            if (!$event) {
+                return ['status'=>404,'body'=>['error'=>'event_not_found','request_id'=>$requestId]];
+            }
+            $this->audit('delivery.event.published', $requestId, ['event_id' => $m[1]]);
+            return ['status'=>200,'body'=>['item'=>$event,'request_id'=>$requestId]];
         }
 
         if (preg_match('#^/deliveries/events/(\d+)/withdrawals$#', $path, $m) === 1 && $method === 'POST') {
@@ -680,7 +698,7 @@ final class Kernel
             return 'street.write';
         }
 
-        if ($path === '/deliveries/events' || preg_match('#^/deliveries/events/\d+/(invites|withdrawals)$#', $path) === 1) {
+        if ($path === '/deliveries/events' || preg_match('#^/deliveries/events/\d+/(invites|withdrawals|publish)$#', $path) === 1) {
             return $method === 'GET' ? 'delivery.read' : 'delivery.write';
         }
 

@@ -30,6 +30,7 @@ $required = [
     '/families/{id}' => ['get', 'put', 'delete'],
     '/street/people' => ['get', 'post'],
     '/deliveries/events' => ['get', 'post'],
+    '/deliveries/events/{id}/publish' => ['post'],
     '/equipment' => ['get', 'post'],
     '/reports/summary' => ['get'],
     '/settings/eligibility' => ['get', 'put'],

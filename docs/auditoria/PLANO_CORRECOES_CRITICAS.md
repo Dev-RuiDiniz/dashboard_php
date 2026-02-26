@@ -82,3 +82,10 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Persistência no domínio social:** `SocialStore` passou a suportar visitas em JSON e em MySQL (`visits`), incluindo listagem com filtro por status e conclusão.
 - **RBAC aplicado ao módulo de visitas:** matriz de permissões estendida para `visits.read` e `visits.write` por rota.
 - **Contrato e testes:** OpenAPI atualizado e novo teste `VisitsModuleTest` cobrindo criação, listagem, conclusão e bloqueio de escrita para perfil de leitura.
+
+## 11) Próximo passo executado (Sprint 26)
+
+- **Entregas com ticket sequencial (P1):** convites em eventos de entrega agora recebem `ticket_number` sequencial por evento.
+- **Imutabilidade após publicação:** implementado endpoint `POST /deliveries/events/{id}/publish`; após publicação, novos convites no evento retornam conflito de imutabilidade.
+- **Persistência relacional:** criada migration `006_alter_delivery_invites_ticket_and_publish.sql` para `ticket_number` em `delivery_invites` e `published_at` em `delivery_events`.
+- **Contrato e testes:** OpenAPI atualizado e `DeliveryEventsRulesTest` expandido para validar sequência de tickets e bloqueio pós-publicação.
