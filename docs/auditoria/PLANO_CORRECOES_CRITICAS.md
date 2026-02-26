@@ -107,3 +107,9 @@ Sem execução deste plano, a recomendação técnica permanece **não liberar p
 - **Relatórios mensais completos (P2, avanço adicional):** adicionado endpoint `GET /reports/monthly/export.csv` para exportação dos indicadores mensais em CSV.
 - **Filtro operacional:** exportação suporta `period` (`YYYY-MM`) e filtro opcional `visit_status` para recorte por status de visitas.
 - **Contrato e testes:** OpenAPI e contrato automatizado atualizados, com novo teste de exportação mensal validando sucesso e rejeição de parâmetros inválidos.
+
+## 15) Próximo passo executado (Sprint 30)
+
+- **Relatórios mensais completos (P2, formatos):** adicionados endpoints `GET /reports/monthly/export.xlsx` e `GET /reports/monthly/export.pdf`.
+- **Padronização de métricas:** exportações mensal CSV/XLSX/PDF agora reutilizam o mesmo conjunto de métricas operacionais no backend.
+- **Confiabilidade de contrato:** OpenAPI e testes de contrato atualizados para os novos formatos de exportação mensal.

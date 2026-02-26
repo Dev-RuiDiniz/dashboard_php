@@ -534,6 +534,34 @@
           }
         }
       }
+    },
+    "/reports/monthly/export.xlsx": {
+      "get": {
+        "summary": "Exportar resumo mensal em XLSX",
+        "description": "Exporta indicadores mensais em formato XLSX",
+        "responses": {
+          "200": {
+            "description": "Arquivo XLSX"
+          },
+          "422": {
+            "description": "Parâmetros inválidos"
+          }
+        }
+      }
+    },
+    "/reports/monthly/export.pdf": {
+      "get": {
+        "summary": "Exportar resumo mensal em PDF",
+        "description": "Exporta indicadores mensais em formato PDF",
+        "responses": {
+          "200": {
+            "description": "Arquivo PDF"
+          },
+          "422": {
+            "description": "Parâmetros inválidos"
+          }
+        }
+      }
     }
   }
 }

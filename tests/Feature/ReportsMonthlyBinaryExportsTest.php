@@ -31,30 +31,26 @@ function assertTrue(bool $condition, string $message): void
     }
 }
 
-$social = new SocialStore('/tmp/social_store_test_s28_export.json');
-$street = new StreetStore('/tmp/street_store_test_s28_export.json');
-$delivery = new DeliveryStore('/tmp/delivery_store_test_s28_export.json');
-$equipment = new EquipmentStore('/tmp/equipment_store_test_s28_export.json');
-$settings = new SettingsStore('/tmp/settings_store_test_s28_export.json');
+$social = new SocialStore('/tmp/social_store_test_s29_binary.json');
+$street = new StreetStore('/tmp/street_store_test_s29_binary.json');
+$delivery = new DeliveryStore('/tmp/delivery_store_test_s29_binary.json');
+$equipment = new EquipmentStore('/tmp/equipment_store_test_s29_binary.json');
+$settings = new SettingsStore('/tmp/settings_store_test_s29_binary.json');
 $social->reset(); $street->reset(); $delivery->reset(); $equipment->reset(); $settings->reset();
 $kernel = new Kernel(socialStore: $social, streetStore: $street, deliveryStore: $delivery, equipmentStore: $equipment, settingsStore: $settings);
 $env = ['JWT_SECRET' => 'test-secret'];
 
 $login = $kernel->handle('POST', '/auth/login', 'req-login', [], ['email' => 'operador@local', 'password' => 'operador123'], $env);
 $h = ['Authorization' => 'Bearer ' . (string) ($login['body']['access_token'] ?? '')];
+$kernel->handle('POST', '/families', 'req-f1', $h, ['responsible_full_name' => 'Fam 1', 'responsible_cpf' => '529.982.247-25'], $env);
 
-$fam = $kernel->handle('POST', '/families', 'req-f1', $h, ['responsible_full_name' => 'Fam 1', 'responsible_cpf' => '529.982.247-25'], $env);
-$familyId = (int) ($fam['body']['item']['id'] ?? 0);
-$kernel->handle('POST', '/visits', 'req-v1', $h, ['person_id' => 30, 'family_id' => $familyId, 'scheduled_for' => '2026-04-05 09:30:00', 'notes' => 'visita'], $env);
+$xlsx = $kernel->handle('GET', '/reports/monthly/export.xlsx', 'req-xlsx', $h, ['period' => '2026-04'], $env);
+assertTrue(($xlsx['status'] ?? 0) === 200, 'xlsx mensal deve retornar 200');
+assertTrue(str_contains((string) ($xlsx['body']['__raw'] ?? ''), '<Workbook'), 'xlsx deve retornar workbook XML');
 
-$monthlyCsv = $kernel->handle('GET', '/reports/monthly/export.csv', 'req-monthly-csv', $h, ['period' => '2026-04', 'visit_status' => 'pendente'], $env);
-assertTrue(($monthlyCsv['status'] ?? 0) === 200, 'export csv mensal deve retornar 200');
-$raw = (string) ($monthlyCsv['body']['__raw'] ?? '');
-assertTrue(str_contains($raw, 'period,metric,value') || str_contains($raw, '"period","metric","value"'), 'csv deve conter cabecalho');
-assertTrue(str_contains($raw, '2026-04,visits_total') || str_contains($raw, '"2026-04","visits_total"'), 'csv deve conter visits_total do periodo');
-
-$invalid = $kernel->handle('GET', '/reports/monthly/export.csv', 'req-monthly-csv-invalid', $h, ['period' => '2026/04'], $env);
-assertTrue(($invalid['status'] ?? 0) === 422, 'periodo invalido deve retornar 422');
+$pdf = $kernel->handle('GET', '/reports/monthly/export.pdf', 'req-pdf', $h, ['period' => '2026-04'], $env);
+assertTrue(($pdf['status'] ?? 0) === 200, 'pdf mensal deve retornar 200');
+assertTrue(str_starts_with((string) ($pdf['body']['__raw'] ?? ''), '%PDF-1.4'), 'pdf deve iniciar com assinatura PDF');
 
 $social->reset(); $street->reset(); $delivery->reset(); $equipment->reset(); $settings->reset();
-echo "OK: ReportsMonthlyExportTest" . PHP_EOL;
+echo "OK: ReportsMonthlyBinaryExportsTest" . PHP_EOL;

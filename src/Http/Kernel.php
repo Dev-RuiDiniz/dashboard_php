@@ -418,21 +418,8 @@ final class Kernel
                 static fn(array $visit): bool => str_starts_with((string) ($visit['scheduled_for'] ?? ''), $period)
             ));
 
-            $rows = [
-                ['period', 'metric', 'value'],
-                [$period, 'families_total', (string) count($this->socialStore->listFamilies())],
-                [$period, 'street_people_total', (string) count($this->streetStore->listPeople())],
-                [$period, 'delivery_events_total', (string) count($eventsInPeriod)],
-                [$period, 'delivery_events_published_total', (string) count(array_values(array_filter($eventsInPeriod, static fn(array $event): bool => ($event['status'] ?? '') === 'publicado')))],
-                [$period, 'visits_total', (string) count($visitsInPeriod)],
-                [$period, 'open_loans_total', (string) count(array_values(array_filter($this->equipmentStore->listLoans(), static fn(array $loan): bool => ($loan['status'] ?? '') === 'aberto')))],
-            ];
-
-            $csvLines = array_map(static fn(array $row): string => implode(',', array_map(static function (string $cell): string {
-                $escaped = str_replace('"', '""', $cell);
-                return '"' . $escaped . '"';
-            }, $row)), $rows);
-            $raw = implode("\n", $csvLines) . "\n";
+            $metrics = $this->buildMonthlyMetrics($period, $eventsInPeriod, $visitsInPeriod);
+            $raw = $this->exportService->buildMetricsCsv($period, $metrics);
 
             return ['status' => 200, 'body' => [
                 '__raw' => $raw,
@@ -440,6 +427,39 @@ final class Kernel
                 '__file_name' => 'monthly_' . str_replace('-', '_', $period) . '.csv',
                 'request_id' => $requestId,
             ]];
+        }
+
+        if (in_array($path, ['/reports/monthly/export.xlsx', '/reports/monthly/export.pdf'], true) && $method === 'GET') {
+            $auth = $this->requireAuth($requestId, $headers, $env);
+            if (isset($auth['response'])) { return $auth['response']; }
+
+            $period = trim((string) ($payload['period'] ?? gmdate('Y-m')));
+            $visitStatus = trim((string) ($payload['visit_status'] ?? ''));
+            if (!preg_match('/^\d{4}-\d{2}$/', $period)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_period', 'request_id' => $requestId]];
+            }
+            if ($visitStatus !== '' && !in_array($visitStatus, ['pendente', 'concluida', 'cancelada'], true)) {
+                return ['status' => 422, 'body' => ['error' => 'invalid_visit_status', 'request_id' => $requestId]];
+            }
+
+            $eventsInPeriod = array_values(array_filter(
+                $this->deliveryStore->listEvents(),
+                static fn(array $event): bool => str_starts_with((string) ($event['event_date'] ?? ''), $period)
+            ));
+            $visitsBase = $visitStatus === '' ? $this->socialStore->listVisits() : $this->socialStore->listVisits($visitStatus);
+            $visitsInPeriod = array_values(array_filter(
+                $visitsBase,
+                static fn(array $visit): bool => str_starts_with((string) ($visit['scheduled_for'] ?? ''), $period)
+            ));
+
+            $metrics = $this->buildMonthlyMetrics($period, $eventsInPeriod, $visitsInPeriod);
+            if ($path === '/reports/monthly/export.xlsx') {
+                $raw = $this->exportService->buildMetricsXlsx($period, $metrics);
+                return ['status' => 200, 'body' => ['__raw' => $raw, '__content_type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', '__file_name' => 'monthly_' . str_replace('-', '_', $period) . '.xlsx', 'request_id' => $requestId]];
+            }
+
+            $raw = $this->exportService->buildMetricsPdf($period, $metrics);
+            return ['status' => 200, 'body' => ['__raw' => $raw, '__content_type' => 'application/pdf', '__file_name' => 'monthly_' . str_replace('-', '_', $period) . '.pdf', 'request_id' => $requestId]];
         }
 
         if ($path === '/settings/eligibility' && $method === 'GET') {
@@ -814,7 +834,7 @@ final class Kernel
             return $method === 'GET' ? 'equipment.read' : 'equipment.write';
         }
 
-        if ($path === '/reports/summary' || in_array($path, ['/reports/export.csv', '/reports/export.xlsx', '/reports/export.pdf'], true)) {
+        if ($path === '/reports/summary' || in_array($path, ['/reports/export.csv', '/reports/export.xlsx', '/reports/export.pdf', '/reports/monthly', '/reports/monthly/export.csv', '/reports/monthly/export.xlsx', '/reports/monthly/export.pdf'], true)) {
             return 'reports.read';
         }
 
@@ -855,5 +875,19 @@ final class Kernel
             return;
         }
         $this->auditLogger->record($action, array_merge(['request_id' => $requestId], $context));
+    }
+
+    /** @param array<int,array<string,mixed>> $eventsInPeriod @param array<int,array<string,mixed>> $visitsInPeriod @return array<int,array{metric:string,value:string}> */
+    private function buildMonthlyMetrics(string $period, array $eventsInPeriod, array $visitsInPeriod): array
+    {
+        return [
+            ['metric' => 'families_total', 'value' => (string) count($this->socialStore->listFamilies())],
+            ['metric' => 'street_people_total', 'value' => (string) count($this->streetStore->listPeople())],
+            ['metric' => 'delivery_events_total', 'value' => (string) count($eventsInPeriod)],
+            ['metric' => 'delivery_events_published_total', 'value' => (string) count(array_values(array_filter($eventsInPeriod, static fn(array $event): bool => ($event['status'] ?? '') === 'publicado')))],
+            ['metric' => 'visits_total', 'value' => (string) count($visitsInPeriod)],
+            ['metric' => 'open_loans_total', 'value' => (string) count(array_values(array_filter($this->equipmentStore->listLoans(), static fn(array $loan): bool => ($loan['status'] ?? '') === 'aberto')))],
+            ['metric' => 'period', 'value' => $period],
+        ];
     }
 }
